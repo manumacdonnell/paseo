@@ -125,7 +125,16 @@ p{margin:0}
 .cities{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
 .cities button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-weight:600;font-size:14px}
 .cities button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-#map{height:46vh;min-height:260px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.maphead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mapbox{position:relative}
+#map{height:64vh;min-height:320px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.mapfull{position:absolute;right:10px;top:10px;z-index:500;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:8px 13px;font-weight:700;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.mapbox.full{position:fixed;inset:0;z-index:800;background:var(--bg)}
+.mapbox.full #map{height:100%;border-radius:0;border:0}
+.mapbox.full .mapfull{top:calc(env(safe-area-inset-top,0px) + 12px)}
+.dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:10px 0 4px}
+.dayhead .day{margin:0}
+.dayhead button{border:0;background:transparent;color:var(--brick);font-weight:700;font-size:14px;padding:4px 0}
 .pin{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);overflow:hidden;background:#B8402A}
 .pin img{width:100%;height:100%;object-fit:cover;display:block}
 .leaflet-popup-content{font-family:var(--body);font-size:15px;margin:10px 12px}
@@ -147,7 +156,7 @@ p{margin:0}
 .icon.danger{color:var(--brick);border-color:transparent}
 .ask{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
 .ask-row{display:flex;gap:8px;flex-wrap:wrap}
-.ask-row button{flex:1 1 auto;border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px 12px;font-weight:700;font-size:15px}
+.ask-row button,.ask-row a{flex:1 1 auto;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px 12px;font-weight:700;font-size:15px}
 .ask textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
 /* swipe left to delete */
 .rows li{position:relative;overflow:hidden;border-radius:12px}
@@ -218,15 +227,15 @@ p{margin:0}
       </div>
       <div class="tools">
         <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
-        <button class="icon" id="btn-ask" hidden>Preguntar más</button>
+        <button class="icon" id="btn-ask" hidden>Seguir en ChatGPT o Claude</button>
         <button class="icon danger" id="btn-delete" hidden>Borrar</button>
         <span class="src" id="r-src" hidden></span>
       </div>
       <div class="ask" id="ask-panel" hidden>
-        <p class="help">Copio el sitio, la dirección y lo que ya sabes. Pega en el chat y escribe tu pregunta.</p>
+        <p class="help">Copio el sitio, la dirección y lo que ya sabes. Luego pega en el chat y escribe tu pregunta.</p>
         <div class="ask-row">
-          <button id="ask-chatgpt">Abrir ChatGPT</button>
-          <button id="ask-claude">Abrir Claude</button>
+          <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">Copiar y abrir ChatGPT</a>
+          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener">Copiar y abrir Claude</a>
           <button id="ask-copy">Solo copiar</button>
         </div>
         <textarea id="ask-text" readonly hidden></textarea>
@@ -256,9 +265,12 @@ p{margin:0}
 
   <!-- MY MAP -->
   <section class="mymap" id="v-mymap" hidden>
-    <h2>Mi mapa</h2>
+    <div class="maphead"><h2>Mi mapa</h2><button class="pill" id="btn-export-city">Exportar ciudad</button></div>
     <div class="cities" id="cities"></div>
-    <div id="map"></div>
+    <div class="mapbox" id="mapbox">
+      <div id="map"></div>
+      <button class="mapfull" id="btn-mapfull">Pantalla completa</button>
+    </div>
     <div id="days"></div>
   </section>
 
@@ -323,7 +335,7 @@ p{margin:0}
   const views=['home','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){status('');view=v;views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
+  function show(v){status('');view=v;const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('btn-back').onclick=()=>{status('');if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}show('home')};
@@ -736,7 +748,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     lines.push('','Mi pregunta: ');
     return lines.join('\n');
   }
-  $('btn-ask').onclick=()=>{askMsg('Copio el sitio, la dirección y lo que ya sabes. Pega en el chat y escribe tu pregunta.');const p=$('ask-panel');p.hidden=!p.hidden;$('ask-text').hidden=true;if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'nearest'})};
+  $('btn-ask').onclick=()=>{askMsg('Copio el sitio, la dirección y lo que ya sabes. Luego pega en el chat y escribe tu pregunta.');const p=$('ask-panel');p.hidden=!p.hidden;$('ask-text').hidden=true;if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'nearest'})};
   // the copy must happen right inside the tap, or the iPhone refuses it
   function copyAsk(){
     const txt=askText();
@@ -745,8 +757,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function askMsg(t){$('ask-panel').querySelector('.help').textContent=t}
   function showAskText(txt){const ta=$('ask-text');ta.value=txt;ta.hidden=false;ta.focus();ta.select();askMsg('No pude copiarlo solo: mantén pulsado el texto y cópialo.')}
-  $('ask-chatgpt').onclick=()=>{copyAsk();askMsg('Copiado. Pega en ChatGPT y escribe tu pregunta.');window.open('https://chatgpt.com/','_blank')};
-  $('ask-claude').onclick=()=>{copyAsk();askMsg('Copiado. Pega en Claude y escribe tu pregunta.');window.open('https://claude.ai/new','_blank')};
+  $('ask-chatgpt').onclick=()=>{copyAsk();askMsg('Copiado. Pega en ChatGPT y escribe tu pregunta.')}; // the link itself opens the chat
+  $('ask-claude').onclick=()=>{copyAsk();askMsg('Copiado. Pega en Claude y escribe tu pregunta.')};
   $('ask-copy').onclick=()=>{if(copyAsk())askMsg('Copiado. Pégalo donde quieras.')};
 
   function stopVoice(){}
@@ -851,6 +863,27 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
     drawMap(byCity[mapCity]||[]);drawDays(byCity[mapCity]||[]);
+    $('btn-export-city').onclick=()=>exportPlaces(byCity[mapCity]||[],mapCity,true);
+  }
+  // full-screen map
+  $('btn-mapfull').onclick=()=>{const b=$('mapbox');const full=!b.classList.contains('full');b.classList.toggle('full',full);
+    $('btn-mapfull').textContent=full?'Cerrar':'Pantalla completa';setTimeout(()=>map&&map.invalidateSize(),60)};
+  // export: just the places (time, name, address), grouped by day; share sheet → Notes, WhatsApp, Copy…
+  function exportPlaces(items,title,byDay){
+    const sorted=items.slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));
+    const line=x=>{const hm=new Date(x.takenAt||x.t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'});
+      const loc=x.local&&x.local!==x.name?` (${x.local})`:'';const addr=x.address?` — ${x.address.split(',').slice(0,2).join(',').trim()}`:'';
+      return `• ${hm} · ${x.name}${loc}${addr}`};
+    let out=title+'\n';
+    if(byDay){let day='';sorted.forEach(x=>{const d=new Date(x.takenAt||x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
+      if(d!==day){day=d;out+=`\n${d[0].toUpperCase()+d.slice(1)}\n`}out+=line(x)+'\n'})}
+    else{out+='\n'+sorted.map(line).join('\n')+'\n'}
+    out=out.trim();
+    if(navigator.share){navigator.share({text:out}).catch(e=>{if(e.name!=='AbortError')copyPlain(out)});return}
+    copyPlain(out);
+  }
+  function copyPlain(txt){
+    try{navigator.clipboard.writeText(txt).then(()=>status('Copiado. Pégalo donde quieras.'),()=>status('No pude copiarlo.',true))}catch(e){status('No pude copiarlo.',true)}
   }
   // a discovery without a city takes the city of another one within 25 km; the rest are looked up again, one by one
   function fillCities(h){
@@ -890,7 +923,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     let day='',ul=null;
     items.forEach(x=>{
       const d=new Date(x.takenAt||x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
-      if(d!==day){day=d;const hd=document.createElement('p');hd.className='day';hd.textContent=d;box.appendChild(hd);ul=document.createElement('ul');ul.className='rows';box.appendChild(ul)}
+      if(d!==day){day=d;const head=document.createElement('div');head.className='dayhead';
+        const hd=document.createElement('p');hd.className='day';hd.textContent=d;
+        const ex=document.createElement('button');ex.textContent='Exportar día';const dayItems=items.filter(y=>new Date(y.takenAt||y.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'})===d);
+        ex.onclick=()=>exportPlaces(dayItems,`${mapCity} · ${d}`);head.append(hd,ex);box.appendChild(head);
+        ul=document.createElement('ul');ul.className='rows';box.appendChild(ul)}
       ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true));
     });
   }
