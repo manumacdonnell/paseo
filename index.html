@@ -158,6 +158,9 @@ p{margin:0}
 .copyplace{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);font-weight:600;font-size:14px;padding:4px 0}
 .copyplace svg{width:17px;height:17px}
 .copyplace.done{color:var(--ok)}
+.fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:60px;height:60px;border-radius:50%;border:0;background:var(--brick);color:var(--brick-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28);z-index:700}
+.fab svg{width:28px;height:28px}
+.app.with-fab{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
 .deleteentry{align-self:center;margin-top:18px;background:transparent;border:0;color:var(--brick);font-weight:600;font-size:14px;text-decoration:underline;padding:8px}
 .ask{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
 .ask-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -221,7 +224,7 @@ p{margin:0}
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
-          <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar lugar</span></button>
+          <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -315,6 +318,7 @@ p{margin:0}
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
+  <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
   <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsada la foto para guardarla. Toca para volver.</p></div>
   <div class="toast" id="toast" hidden><span id="toast-text"></span><button id="toast-undo">Deshacer</button></div>
 </div>
@@ -344,7 +348,7 @@ p{margin:0}
   const views=['home','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){status('');view=v;const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
+  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('btn-back').onclick=()=>{status('');if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}show('home')};
@@ -556,6 +560,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);openSettings();return}
     locate();$('file').value='';$('file').click();
   };
+  $('fab').onclick=()=>$('btn-photo').click();
   $('btn-upload').onclick=()=>{
     if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);openSettings();return}
     $('file-upload').value='';$('file-upload').click();
@@ -650,7 +655,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar lugar';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
+    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
     if(view!=='result')show('result');
@@ -750,17 +755,18 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // "Copiar lugar": name, local name and address, ready to paste anywhere
   $('btn-copyplace').onclick=()=>{
     if(!cur)return;const c=cur;
-    const txt=[c.name+(c.local&&c.local!==c.name?` (${c.local})`:''),c.address||c.city||''].filter(Boolean).join(' — ');
+    const txt=(c.local&&c.local.trim())||c.name; // original name, ready to search photos
     const ok=()=>{$('copyplace-label').textContent='Copiado';$('btn-copyplace').classList.add('done');
-      setTimeout(()=>{$('copyplace-label').textContent='Copiar lugar';$('btn-copyplace').classList.remove('done')},1600)};
+      setTimeout(()=>{$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done')},1600)};
     try{navigator.clipboard.writeText(txt).then(ok,()=>status('No pude copiarlo.',true))}catch(e){status('No pude copiarlo.',true)}
   };
 
   // ---------- "Preguntar más": copy the context and open ChatGPT or Claude ----------
   function askText(){
     const c=cur;const lines=[];
-    lines.push(`Estoy ahora mismo delante de: ${c.name}${c.local&&c.local!==c.name?` (${c.local})`:''}.`);
+    lines.push(`Quiero saber más sobre este lugar: ${c.name}${c.local&&c.local!==c.name?` (${c.local})`:''}.`);
     if(c.address)lines.push(`Dirección: ${c.address}.`);else if(c.city)lines.push(`Ciudad: ${c.city}.`);
+    const seen=c.takenAt||c.t;if(seen)lines.push(`Lo vi el ${new Date(seen).toLocaleDateString(LOCALE(),{day:'numeric',month:'long',year:'numeric'})}.`);
     if(c.pos)lines.push(`Coordenadas: ${c.pos.lat.toFixed(5)}, ${c.pos.lon.toFixed(5)} (https://maps.google.com/?q=${c.pos.lat.toFixed(5)},${c.pos.lon.toFixed(5)})`);
     const known=[c.what,c.cool].filter(Boolean).join(' ');if(known)lines.push(`Lo que ya sé: ${known}`);
     lines.push('','Mi pregunta: ');
