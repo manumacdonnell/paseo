@@ -242,14 +242,16 @@ p{margin:0}
   $('btn-settings').onclick=openSettings;
 
   // ---------- location ----------
-  let posPromise=null;
+  let posPromise=null,placesPromise=null,lastKnown=null;
   function locate(){
     posPromise=new Promise(res=>{
-      if(!('geolocation' in navigator))return res(null);
+      if(!('geolocation' in navigator))return res(lastKnown);
       navigator.geolocation.getCurrentPosition(
-        p=>res({lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)}),
-        ()=>res(null),{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+        p=>{lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};res(lastKnown)},
+        ()=>res(lastKnown),{enableHighAccuracy:true,timeout:6000,maximumAge:60000});
     });
+    // look up what's around as soon as we know where you are, while you're still taking the photo
+    placesPromise=posPromise.then(p=>p?places(p):{wiki:[],osm:[]});
     return posPromise;
   }
 
@@ -310,20 +312,40 @@ p{margin:0}
     }catch(e){candidates=[]}
     return candidates;
   }
-  async function callModel(model,parts){
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{
-      method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
-      body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:'application/json',temperature:0.5}})});
-    if(r.ok)return{ok:true,json:await r.json()};
-    let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
-    return{ok:false,status:r.status,msg};
+  const noThinking=new Set(); // models that reject the "don't think" setting
+  async function callModel(model,parts,fast){
+    const gc={responseMimeType:'application/json',temperature:0.5};
+    // skipping the model's "thinking" step makes the short card much faster
+    const skipThink=fast&&/2\.5/.test(model)&&!/pro/.test(model)&&!noThinking.has(model);
+    if(skipThink)gc.thinkingConfig={thinkingBudget:0};
+    const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),30000);
+    try{
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{
+        method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+        body:JSON.stringify({contents:[{parts}],generationConfig:gc}),signal:ctl.signal});
+      clearTimeout(t);
+      if(r.ok)return{ok:true,json:await r.json()};
+      let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
+      if(skipThink&&r.status===400&&/think/i.test(msg)){noThinking.add(model);return callModel(model,parts,fast)}
+      return{ok:false,status:r.status,msg};
+    }catch(e){clearTimeout(t);if(e.name==='AbortError')return{ok:false,status:504,msg:'timeout'};throw e}
   }
-  async function gemini(parts){
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  async function gemini(parts,opt={}){
+    try{return await geminiPass(parts,opt)}
+    catch(e){
+      if(e.message!=='BUSY')throw e;
+      if(opt.onStatus)opt.onStatus('Google is busy — retrying…');
+      await wait(2500);return geminiPass(parts,opt);
+    }
+  }
+  async function geminiPass(parts,opt){
     const tried=[];let limitHits=0;
     const queue=[cfg.model];
     for(let i=0;i<queue.length&&tried.length<6;i++){
       const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      const res=await callModel(model,parts);
+      if(tried.length>1&&opt.onStatus)opt.onStatus('That model is busy — trying another…');
+      const res=await callModel(model,parts,opt.fast);
       if(res.ok){
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
         const j=res.json;
@@ -364,9 +386,10 @@ p{margin:0}
     status('');show('loading');$('loading-text').textContent='Looking…';
     let img=null,pos=null,near=[],osm=[];
     try{
-      img=await shrink(f,1024);
-      pos=await (posPromise||locate());
-      if(pos){$('loading-text').textContent='Checking what’s around you…';const p=await places(pos);near=p.wiki;osm=p.osm}
+      img=await shrink(f,800);
+      if(!posPromise)locate();
+      pos=await posPromise;
+      if(pos){$('loading-text').textContent='Checking what’s around you…';const p=await placesPromise;near=p.wiki;osm=p.osm}
       $('loading-text').textContent='Figuring out what it is…';
       const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión GPS ±${pos.acc} m).`+
         (osm.length?`\nSitios con nombre a menos de 70 m según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
@@ -374,7 +397,7 @@ p{margin:0}
       const out=await gemini([
         {inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},
         {text:`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: identifícalo usando las listas de abajo SOLO si un sitio encaja con lo que se ve. Nunca elijas un palacio o monumento de la lista solo porque está cerca: si la foto es el interior de una cafetería, la respuesta es esa cafetería (búscala en la lista de OpenStreetMap), no el palacio de al lado. Si sabes con certeza en qué edificio histórico está el local, puedes mencionarlo en el texto.\nPaso 3: si no puedes saber el nombre exacto, di qué es de forma genérica ("una cafetería de especialidad", "una placa conmemorativa") con "sure": false.\n\n${ctx}\n\nLo va a leer parado en 15 segundos. Si es un local o negocio, cuenta qué es y algo interesante del sitio o de la calle/edificio donde está, sin inventar.\n${RULES()}\n${CARD_FORMAT}`}
-      ]);
+      ],{fast:true,onStatus:t=>$('loading-text').textContent=t});
       openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,osm,deep:{}});
     }catch(err){
       if(err.message==='LIMIT'&&pos){ // fallback: let the person pick, show Wikipedia
@@ -476,7 +499,7 @@ p{margin:0}
     try{
       const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
       parts.push({text:`La persona dice que está mirando "${n.title}"${n.kind?` (${n.kind})`:''}, a ${n.dist} m${cur.pos?`, en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}`:''}. ${s?`Resumen de Wikipedia: "${s.text}"`:'No hay artículo de Wikipedia: si no conoces el sitio, di qué tipo de lugar es y algo cierto de la calle o el edificio donde está, sin inventar.'}\nLa foto es de apoyo. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`});
-      const out=await gemini(parts);
+      const out=await gemini(parts,{fast:true,onStatus:t=>$('loading-text').textContent=t});
       openCard({...base,name:out.name||n.title,local:out.local_name,sure:true,what:out.what_is_it,cool:out.cool_thing});
     }catch(e){
       const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
