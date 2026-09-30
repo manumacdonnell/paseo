@@ -125,7 +125,9 @@ p{margin:0}
 .cities{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
 .cities button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-weight:600;font-size:14px}
 .cities button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
-.maphead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cityrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.cityrow span{font-family:var(--display);font-weight:700;font-size:18px}
+.cityrow button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-weight:700;font-size:14px;color:var(--brick)}
 .mapbox{position:relative}
 #map{height:64vh;min-height:320px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
 .mapfull{position:absolute;right:10px;top:10px;z-index:500;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:8px 13px;font-weight:700;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
@@ -153,7 +155,10 @@ p{margin:0}
 .row button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-weight:600}
 .row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
 .note{font-size:13px;color:var(--muted)}
-.icon.danger{color:var(--brick);border-color:transparent}
+.copyplace{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);font-weight:600;font-size:14px;padding:4px 0}
+.copyplace svg{width:17px;height:17px}
+.copyplace.done{color:var(--ok)}
+.deleteentry{align-self:center;margin-top:18px;background:transparent;border:0;color:var(--brick);font-weight:600;font-size:14px;text-decoration:underline;padding:8px}
 .ask{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
 .ask-row{display:flex;gap:8px;flex-wrap:wrap}
 .ask-row button,.ask-row a{flex:1 1 auto;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px 12px;font-weight:700;font-size:15px}
@@ -216,6 +221,7 @@ p{margin:0}
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
+          <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar lugar</span></button>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -230,7 +236,6 @@ p{margin:0}
       <div class="tools">
         <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
         <button class="icon" id="btn-ask" hidden>Seguir en ChatGPT o Claude</button>
-        <button class="icon danger" id="btn-delete" hidden>Borrar</button>
         <span class="src" id="r-src" hidden></span>
       </div>
       <div class="ask" id="ask-panel" hidden>
@@ -248,6 +253,7 @@ p{margin:0}
       <div class="chips" id="chips"></div>
       <div id="sections" style="display:flex;flex-direction:column;gap:12px"></div>
     </div>
+    <button class="deleteentry" id="btn-delete" hidden>Borrar esta entrada</button>
   </section>
 
   <!-- NOT THIS -->
@@ -267,8 +273,9 @@ p{margin:0}
 
   <!-- MY MAP -->
   <section class="mymap" id="v-mymap" hidden>
-    <div class="maphead"><h2>Mi mapa</h2><button class="pill" id="btn-export-city">Exportar ciudad</button></div>
+    <h2>Mi mapa</h2>
     <div class="cities" id="cities"></div>
+    <div class="cityrow"><span id="city-name"></span><button id="btn-export-city">Exportar</button></div>
     <div class="mapbox" id="mapbox">
       <div id="map"></div>
       <button class="mapfull" id="btn-mapfull">Pantalla completa</button>
@@ -643,7 +650,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-delete').hidden=!!opt.partial;$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
+    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar lugar';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
     if(view!=='result')show('result');
@@ -739,6 +746,15 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       await streamCard(parts,base,null);
     }catch(e){openCard(plain());status(errText(e)+' Te enseño Wikipedia.',true)}
   }
+
+  // "Copiar lugar": name, local name and address, ready to paste anywhere
+  $('btn-copyplace').onclick=()=>{
+    if(!cur)return;const c=cur;
+    const txt=[c.name+(c.local&&c.local!==c.name?` (${c.local})`:''),c.address||c.city||''].filter(Boolean).join(' — ');
+    const ok=()=>{$('copyplace-label').textContent='Copiado';$('btn-copyplace').classList.add('done');
+      setTimeout(()=>{$('copyplace-label').textContent='Copiar lugar';$('btn-copyplace').classList.remove('done')},1600)};
+    try{navigator.clipboard.writeText(txt).then(ok,()=>status('No pude copiarlo.',true))}catch(e){status('No pude copiarlo.',true)}
+  };
 
   // ---------- "Preguntar más": copy the context and open ChatGPT or Claude ----------
   function askText(){
@@ -869,6 +885,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
     drawMap(byCity[mapCity]||[],keepView);drawDays(byCity[mapCity]||[]);
+    const n=(byCity[mapCity]||[]).length;$('city-name').textContent=`${mapCity} · ${n} ${n===1?'lugar':'lugares'}`;
+    $('btn-export-city').textContent=`Exportar ${mapCity}`;
     $('btn-export-city').onclick=()=>exportPlaces(byCity[mapCity]||[],mapCity,true);
   }
   // full-screen map
