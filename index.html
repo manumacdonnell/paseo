@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{
   --bg:#F2F4F5; --card:#FFFFFF; --ink:#18222C; --muted:#5C6975; --line:#D8DEE3; --soft:#E8ECEF;
@@ -50,10 +51,16 @@ p{margin:0}
 .big svg{width:40px;height:40px}
 .big b{font-family:var(--display);font-size:26px;line-height:1.1}
 .big small{font-size:14px;opacity:.9}
+.mapbtn{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left}
+.mapbtn svg{width:22px;height:22px;flex:none;color:var(--brick)}
+.mapbtn b{display:block;font-family:var(--display);font-size:17px}
+.mapbtn span.sub{font-size:13px;color:var(--muted)}
 .history h2{font-size:13px;color:var(--muted);font-family:var(--body);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
-.history ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.history button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px}
-.history .when{color:var(--muted);font-size:13px;white-space:nowrap}
+.rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rows button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 12px 8px 8px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:10px;align-items:center}
+.rows .th{width:44px;height:44px;border-radius:9px;background:var(--soft);object-fit:cover;display:block}
+.rows .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rows .when{color:var(--muted);font-size:13px;white-space:nowrap}
 
 /* loading */
 .loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;color:var(--muted)}
@@ -65,15 +72,18 @@ p{margin:0}
 .thumb{width:100%;height:150px;object-fit:cover;border-radius:18px;display:block}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brick);margin-bottom:4px}
 .head h2{font-size:27px}
 .head .local{color:var(--muted);font-size:14px;margin-top:4px}
 .notthis{flex:none;background:var(--soft);border:0;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:700;white-space:nowrap}
 .unsure{font-size:13px;font-weight:700;color:var(--ochre)}
 .label{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
-.block p{font-size:17px;line-height:1.55}
+.block p{font-size:17px;line-height:1.55;min-height:1.55em}
 .cool{border-top:1px solid var(--line);padding-top:12px}
 .cool .label{color:var(--brick)}
-.tools{display:flex;gap:8px;align-items:center}
+.typing::after{content:"▍";color:var(--brick);animation:blink 1s steps(1) infinite;margin-left:1px}
+@keyframes blink{50%{opacity:0}}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .icon{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:600}
 .src{font-size:13px;color:var(--muted);margin-left:auto}
 .src a{color:inherit}
@@ -96,7 +106,25 @@ p{margin:0}
 .alts ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .alts li button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;justify-content:space-between;gap:10px;font-weight:600}
 .alts .d{color:var(--muted);font-weight:500;white-space:nowrap}
+.typed{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.typed-row{display:flex;gap:8px}
+.typed-row input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.typed-row button{border:0;background:var(--brick);color:var(--brick-ink);border-radius:12px;padding:0 18px;font-weight:700}
 .plain{background:transparent;border:0;color:var(--muted);text-decoration:underline;padding:8px 0;align-self:flex-start}
+
+/* my map */
+.mymap{display:flex;flex-direction:column;gap:12px}
+.mymap h2{font-size:24px}
+.cities{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px}
+.cities button{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 13px;font-weight:600;font-size:14px}
+.cities button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+#map{height:46vh;min-height:260px;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:var(--soft)}
+.pin{width:44px;height:44px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.35);overflow:hidden;background:#B8402A}
+.pin img{width:100%;height:100%;object-fit:cover;display:block}
+.leaflet-popup-content{font-family:var(--body);font-size:15px;margin:10px 12px}
+.leaflet-popup-content button{margin-top:6px;border:0;background:#B8402A;color:#fff;border-radius:10px;padding:7px 12px;font-weight:600}
+.day{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 2px}
+.empty{color:var(--muted);font-size:15px;padding:20px 0}
 
 /* settings */
 .settings{display:flex;flex-direction:column;gap:14px}
@@ -109,7 +137,7 @@ p{margin:0}
 .row button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-weight:600}
 .row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
 .note{font-size:13px;color:var(--muted)}
-@media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}}
+@media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}.typing::after{animation:none}}
 </style>
 </head>
 <body>
@@ -125,8 +153,12 @@ p{margin:0}
   <section class="home" id="v-home">
     <div class="history" id="history" hidden>
       <h2>Recently</h2>
-      <ul id="history-list"></ul>
+      <ul class="rows" id="history-list"></ul>
     </div>
+    <button class="mapbtn" id="btn-mymap" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+      <span><b>My map</b><span class="sub" id="mymap-count"></span></span>
+    </button>
     <button class="big" id="btn-photo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
       <b>What am I looking at?</b>
@@ -147,6 +179,7 @@ p{margin:0}
     <article class="card">
       <div class="head">
         <div>
+          <p class="eyebrow" id="r-eyebrow">Estás ante</p>
           <p class="unsure" id="r-unsure" hidden>Probably…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
@@ -163,6 +196,7 @@ p{margin:0}
       </div>
       <div class="tools">
         <button class="icon" id="btn-listen">Listen</button>
+        <button class="icon" id="btn-savephoto" hidden>Save photo</button>
         <span class="src" id="r-src" hidden></span>
       </div>
     </article>
@@ -178,7 +212,22 @@ p{margin:0}
     <h2 id="alts-title">What are you looking at?</h2>
     <p class="help" id="alts-help">Other places within 100 m:</p>
     <ul id="alts-list"></ul>
+    <form class="typed" id="alts-form">
+      <label for="alts-input" class="help">Not listed? Type what it is:</label>
+      <div class="typed-row">
+        <input id="alts-input" autocomplete="off" placeholder="Name on the sign, e.g. Café Bristol">
+        <button type="submit">Go</button>
+      </div>
+    </form>
     <button class="plain" id="alts-none">None of these</button>
+  </section>
+
+  <!-- MY MAP -->
+  <section class="mymap" id="v-mymap" hidden>
+    <h2>My map</h2>
+    <div class="cities" id="cities"></div>
+    <div id="map"></div>
+    <div id="days"></div>
   </section>
 
   <!-- SETTINGS -->
@@ -187,13 +236,13 @@ p{margin:0}
     <div id="setup-steps">
       <p class="help" style="margin-bottom:8px">Necesitas una clave gratuita de Google Gemini. Se hace una vez:</p>
       <ol>
-        <li>Entra en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> con tu cuenta de Google.</li>
-        <li>Toca “Create API key”. Sin tarjeta: así es gratis.</li>
-        <li>Copia la clave (empieza por “AIza…”) y pégala aquí.</li>
+        <li>Entra en <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> con tu cuenta de Google → Dashboard → Claves de API.</li>
+        <li>“Crear clave de API”. Sin tarjeta: así es gratis.</li>
+        <li>Copia la clave y pégala aquí.</li>
       </ol>
     </div>
     <label>Gemini key
-      <input id="s-key" type="password" autocomplete="off" placeholder="AIza…">
+      <input id="s-key" type="password" autocomplete="off" placeholder="Pega tu clave">
       <span class="help">Se guarda solo en este móvil.</span>
     </label>
     <label>Language of the answers
@@ -208,12 +257,14 @@ p{margin:0}
     </label>
     <div class="row">
       <button class="primary" id="s-save">Save</button>
-      <button id="s-clear">Clear history</button>
+      <button id="s-clear">Clear map &amp; history</button>
     </div>
+    <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
@@ -224,6 +275,7 @@ p{margin:0}
   const DEFAULT_MODEL='gemini-2.5-flash';
   const cfg={key:store.get('key',''),lang:store.get('lang','es'),model:store.get('model',DEFAULT_MODEL)};
   const LANG=()=>cfg.lang==='en'?'English':'español de España';
+  const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
     {id:'history',label:'History',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción) y cómo encaja en la historia de la ciudad.'},
@@ -234,28 +286,45 @@ p{margin:0}
   ];
 
   // ---------- views ----------
-  const views=['home','loading','result','alts','settings'];
-  let cur=null; // current card
-  function show(v){views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHistory();window.scrollTo(0,0)}
+  const views=['home','loading','result','alts','mymap','settings'];
+  let cur=null; // the card on screen
+  let view='home';
+  function show(v){view=v;views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
-  $('btn-back').onclick=()=>{status('');if(!$('v-alts').hidden&&cur){show('result');return}show('home')};
+  let backTo=null;
+  $('btn-back').onclick=()=>{status('');if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}show('home')};
   $('btn-settings').onclick=openSettings;
 
+  // ---------- photos kept inside the app (IndexedDB) ----------
+  let dbp=null;
+  function idb(){if(!dbp)dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('paseo',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return dbp}
+  async function putPhoto(t,blob){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').put(blob,t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
+  async function getPhoto(t){try{const d=await idb();return await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
+  async function clearPhotos(){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').clear();tx.oncomplete=res;tx.onerror=res})}catch(e){}}
+  const urlCache=new Map();
+  async function photoURL(t){if(urlCache.has(t))return urlCache.get(t);const b=await getPhoto(t);const u=b?URL.createObjectURL(b):null;urlCache.set(t,u);return u}
+  const blobToDataURL=b=>new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>res(null);r.readAsDataURL(b)});
+
   // ---------- location ----------
-  let posPromise=null,placesPromise=null,lastKnown=null;
+  let posPromise=null,placesPromise=null,lastKnown=null,posAt=0;
   function locate(){
+    posAt=Date.now();
     posPromise=new Promise(res=>{
       if(!('geolocation' in navigator))return res(lastKnown);
       navigator.geolocation.getCurrentPosition(
         p=>{lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};res(lastKnown)},
-        ()=>res(lastKnown),{enableHighAccuracy:true,timeout:6000,maximumAge:60000});
+        ()=>res(lastKnown),{enableHighAccuracy:true,timeout:6000,maximumAge:10000});
     });
     // look up what's around as soon as we know where you are, while you're still taking the photo
     placesPromise=posPromise.then(p=>p?places(p):{wiki:[],osm:[]});
     return posPromise;
   }
+  async function cityOf(pos){
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${pos.lat}&lon=${pos.lon}&accept-language=${cfg.lang}`);
+      if(!r.ok)return'';const a=(await r.json()).address||{};return a.city||a.town||a.village||a.municipality||a.county||a.state||''}catch(e){return''}
+  }
 
-  // ---------- wikipedia ----------
+  // ---------- wikipedia + openstreetmap ----------
   async function nearby(pos,radius,limit){
     const q=lang=>fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${pos.lat}|${pos.lon}&gsradius=${radius}&gslimit=${limit}&format=json&origin=*`)
       .then(r=>r.json()).then(j=>(j.query&&j.query.geosearch||[]).map(g=>({title:g.title,lat:g.lat,lon:g.lon,dist:Math.round(g.dist),lang}))).catch(()=>[]);
@@ -265,7 +334,6 @@ p{margin:0}
     const seen=new Set(a.map(key));
     return [...a,...b.filter(x=>!seen.has(key(x)))].sort((x,y)=>x.dist-y.dist);
   }
-  // OpenStreetMap: named cafés, shops, bars, monuments… right around you (free, no key)
   const KIND={cafe:'cafetería',restaurant:'restaurante',bar:'bar',pub:'pub',fast_food:'comida rápida',bakery:'panadería',ice_cream:'heladería',
     place_of_worship:'iglesia / templo',museum:'museo',gallery:'galería',hotel:'hotel',theatre:'teatro',cinema:'cine',library:'biblioteca',
     memorial:'memorial',monument:'monumento',statue:'estatua',artwork:'obra de arte',castle:'castillo',palace:'palacio',church:'iglesia',
@@ -273,20 +341,22 @@ p{margin:0}
     convenience:'tienda',attraction:'atracción',viewpoint:'mirador',fountain:'fuente',park:'parque',marketplace:'mercado',building:'edificio histórico',ruins:'ruinas',wayside_shrine:'capilla',city_gate:'puerta de la ciudad'};
   async function osmNearby(pos,radius){
     const q=`[out:json][timeout:8];nwr["name"][~"^(amenity|shop|tourism|historic|leisure|craft)$"~"."](around:${radius},${pos.lat},${pos.lon});out center 60;`;
-    const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),7000);
+    const ask=async(url,ms)=>{const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),ms);
+      try{const r=await fetch(url,{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:ctl.signal});
+        clearTimeout(t);return r.ok?await r.json():null}catch(e){clearTimeout(t);return null}};
     try{
-      const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:ctl.signal});
-      clearTimeout(t);if(!r.ok)return[];const j=await r.json();
+      const j=await ask('https://overpass-api.de/api/interpreter',5000)||await ask('https://overpass.kumi.systems/api/interpreter',5000);
+      if(!j)return[];
       const R=6371000,rad=x=>x*Math.PI/180;
       return(j.elements||[]).map(e=>{const la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return null;
         const tg=e.tags||{};const raw=tg.amenity||tg.shop||tg.tourism||tg.historic||tg.leisure||tg.craft||'';
         const d=2*R*Math.asin(Math.sqrt(Math.sin(rad(la-pos.lat)/2)**2+Math.cos(rad(pos.lat))*Math.cos(rad(la))*Math.sin(rad(lo-pos.lon)/2)**2));
-        return{title:tg.name,kind:KIND[raw]||raw.replace(/_/g,' '),dist:Math.round(d),osm:true,wikipedia:tg.wikipedia||''}}).filter(Boolean)
+        return{title:tg.name,kind:KIND[raw]||raw.replace(/_/g,' '),raw,dist:Math.round(d),osm:true,wikipedia:tg.wikipedia||''}}).filter(Boolean)
         .filter((x,i,a)=>a.findIndex(y=>y.title===x.title)===i).sort((a,b)=>a.dist-b.dist);
-    }catch(e){clearTimeout(t);return[]}
+    }catch(e){return[]}
   }
   async function places(pos){
-    const [wiki,osm]=await Promise.all([nearby(pos,200,20),osmNearby(pos,70)]);
+    const [wiki,osm]=await Promise.all([nearby(pos,200,20),osmNearby(pos,Math.min(120,Math.max(70,(pos.acc||0)+40)))]);
     return{wiki,osm};
   }
   async function summary(lang,title){
@@ -296,7 +366,6 @@ p{margin:0}
   }
 
   // ---------- gemini ----------
-  // Models ranked for this job: newest "flash" first, then "flash-lite", then anything else that can answer.
   let candidates=null;const dead=new Set();let lastDetail='';
   async function listModels(){
     if(candidates)return candidates;
@@ -312,52 +381,69 @@ p{margin:0}
     }catch(e){candidates=[]}
     return candidates;
   }
-  const noThinking=new Set(); // models that reject the "don't think" setting
-  async function callModel(model,parts,fast){
-    const gc={responseMimeType:'application/json',temperature:0.5};
-    // skipping the model's "thinking" step makes the short card much faster
-    const skipThink=fast&&/2\.5/.test(model)&&!/pro/.test(model)&&!noThinking.has(model);
-    if(skipThink)gc.thinkingConfig={thinkingBudget:0};
-    const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),30000);
+  const noThinking=new Set();
+  function genConfig(model,opt){
+    const gc={temperature:0.5};
+    if(!opt.stream)gc.responseMimeType='application/json';
+    if(opt.fast&&/2\.5/.test(model)&&!/pro/.test(model)&&!noThinking.has(model))gc.thinkingConfig={thinkingBudget:0};
+    return gc;
+  }
+  // one attempt with one model; streams text into opt.onText when opt.stream is set
+  async function callModel(model,parts,opt){
+    const gc=genConfig(model,opt);
+    const ctl=new AbortController();let t=setTimeout(()=>ctl.abort(),30000);
+    const url=`https://generativelanguage.googleapis.com/v1beta/models/${model}:${opt.stream?'streamGenerateContent?alt=sse':'generateContent'}`;
     try{
-      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{
-        method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
-        body:JSON.stringify({contents:[{parts}],generationConfig:gc}),signal:ctl.signal});
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},body:JSON.stringify({contents:[{parts}],generationConfig:gc}),signal:ctl.signal});
+      if(!r.ok){
+        clearTimeout(t);let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
+        if(gc.thinkingConfig&&r.status===400&&/think/i.test(msg)){noThinking.add(model);return callModel(model,parts,opt)}
+        return{ok:false,status:r.status,msg};
+      }
+      if(!opt.stream){clearTimeout(t);const j=await r.json();return{ok:true,text:textOf(j)}}
+      // server-sent events: "data: {...}" lines, each with a piece of the answer
+      const reader=r.body.getReader(),dec=new TextDecoder();let buf='',text='';
+      for(;;){
+        const {done,value}=await reader.read();if(done)break;
+        clearTimeout(t);t=setTimeout(()=>ctl.abort(),20000);
+        buf+=dec.decode(value,{stream:true});
+        let i;while((i=buf.indexOf('\n'))>=0){
+          const line=buf.slice(0,i).trim();buf=buf.slice(i+1);
+          if(!line.startsWith('data:'))continue;
+          try{const piece=textOf(JSON.parse(line.slice(5)));if(piece){text+=piece;opt.onText&&opt.onText(text)}}catch(e){}
+        }
+      }
       clearTimeout(t);
-      if(r.ok)return{ok:true,json:await r.json()};
-      let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
-      if(skipThink&&r.status===400&&/think/i.test(msg)){noThinking.add(model);return callModel(model,parts,fast)}
-      return{ok:false,status:r.status,msg};
+      if(!text)return{ok:false,status:503,msg:'empty answer'};
+      return{ok:true,text};
     }catch(e){clearTimeout(t);if(e.name==='AbortError')return{ok:false,status:504,msg:'timeout'};throw e}
   }
+  const textOf=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  // tries the saved model, then others; if Google is busy everywhere, waits and tries once more
   async function gemini(parts,opt={}){
     try{return await geminiPass(parts,opt)}
     catch(e){
       if(e.message!=='BUSY')throw e;
-      if(opt.onStatus)opt.onStatus('Google is busy — retrying…');
+      opt.onStatus&&opt.onStatus('Google is busy — retrying…');
       await wait(2500);return geminiPass(parts,opt);
     }
   }
   async function geminiPass(parts,opt){
-    const tried=[];let limitHits=0;
-    const queue=[cfg.model];
+    const tried=[];let limitHits=0;const queue=[cfg.model];
     for(let i=0;i<queue.length&&tried.length<6;i++){
       const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      if(tried.length>1&&opt.onStatus)opt.onStatus('That model is busy — trying another…');
-      const res=await callModel(model,parts,opt.fast);
+      if(tried.length>1)opt.onStatus&&opt.onStatus('That model is busy — trying another…');
+      const res=await callModel(model,parts,opt);
       if(res.ok){
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
-        const j=res.json;
-        const txt=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
-        return JSON.parse(txt.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
+        return opt.stream?res.text:JSON.parse(res.text.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
       }
       lastDetail=`${model}: ${res.status} ${res.msg}`.slice(0,300);
       if(res.status===403||(res.status===400&&/API key|API_KEY/i.test(res.msg)))throw new Error('KEY');
-      // 404 = model retired; 429 = no free quota for this model (or used up); 400 = model can't do this. Try the next one.
       if(res.status===404||res.status===429||res.status===400||res.status>=500){
         if(res.status===429)limitHits++;
-        if(res.status<500)dead.add(model); // 5xx = busy right now; skip it this time only
+        if(res.status<500)dead.add(model);
         if(queue.length===1)(await listModels()).forEach(m=>{if(!queue.includes(m))queue.push(m)});
         continue;
       }
@@ -374,7 +460,24 @@ p{margin:0}
     return'Algo falló: '+e.message;
   }
   const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano. Escribe en ${LANG()}.`;
-  const CARD_FORMAT=`Devuelve JSON: {"name": "nombre corto y reconocible", "local_name": "nombre en el idioma local si es distinto, o vacío", "sure": true/false, "what_is_it": "2 o 3 frases cortas, máximo 45 palabras en total: qué es y por qué importa", "cool_thing": "1 sola frase con el dato más sorprendente, máximo 25 palabras"}`;
+  // plain lines instead of JSON so the card can fill in while the answer is still arriving
+  const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
+NAME: nombre propio exacto (genérico solo si SOURCE es generic)
+LOCAL: nombre en el idioma local si es distinto, o vacío
+CATEGORY: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street, other
+SOURCE: sign | list | knowledge | generic
+SURE: yes | no
+WHAT: 2 o 3 frases cortas (máximo 45 palabras) en presente, hablándole a la persona que lo tiene delante ahora mismo: qué es y por qué importa. No empieces con "Estás ante" (ya sale en pantalla).
+COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras)
+Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
+  const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
+  function parseCard(txt){
+    const re=/^\s*\**(NAME|LOCAL|CATEGORY|SOURCE|SURE|WHAT|COOL)\**\s*:\s*/gm;const hits=[];let m;
+    while((m=re.exec(txt)))hits.push({k:m[1],start:m.index,from:m.index+m[0].length});
+    const o={},done={};
+    hits.forEach((h,i)=>{const end=i+1<hits.length?hits[i+1].start:txt.length;o[h.k]=txt.slice(h.from,end).trim();done[h.k]=i+1<hits.length});
+    return{o,done};
+  }
 
   // ---------- photo flow ----------
   $('btn-photo').onclick=()=>{
@@ -383,56 +486,87 @@ p{margin:0}
   };
   $('file').onchange=async e=>{
     const f=e.target.files&&e.target.files[0];if(!f)return;
-    status('');show('loading');$('loading-text').textContent='Looking…';
+    status('');show('loading');$('loading-text').textContent='Looking…';backTo=null;
     let img=null,pos=null,near=[],osm=[];
     try{
-      img=await shrink(f,800);
-      if(!posPromise)locate();
+      img=await resize(f,800,'dataurl');
+      if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
       pos=await posPromise;
       if(pos){$('loading-text').textContent='Checking what’s around you…';const p=await placesPromise;near=p.wiki;osm=p.osm}
       $('loading-text').textContent='Figuring out what it is…';
       const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión GPS ±${pos.acc} m).`+
-        (osm.length?`\nSitios con nombre a menos de 70 m según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
+        (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida.';
-      const out=await gemini([
-        {inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},
-        {text:`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: identifícalo usando las listas de abajo SOLO si un sitio encaja con lo que se ve. Nunca elijas un palacio o monumento de la lista solo porque está cerca: si la foto es el interior de una cafetería, la respuesta es esa cafetería (búscala en la lista de OpenStreetMap), no el palacio de al lado. Si sabes con certeza en qué edificio histórico está el local, puedes mencionarlo en el texto.\nPaso 3: si no puedes saber el nombre exacto, di qué es de forma genérica ("una cafetería de especialidad", "una placa conmemorativa") con "sure": false.\n\n${ctx}\n\nLo va a leer parado en 15 segundos. Si es un local o negocio, cuenta qué es y algo interesante del sitio o de la calle/edificio donde está, sin inventar.\n${RULES()}\n${CARD_FORMAT}`}
-      ],{fast:true,onStatus:t=>$('loading-text').textContent=t});
-      openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,osm,deep:{}});
+      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
+      const base={img,file:f,pos,near,osm,deep:{}};
+      await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
     }catch(err){
-      if(err.message==='LIMIT'&&pos){ // fallback: let the person pick, show Wikipedia
-        cur={img,pos,near,osm,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+      if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
       show('home');status(errText(err),true);
     }
   };
-  function shrink(file,max){
+  function resize(file,max,as){
     return new Promise((res,rej)=>{
       const url=URL.createObjectURL(file),im=new Image();
       im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');
         c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
-        URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.8))};
-      im.onerror=()=>rej(new Error('No pude leer la foto'));im.src=url;
+        URL.revokeObjectURL(url);
+        if(as==='blob')c.toBlob(b=>res(b),'image/jpeg',0.82);else res(c.toDataURL('image/jpeg',0.8))};
+      im.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('No pude leer la foto'))};im.src=url;
     });
   }
 
+  // ---------- streaming card ----------
+  // fills the card as the words arrive, then applies the "nearest café" safety net and saves it to the map
+  async function streamCard(parts,base,ctx){
+    let shown=false;
+    const onText=txt=>{
+      const {o,done}=parseCard(txt);
+      if(!shown){if(!(o.NAME&&(done.NAME||o.NAME.length>40)))return;
+        shown=true;cur={...base};paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true})}
+      $('r-name').textContent=o.NAME||'';
+      const loc=o.LOCAL&&o.LOCAL.toLowerCase()!==(o.NAME||'').toLowerCase()?o.LOCAL:'';$('r-local').textContent=loc;$('r-local').hidden=!loc;
+      $('r-unsure').hidden=!(o.SURE&&/^no/i.test(o.SURE));
+      $('r-what').textContent=o.WHAT||'';$('r-cool').textContent=o.COOL||'';
+      $('r-what').classList.toggle('typing',!!o.WHAT&&!done.WHAT||(!o.WHAT&&!!o.SURE));
+      $('r-cool').classList.toggle('typing',!!o.COOL);
+    };
+    const txt=await gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown)$('loading-text').textContent=t}});
+    const {o}=parseCard(txt);
+    let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
+    if(ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
+      const want={cafe:['cafe','coffee'],restaurant:['restaurant','fast_food'],bar:['bar','pub'],pub:['pub','bar'],bakery:['bakery','pastry','confectionery'],
+        hotel:['hotel','hostel','guest_house'],church:['place_of_worship','church'],museum:['museum'],gallery:['gallery','arts_centre'],theatre:['theatre'],
+        monument:['monument','memorial'],statue:['statue','artwork','memorial'],memorial:['memorial','monument'],fountain:['fountain']}[(o.CATEGORY||'').trim().toLowerCase()];
+      const match=want&&ctx.osm.find(x=>want.includes(x.raw)&&x.dist<=Math.max(50,(ctx.pos&&ctx.pos.acc||0)+20));
+      if(match){name=match.title;sure=match.dist<=25}
+    }
+    openCard({...base,name,local:o.LOCAL,sure,what:o.WHAT||'',cool:o.COOL||''});
+  }
+
   // ---------- card ----------
-  function openCard(c,fromHistory){
-    cur=c;stopVoice();
+  function paintCard(c,opt={}){
+    $('r-eyebrow').textContent=cfg.lang==='en'?'You’re looking at':'Estás ante';
     $('r-img').hidden=!c.img;if(c.img)$('r-img').src=c.img;
     $('r-unsure').hidden=c.sure!==false;
     $('r-name').textContent=c.name||'Unknown';
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
-    $('r-what').textContent=c.what||'';
-    $('r-cool').textContent=c.cool||'';$('r-cool-wrap').hidden=!c.cool;
+    $('r-what').textContent=c.what||'';$('r-what').classList.toggle('typing',!!opt.partial);
+    $('r-cool').textContent=c.cool||'';$('r-cool').classList.remove('typing');$('r-cool-wrap').hidden=!opt.partial&&!c.cool;
     $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Wikipedia</a>`;
-    $('btn-notthis').hidden=!c.pos;
-    $('btn-deeper').hidden=!!c.noAI||!cfg.key;
+    $('btn-notthis').hidden=!c.pos||!!opt.partial;
+    $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!opt.partial;
+    $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
+    $('btn-listen').hidden=!!opt.partial;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
-    renderChips();$('sections').innerHTML='';
-    Object.keys(c.deep||{}).forEach(id=>renderSection(id));
-    show('result');
-    if(!fromHistory)saveHistory();
+    if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
+    if(view!=='result')show('result');
+  }
+  function openCard(c,fromHistory){
+    const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
+    cur=c;if(keepT&&!c.t)cur.t=keepT;stopVoice();paintCard(c);
+    if(!fromHistory)saveDiscovery();
   }
   $('btn-deeper').onclick=()=>{const d=$('deeper');d.hidden=!d.hidden;$('btn-deeper').setAttribute('aria-expanded',String(!d.hidden));if(!d.hidden)d.scrollIntoView({behavior:'smooth',block:'start'})};
   function renderChips(){
@@ -442,20 +576,24 @@ p{margin:0}
       b.onclick=()=>goDeeper(t,b);box.appendChild(b)});
   }
   async function goDeeper(t,btn){
-    if(cur.deep[t.id]){const s=document.getElementById('sec-'+t.id);if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
+    const open=document.getElementById('sec-'+t.id);
+    if(open&&!open.hidden){open.hidden=true;btn.setAttribute('aria-pressed','false');return}
+    if(open&&cur.deep[t.id]){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(open)open.remove();
     btn.setAttribute('aria-pressed','true');
     const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
     sec.innerHTML=`<h3></h3><p class="wait">Thinking…</p>`;sec.querySelector('h3').textContent=t.label;
     $('sections').prepend(sec);sec.scrollIntoView({behavior:'smooth',block:'start'});
+    const card=cur;
     try{
       const parts=[];
-      if(t.photo&&cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
-      const where=cur.pos?` (en lat ${cur.pos.lat.toFixed(4)}, lon ${cur.pos.lon.toFixed(4)})`:'';
-      parts.push({text:`La persona está delante de "${cur.name}"${cur.local?` / ${cur.local}`:''}${where}. Ya le dijiste: "${cur.what} ${cur.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. Da entre 3 y 6 puntos, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${cur.wiki?`\nResumen de Wikipedia como referencia: "${cur.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+      if(t.photo&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
+      const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
+      parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. Da entre 3 y 6 puntos, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
       const out=await gemini(parts);
-      cur.deep[t.id]=(out.points||[]).filter(Boolean);
-      renderSection(t.id,sec);saveHistory(true);
-    }catch(e){sec.querySelector('.wait').textContent=errText(e);btn.setAttribute('aria-pressed','false')}
+      card.deep[t.id]=(out.points||[]).filter(Boolean);
+      if(cur===card){renderSection(t.id,sec);saveDiscovery(true)}
+    }catch(e){const w=sec.querySelector('.wait');if(w)w.textContent=errText(e);btn.setAttribute('aria-pressed','false');setTimeout(()=>{if(!card.deep[t.id])sec.remove()},4000)}
   }
   function renderSection(id,existing){
     const t=TOPICS.find(x=>x.id===id);if(!t)return;
@@ -465,6 +603,19 @@ p{margin:0}
     sec.append(h,ul);if(!existing)$('sections').appendChild(sec);
   }
 
+  // ---------- save photo to the phone ----------
+  // Browsers can't write to the photo library directly; the share sheet offers "Save Image" in one tap.
+  $('btn-savephoto').onclick=async()=>{
+    const blob=cur.file||await getPhoto(cur.t);if(!blob){status('No encuentro la foto.',true);return}
+    const nm=(cur.name||'foto').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'').slice(0,40)||'foto';
+    const file=new File([blob],`${nm}.jpg`,{type:blob.type||'image/jpeg'});
+    try{
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}
+    }catch(e){if(e.name==='AbortError')return}
+    const u=URL.createObjectURL(file);window.open(u,'_blank');
+    status('Mantén pulsada la foto y elige “Guardar en Fotos”.');
+  };
+
   // ---------- not this ----------
   $('btn-notthis').onclick=()=>showAlts(false);
   async function showAlts(fromLimit){
@@ -473,7 +624,6 @@ p{margin:0}
     if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
-    // closest things first: named spots from OpenStreetMap (≤70 m) mixed with Wikipedia places (≤100 m)
     const wiki=cur.near.filter(n=>n.dist<=100&&!same(n));
     const osm=cur.osm.filter(n=>!same(n)&&!wiki.some(w=>norm(w.title)===norm(n.title)));
     let list=[...osm,...wiki].sort((a,b)=>a.dist-b.dist);
@@ -485,27 +635,22 @@ p{margin:0}
       const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
       b.append(a,d);b.onclick=()=>choose(n);li.appendChild(b);ul.appendChild(li)});
   }
-  $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else{show('home')}};
+  $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
+  $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
   async function choose(n){
     show('loading');$('loading-text').textContent='Checking '+n.title+'…';
     let s=null;
     if(n.osm){const m=(n.wikipedia||'').match(/^(\w+):(.+)$/);if(m)s=await summary(m[1],m[2])}
     else s=await summary(n.lang,n.title);
-    const base={img:cur.img,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},url:s&&s.url,wiki:s&&s.text};
-    if(n.osm&&!s&&(cur.noAI||!cfg.key)){openCard({...base,noAI:true,name:n.title,sure:true,what:n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:'',cool:''});return}
-    if(cur.noAI||!cfg.key){
-      const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
-      openCard({...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim(),cool:''});return}
+    const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},url:s&&s.url,wiki:s&&s.text};
+    const plain=()=>{const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
+      return{...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
+    if(cur.noAI||!cfg.key){openCard(plain());return}
     try{
       const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
-      parts.push({text:`La persona dice que está mirando "${n.title}"${n.kind?` (${n.kind})`:''}, a ${n.dist} m${cur.pos?`, en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}`:''}. ${s?`Resumen de Wikipedia: "${s.text}"`:'No hay artículo de Wikipedia: si no conoces el sitio, di qué tipo de lugar es y algo cierto de la calle o el edificio donde está, sin inventar.'}\nLa foto es de apoyo. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`});
-      const out=await gemini(parts,{fast:true,onStatus:t=>$('loading-text').textContent=t});
-      openCard({...base,name:out.name||n.title,local:out.local_name,sure:true,what:out.what_is_it,cool:out.cool_thing});
-    }catch(e){
-      const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
-      openCard({...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim(),cool:''});
-      status(errText(e)+' Te enseño Wikipedia.',true);
-    }
+      parts.push({text:`La persona dice que está mirando "${n.title}"${n.kind?` (${n.kind})`:''}${n.typed?' (lo ha escrito ella misma: fíate del nombre)':`, a ${n.dist} m`}${cur.pos?`, en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}`:''}. ${s?`Resumen de Wikipedia: "${s.text}"`:'No hay artículo de Wikipedia: si no conoces el sitio, di qué tipo de lugar es y algo cierto de la calle o el edificio donde está, sin inventar.'}\nLa foto es de apoyo. Usa "${n.title}" como NAME. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
+      await streamCard(parts,base,null);
+    }catch(e){openCard(plain());status(errText(e)+' Te enseño Wikipedia.',true)}
   }
 
   // ---------- voice ----------
@@ -514,37 +659,100 @@ p{margin:0}
   $('btn-listen').onclick=()=>{
     if(speaking){stopVoice();return}
     if(!('speechSynthesis' in window)||!cur)return;
-    const u=new SpeechSynthesisUtterance(`${cur.name}. ${cur.what} ${cur.cool||''}`);
-    u.lang=cfg.lang==='en'?'en-GB':'es-ES';u.rate=1.05;
+    const u=new SpeechSynthesisUtterance(`${cfg.lang==='en'?'You’re looking at':'Estás ante'} ${cur.name}. ${cur.what} ${cur.cool||''}`);
+    u.lang=LOCALE();u.rate=1.05;
     const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.toLowerCase()===u.lang.toLowerCase())||vs.find(v=>v.lang&&v.lang.startsWith(cfg.lang));
     if(v)u.voice=v;u.onend=u.onerror=stopVoice;speaking=true;$('btn-listen').textContent='Stop';speechSynthesis.speak(u);
   };
 
-  // ---------- history (without photos, to save space) ----------
-  function saveHistory(update){
+  // ---------- discoveries (text in localStorage, photos in IndexedDB) ----------
+  function saveDiscovery(update){
     if(!cur||!cur.name)return;
-    const h=store.get('history',[]);if(!cur.t)cur.t=Date.now();
-    const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,pos:cur.pos||null,deep:cur.deep||{},noAI:!!cur.noAI};
+    const h=store.get('history',[]);const isNew=!cur.t;if(isNew)cur.t=Date.now();
+    const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,
+      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
-    store.set('history',h.slice(0,30));
+    store.set('history',h.slice(0,500));
+    if(cur.file&&!cur.photoSaved){const card=cur;card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
+    if(!item.city&&item.pos){const t=item.t;cityOf(item.pos).then(c=>{if(!c)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=c;store.set('history',hh)}if(cur&&cur.t===t)cur.city=c})}
   }
-  function renderHistory(){
+  function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+  function row(x,onOpen,timeOnly){
+    const li=document.createElement('li'),b=document.createElement('button');
+    const im=document.createElement('img');im.className='th';im.alt='';
+    if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
+    const n=document.createElement('span');n.className='nm';n.textContent=x.name;
+    const w=document.createElement('span');w.className='when';w.textContent=timeOnly?new Date(x.t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(x.t);
+    b.append(im,n,w);b.onclick=onOpen;li.appendChild(b);return li;
+  }
+  async function openFromHistory(x,from){
+    backTo=from||null;
+    let img=null;if(x.hasPhoto){const b=await getPhoto(x.t);if(b)img=await blobToDataURL(b)}
+    cur=null;openCard({...x,img,near:null,osm:null},true);
+  }
+  function renderHome(){
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
-    h.slice(0,4).forEach(x=>{const li=document.createElement('li'),b=document.createElement('button');
-      const n=document.createElement('span');n.textContent=x.name;
-      const w=document.createElement('span');w.className='when';w.textContent=new Date(x.t).toLocaleString(cfg.lang==='en'?'en-GB':'es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
-      b.append(n,w);b.onclick=()=>openCard({...x,img:null,near:null},true);li.appendChild(b);ul.appendChild(li)});
+    h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
+    $('btn-mymap').hidden=!h.length;
+    const cities=[...new Set(h.map(x=>x.city).filter(Boolean))];
+    $('mymap-count').textContent=`${h.length} ${h.length===1?'discovery':'discoveries'}${cities.length?' · '+cities.slice(0,3).join(', '):''}`;
+  }
+
+  // ---------- my map ----------
+  let map=null,layer=null,mapCity=null;
+  $('btn-mymap').onclick=()=>openMyMap();
+  function openMyMap(){
+    show('mymap');status('');
+    const h=store.get('history',[]);
+    const byCity={};h.forEach(x=>{const c=x.city||'Other';(byCity[c]=byCity[c]||[]).push(x)});
+    const cities=Object.keys(byCity).sort((a,b)=>byCity[b][0].t-byCity[a][0].t);
+    if(!mapCity||!byCity[mapCity])mapCity=cities[0];
+    const box=$('cities');box.innerHTML='';box.hidden=cities.length<2&&cities[0]==='Other';
+    cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
+      b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
+    drawMap(byCity[mapCity]||[]);drawDays(byCity[mapCity]||[]);
+  }
+  function drawMap(items){
+    const pts=items.filter(x=>x.pos);
+    if(!window.L){$('map').innerHTML='<p class="empty" style="padding:16px">El mapa necesita conexión.</p>';return}
+    if(!map){map=L.map('map',{zoomControl:false,attributionControl:true});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);layer=L.layerGroup().addTo(map)}
+    layer.clearLayers();
+    pts.forEach(x=>{
+      const html=document.createElement('div');html.className='pin';const im=document.createElement('img');im.alt='';html.appendChild(im);
+      if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
+      const mk=L.marker([x.pos.lat,x.pos.lon],{icon:L.divIcon({html,className:'',iconSize:[44,44],iconAnchor:[22,22]})}).addTo(layer);
+      const pop=document.createElement('div');const b=document.createElement('b');b.textContent=x.name;const br=document.createElement('br');
+      const w=document.createElement('span');w.style.color='#5C6975';w.textContent=fmtWhen(x.t);
+      const btn=document.createElement('button');btn.textContent='Open';btn.onclick=()=>openFromHistory(x,'mymap');
+      pop.append(b,br,w,document.createElement('br'),btn);mk.bindPopup(pop);
+    });
+    setTimeout(()=>{map.invalidateSize();
+      if(pts.length===1)map.setView([pts[0].pos.lat,pts[0].pos.lon],16);
+      else if(pts.length)map.fitBounds(pts.map(x=>[x.pos.lat,x.pos.lon]),{padding:[40,40],maxZoom:17});
+      else map.setView([52.23,21.01],5)},60);
+  }
+  function drawDays(items){
+    const box=$('days');box.innerHTML='';
+    if(!items.length){box.innerHTML='<p class="empty">Todavía no hay descubrimientos.</p>';return}
+    let day='',ul=null;
+    items.forEach(x=>{
+      const d=new Date(x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
+      if(d!==day){day=d;const hd=document.createElement('p');hd.className='day';hd.textContent=d;box.appendChild(hd);ul=document.createElement('ul');ul.className='rows';box.appendChild(ul)}
+      ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true));
+    });
   }
 
   // ---------- settings ----------
-  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;show('settings')}
+  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
   $('s-save').onclick=()=>{
     cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
     store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
     show('home');status(cfg.key?'Saved. Ready.':'Saved. Sin clave no funciona la foto.');
   };
-  $('s-clear').onclick=()=>{store.set('history',[]);status('History cleared.');show('home')};
+  $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
+  $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();status('Map & history cleared.');show('home')};
 
   if(!cfg.key)status('Toca “Settings” para poner tu clave gratuita de Gemini.');
   show('home');
