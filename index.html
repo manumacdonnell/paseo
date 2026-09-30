@@ -205,7 +205,6 @@ p{margin:0}
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
-          <button class="listen" id="btn-listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span id="listen-label">Escuchar</span></button>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -243,15 +242,15 @@ p{margin:0}
   <!-- NOT THIS -->
   <section class="alts" id="v-alts" hidden>
     <h2 id="alts-title">¿Qué estás mirando?</h2>
-    <p class="help" id="alts-help">Otros sitios cerca:</p>
-    <ul id="alts-list"></ul>
     <form class="typed" id="alts-form">
-      <label for="alts-input" class="help">¿No sale? Escribe qué es:</label>
+      <label for="alts-input" class="help">¿Lo pone en la puerta o en un cartel? Escríbelo:</label>
       <div class="typed-row">
-        <input id="alts-input" autocomplete="off" placeholder="El nombre del cartel, p. ej. Café Bristol">
+        <input id="alts-input" autocomplete="off" placeholder="p. ej. Café Bristol">
         <button type="submit">Ir</button>
       </div>
     </form>
+    <p class="help" id="alts-help" style="margin-top:8px">¿O es alguno de estos?</p>
+    <ul id="alts-list"></ul>
     <button class="plain" id="alts-none">Ninguno de estos</button>
   </section>
 
@@ -284,19 +283,6 @@ p{margin:0}
         <option value="en">Inglés</option>
       </select>
     </label>
-    <label>Voz para “Escuchar”
-      <select id="s-voice"></select>
-      <span class="help">Las voces “Mejorada” o “Premium” suenan mucho más naturales. Si no ves ninguna: Ajustes del iPhone → Accesibilidad → Contenido leído → Voces → Español, y descarga una.</span>
-    </label>
-    <label>Estilo de la voz de Gemini
-      <select id="s-gvoice">
-        <option value="Sulafat">Cálida</option>
-        <option value="Achird">Cercana</option>
-        <option value="Vindemiatrix">Suave</option>
-        <option value="Algieba">Tranquila</option>
-      </select>
-      <span class="help">Solo si eliges “Voz de Gemini”. Lee con acento argentino y sin prisa. Tarda unos segundos en empezar y puede que tu plan gratis no la incluya: si falla, usa la del iPhone.</span>
-    </label>
     <label>Modelo
       <input id="s-model" autocomplete="off">
       <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
@@ -308,7 +294,7 @@ p{margin:0}
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
-  <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsada la foto → “Añadir a Fotos”. Toca fuera para cerrar.</p></div>
+  <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsada la foto para guardarla. Toca para volver.</p></div>
   <div class="toast" id="toast" hidden><span id="toast-text"></span><button id="toast-undo">Deshacer</button></div>
 </div>
 
@@ -337,7 +323,7 @@ p{margin:0}
   const views=['home','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){view=v;views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
+  function show(v){status('');view=v;views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('btn-back').onclick=()=>{status('');if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}show('home')};
@@ -381,11 +367,20 @@ p{margin:0}
   }
 
   // ---------- wikipedia + openstreetmap ----------
+  // swap titles from the other-language Wikipedia for their Spanish version when one exists
+  async function toLang(items,from,to){
+    if(!items.length)return items;
+    try{const r=await fetch(`https://${from}.wikipedia.org/w/api.php?action=query&prop=langlinks&lllang=${to}&lllimit=500&titles=${encodeURIComponent(items.slice(0,50).map(x=>x.title).join('|'))}&format=json&origin=*`);
+      const j=await r.json();const map={};Object.values((j.query&&j.query.pages)||{}).forEach(pg=>{const l=pg.langlinks&&pg.langlinks[0];if(l)map[pg.title]=l['*']});
+      (j.query&&j.query.normalized||[]).forEach(n=>{if(map[n.to])map[n.from]=map[n.to]});
+      return items.map(x=>map[x.title]?{...x,title:map[x.title],lang:to}:x)}catch(e){return items}
+  }
   async function nearby(pos,radius,limit){
     const q=lang=>fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${pos.lat}|${pos.lon}&gsradius=${radius}&gslimit=${limit}&format=json&origin=*`)
       .then(r=>r.json()).then(j=>(j.query&&j.query.geosearch||[]).map(g=>({title:g.title,lat:g.lat,lon:g.lon,dist:Math.round(g.dist),lang}))).catch(()=>[]);
     const first=cfg.lang==='en'?'en':'es',second=first==='en'?'es':'en';
-    const [a,b]=await Promise.all([q(first),q(second)]);
+    let [a,b]=await Promise.all([q(first),q(second)]);
+    b=await toLang(b,second,first);
     const key=x=>Math.round(x.lat*5e3)+','+Math.round(x.lon*5e3);
     const seen=new Set(a.map(key));
     return [...a,...b.filter(x=>!seen.has(key(x)))].sort((x,y)=>x.dist-y.dist);
@@ -407,7 +402,7 @@ p{margin:0}
       return(j.elements||[]).map(e=>{const la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return null;
         const tg=e.tags||{};const raw=tg.amenity||tg.shop||tg.tourism||tg.historic||tg.leisure||tg.craft||'';
         const d=2*R*Math.asin(Math.sqrt(Math.sin(rad(la-pos.lat)/2)**2+Math.cos(rad(pos.lat))*Math.cos(rad(la))*Math.sin(rad(lo-pos.lon)/2)**2));
-        return{title:tg.name,kind:KIND[raw]||raw.replace(/_/g,' '),raw,dist:Math.round(d),osm:true,wikipedia:tg.wikipedia||''}}).filter(Boolean)
+        return{title:tg['name:'+cfg.lang]||tg.name,localName:tg.name,kind:KIND[raw]||raw.replace(/_/g,' '),raw,dist:Math.round(d),osm:true,wikipedia:tg.wikipedia||''}}).filter(Boolean)
         .filter((x,i,a)=>a.findIndex(y=>y.title===x.title)===i).sort((a,b)=>a.dist-b.dist);
     }catch(e){return[]}
   }
@@ -577,7 +572,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
       if(note)status(note);
     }catch(err){
-      if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+      if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};showAlts(true,errText(err)+' Mientras, elige lo que estás mirando y te enseño Wikipedia.');return}
       show('home');status(errText(err),true);
     }
   }
@@ -634,7 +629,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-listen').hidden=!!opt.partial;$('btn-delete').hidden=!!opt.partial;$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
+    $('btn-delete').hidden=!!opt.partial;$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
     if(view!=='result')show('result');
@@ -694,9 +689,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- not this ----------
   $('btn-notthis').onclick=()=>showAlts(false);
-  async function showAlts(fromLimit){
-    show('alts');$('alts-list').innerHTML='<li class="help">Mirando alrededor…</li>';
-    $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿No es esto? Quizás…';
+  async function showAlts(fromLimit,msg){
+    show('alts');if(msg)status(msg,true);$('alts-list').innerHTML='<li class="help">Mirando alrededor…</li>';
+    $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿Qué es, entonces?';
     if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
@@ -704,8 +699,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const osm=cur.osm.filter(n=>!same(n)&&!wiki.some(w=>norm(w.title)===norm(n.title)));
     let list=[...osm,...wiki].sort((a,b)=>a.dist-b.dist);
     if(list.length<2)list=[...list,...cur.near.filter(n=>n.dist>100&&n.dist<=200&&!same(n))];
+    // hide articles that only exist in another language when there are enough options in yours
+    const mine=list.filter(n=>n.osm||n.lang===cfg.lang);if(mine.length>=2)list=mine;
     list=list.slice(0,fromLimit?6:5);
-    $('alts-help').textContent=list.length?'Otras cosas justo a tu alrededor:':'No hay otros sitios conocidos cerca.';
+    $('alts-help').textContent=list.length?'¿O es alguno de estos?':'No encuentro otros sitios conocidos cerca.';
     const ul=$('alts-list');ul.innerHTML='';
     list.forEach(n=>{const li=document.createElement('li'),b=document.createElement('button');
       const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
@@ -752,73 +749,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('ask-claude').onclick=()=>{copyAsk();askMsg('Copiado. Pega en Claude y escribe tu pregunta.');window.open('https://claude.ai/new','_blank')};
   $('ask-copy').onclick=()=>{if(copyAsk())askMsg('Copiado. Pégalo donde quieras.')};
 
-  // ---------- voice ----------
-  // "gemini" = Gemini reads it (more human, may not be in the free plan); otherwise a voice from the phone
-  let speaking=false,audioEl=null;const audioCache=new Map();
-  function setListen(on){speaking=on;$('listen-label').textContent=on?'Parar':'Escuchar';$('btn-listen').classList.toggle('on',on)}
-  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}if(audioEl){audioEl.pause();audioEl=null}setListen(false)}
-  const speakText=()=>`${cfg.lang==='en'?'You’re looking at':'Estás ante'} ${cur.name}. ${cur.what} ${cur.cool||''}`;
-  function phoneVoices(){try{return speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(cfg.lang))}catch(e){return[]}}
-  const voiceQuality=v=>/premium/i.test(v.name)?3:/(enhanced|mejorad)/i.test(v.name)?2:0;
-  function pickPhoneVoice(){
-    const vs=phoneVoices();const saved=store.get('voice','');
-    if(saved&&saved!=='gemini'){const v=vs.find(x=>x.voiceURI===saved);if(v)return v}
-    const pref=cfg.lang==='es'?['es-ar','es-mx','es-us','es-es']:['en-gb','en-us'];
-    return vs.slice().sort((a,b)=>voiceQuality(b)-voiceQuality(a)||pref.indexOf(a.lang.toLowerCase())-pref.indexOf(b.lang.toLowerCase()))[0]||null;
-  }
-  function speakPhone(){
-    if(!('speechSynthesis' in window))return;
-    const u=new SpeechSynthesisUtterance(speakText());const v=pickPhoneVoice();
-    if(v){u.voice=v;u.lang=v.lang}else u.lang=LOCALE();
-    u.rate=0.92;u.pitch=1;u.onend=u.onerror=()=>setListen(false);setListen(true);speechSynthesis.speak(u);
-  }
-  // Gemini speech comes back as raw 16-bit audio; wrap it in a WAV header so the phone can play it
-  function pcmToWav(b64,rate){
-    const pcm=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const buf=new ArrayBuffer(44+pcm.length);const d=new DataView(buf);
-    const w=(o,s)=>{for(let i=0;i<s.length;i++)d.setUint8(o+i,s.charCodeAt(i))};
-    w(0,'RIFF');d.setUint32(4,36+pcm.length,true);w(8,'WAVE');w(12,'fmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);
-    d.setUint32(24,rate,true);d.setUint32(28,rate*2,true);d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,pcm.length,true);
-    new Uint8Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'});
-  }
-  async function geminiSpeech(text){
-    const style=cfg.lang==='es'?'Lee esto en español con acento argentino rioplatense, voz cálida y cercana, ritmo tranquilo, sin prisa, como un amigo contándote algo en la calle:':'Read this in a warm, calm, friendly voice, unhurried:';
-    const models=['gemini-2.5-flash-preview-tts','gemini-2.5-flash-tts'];
-    for(const m of models){
-      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
-        body:JSON.stringify({contents:[{parts:[{text:`${style}\n\n${text}`}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:store.get('gvoice','Sulafat')}}}}})});
-      if(!r.ok){if(r.status===404)continue;throw new Error('TTS '+r.status)}
-      const j=await r.json();const part=((j.candidates||[])[0]||{}).content;const d=part&&part.parts&&part.parts.find(p=>p.inlineData||p.inline_data);
-      const inl=d&&(d.inlineData||d.inline_data);if(!inl)throw new Error('TTS empty');
-      const rate=+((inl.mimeType||inl.mime_type||'').match(/rate=(\d+)/)||[0,24000])[1];
-      return pcmToWav(inl.data,rate);
-    }
-    throw new Error('TTS 404');
-  }
-  $('btn-listen').onclick=async()=>{
-    if(speaking){stopVoice();return}
-    if(!cur)return;
-    if(store.get('voice','')==='gemini'&&cfg.key){
-      const key=cur.t+'|'+store.get('gvoice','Sulafat');setListen(true);$('listen-label').textContent='Preparando…';
-      try{
-        let blob=audioCache.get(key);if(!blob){blob=await geminiSpeech(speakText());audioCache.set(key,blob)}
-        if(!speaking)return;
-        audioEl=new Audio(URL.createObjectURL(blob));audioEl.onended=()=>{audioEl=null;setListen(false)};
-        $('listen-label').textContent='Parar';await audioEl.play();
-      }catch(e){setListen(false);status('La voz de Gemini no está disponible ahora; uso la del iPhone.');speakPhone()}
-      return;
-    }
-    speakPhone();
-  };
-  function fillVoices(){
-    const sel=$('s-voice');const saved=store.get('voice','');sel.innerHTML='';
-    const add=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o)};
-    add('','Automática (la mejor del iPhone)');add('gemini','Voz de Gemini (más humana, en pruebas)');
-    const country={'es-ar':'Argentina','es-mx':'México','es-es':'España','es-us':'EE. UU.','es-co':'Colombia','es-cl':'Chile','en-gb':'UK','en-us':'US'};
-    phoneVoices().sort((a,b)=>voiceQuality(b)-voiceQuality(a)||a.lang.localeCompare(b.lang)).forEach(v=>add(v.voiceURI,`${v.name} · ${country[v.lang.toLowerCase()]||v.lang}`));
-    sel.value=saved;if(sel.value!==saved)sel.value='';
-    $('s-gvoice').value=store.get('gvoice','Sulafat');
-  }
-  if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{if(view==='settings')fillVoices()};
+  function stopVoice(){}
 
   // ---------- full-size photo (long-press to save) ----------
   let viewerURL=null;
@@ -827,7 +758,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(viewerURL)URL.revokeObjectURL(viewerURL);viewerURL=blob?URL.createObjectURL(blob):null;
     im.src=viewerURL||$('r-img').src;$('viewer').hidden=false;
   };
-  $('viewer').onclick=e=>{if(e.target.id!=='viewer-img')$('viewer').hidden=true};
+  // a short tap anywhere (photo included) closes; a long press is left to the iPhone's "Añadir a Fotos"
+  let pressAt=0;
+  $('viewer').addEventListener('touchstart',()=>{pressAt=Date.now()},{passive:true});
+  $('viewer').addEventListener('contextmenu',()=>{pressAt=0});
+  $('viewer').onclick=()=>{if(pressAt&&Date.now()-pressAt>450)return;$('viewer').hidden=true};
 
   // ---------- discoveries (text in localStorage, photos in IndexedDB) ----------
   const geoPending=new Set();
@@ -961,10 +896,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
 
   // ---------- settings ----------
-  function openSettings(){fillVoices();$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
+  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
   $('s-save').onclick=()=>{
     cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
-    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);store.set('voice',$('s-voice').value);store.set('gvoice',$('s-gvoice').value);audioCache.clear();
+    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
     show('home');status(cfg.key?'Guardado. Listo.':'Guardado. Sin clave no funciona la foto.');
   };
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
@@ -972,7 +907,6 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
-  if('speechSynthesis' in window)speechSynthesis.getVoices();
 })();
 </script>
 </body>
