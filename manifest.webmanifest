@@ -1,6 +1,6 @@
 {
-  "name": "Paseo Chismoso",
-  "short_name": "Chismoso",
+  "name": "manu-go",
+  "short_name": "manu-go",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#10171E",
