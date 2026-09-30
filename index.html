@@ -161,6 +161,8 @@ p{margin:0}
 .fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:60px;height:60px;border-radius:50%;border:0;background:var(--brick);color:var(--brick-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28);z-index:700}
 .fab svg{width:28px;height:28px}
 .app.with-fab{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+.rows li.pending{display:flex;align-items:center;gap:10px;background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:14px 12px;color:var(--muted);font-weight:600}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--brick);animation:spin 1s linear infinite;flex:none}
 .deleteentry{align-self:center;margin-top:18px;background:transparent;border:0;color:var(--brick);font-weight:600;font-size:14px;text-decoration:underline;padding:8px}
 .ask{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
 .ask-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -348,7 +350,7 @@ p{margin:0}
   const views=['home','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
+  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0)}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('btn-back').onclick=()=>{status('');if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}show('home')};
@@ -574,7 +576,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function photoDate(f){try{if(!window.exifr)return null;const x=await exifr.parse(f,['DateTimeOriginal']);return x&&x.DateTimeOriginal?new Date(x.DateTimeOriginal).getTime():null}catch(e){return null}}
   $('file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,false)};
   $('file-upload').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,true)};
+  let photosPending=0;
   async function processPhoto(f,fromGallery){
+    photosPending++;try{await processPhotoNow(f,fromGallery)}finally{photosPending--;if(view==='home')renderHome()}
+  }
+  async function processPhotoNow(f,fromGallery){
     status('');show('loading');$('loading-text').textContent='Mirando…';backTo=null;
     let img=null,pos=null,near=[],osm=[],note='';
     try{
@@ -596,8 +602,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
       const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
-      if(note)status(note);
+      if(note&&view==='result')status(note);
     }catch(err){
+      if(view!=='loading'&&view!=='result')return;
       if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};showAlts(true,errText(err)+' Mientras, elige lo que estás mirando y te enseño Wikipedia.');return}
       show('home');status(errText(err),true);
     }
@@ -613,11 +620,25 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     });
   }
 
+  // ---------- leaving the app ----------
+  // The iPhone freezes a web page when you switch apps or lock the screen. If a request got cut because of that,
+  // it is retried once, automatically, when you come back.
+  let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now()});
+  const whenVisible=()=>document.hidden?new Promise(r=>{const f=()=>{if(!document.hidden){document.removeEventListener('visibilitychange',f);r()}};document.addEventListener('visibilitychange',f)}):Promise.resolve();
+  const cutByLeaving=(e,start)=>(hiddenAt>=start||document.hidden)&&(e instanceof TypeError||/BUSY|timeout|504|Load failed|network/i.test(e.message||''));
+  async function retryOnReturn(fn,onRetry){
+    const start=Date.now();
+    try{return await fn()}catch(e){if(!cutByLeaving(e,start))throw e;await whenVisible();onRetry&&onRetry();return fn()}
+  }
+  let runId=0; // the latest photo; an older one that is still loading never takes over the screen
+
   // ---------- streaming card ----------
   // fills the card as the words arrive, then applies the "nearest café" safety net and saves it to the map
   async function streamCard(parts,base,ctx){
-    let shown=false;
+    let shown=false;const myRun=++runId;
+    const here=()=>runId===myRun&&(view==='result'||view==='loading');
     const onText=txt=>{
+      if(!here())return;
       const {o,done}=parseCard(txt);
       if(!shown){if(!(o.NAME&&(done.NAME||o.NAME.length>40)))return;
         shown=true;cur={...base};paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true})}
@@ -628,7 +649,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       $('r-what').classList.toggle('typing',!!o.WHAT&&!done.WHAT||(!o.WHAT&&!!o.SURE));
       $('r-cool').classList.toggle('typing',!!o.COOL);
     };
-    const txt=await gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown)$('loading-text').textContent=t}});
+    const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Retomando…'});
     const {o}=parseCard(txt);
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
     if(ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
@@ -638,7 +659,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const match=want&&ctx.osm.find(x=>want.includes(x.raw)&&x.dist<=Math.max(50,(ctx.pos&&ctx.pos.acc||0)+20));
       if(match){name=match.title;sure=match.dist<=25}
     }
-    openCard({...base,name,local:o.LOCAL,sure,what:o.WHAT||'',cool:o.COOL||''});
+    const card={...base,name,local:o.LOCAL,sure,what:o.WHAT||'',cool:o.COOL||''};
+    if(here()){openCard(card);return}
+    // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
+    saveDiscovery(false,card);if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
   }
 
   // ---------- card ----------
@@ -657,7 +681,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
-    if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
+    if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id));
+      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+t.id)&&!(c.deep||{})[t.id]){waitingSection(t);const b=[...$('chips').children].find(x=>x.textContent===t.label);if(b)b.setAttribute('aria-pressed','true')}})}
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
@@ -669,28 +694,37 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function renderChips(){
     const box=$('chips');box.innerHTML='';
     TOPICS.forEach(t=>{if(t.photo&&!cur.img)return;
-      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed',cur.deep&&cur.deep[t.id]?'true':'false');
+      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed',(cur.deep&&cur.deep[t.id])||pendingDeep.has(cur.t+'|'+t.id)?'true':'false');
       b.onclick=()=>goDeeper(t,b);box.appendChild(b)});
+  }
+  const pendingDeep=new Map(); // "card time|topic" → answer on its way
+  function waitingSection(t,where){
+    const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
+    sec.innerHTML=`<h3></h3><p class="wait">Pensando…</p>`;sec.querySelector('h3').textContent=t.label;
+    (where||$('sections')).prepend(sec);return sec;
   }
   async function goDeeper(t,btn){
     const open=document.getElementById('sec-'+t.id);
     if(open&&!open.hidden){open.hidden=true;btn.setAttribute('aria-pressed','false');return}
-    if(open&&cur.deep[t.id]){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(open&&(cur.deep[t.id]||pendingDeep.has(cur.t+'|'+t.id))){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
     if(open)open.remove();
     btn.setAttribute('aria-pressed','true');
-    const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
-    sec.innerHTML=`<h3></h3><p class="wait">Pensando…</p>`;sec.querySelector('h3').textContent=t.label;
-    $('sections').prepend(sec);sec.scrollIntoView({behavior:'smooth',block:'start'});
-    const card=cur;
+    const sec=waitingSection(t);sec.scrollIntoView({behavior:'smooth',block:'start'});
+    const card=cur,key=card.t+'|'+t.id;
+    const parts=[];
+    if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
+    const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
+    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+    const job=retryOnReturn(()=>gemini(parts),()=>{const w=document.getElementById('sec-'+t.id);if(w&&cur&&cur.t===card.t){const p=w.querySelector('.wait');if(p)p.textContent='Retomando…'}});
+    pendingDeep.set(key,job);
     try{
-      const parts=[];
-      if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
-      const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
-      parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
-      const out=await gemini(parts);
-      card.deep[t.id]=(out.points||[]).filter(Boolean);
-      if(cur===card){renderSection(t.id,sec);saveDiscovery(true)}
-    }catch(e){const w=sec.querySelector('.wait');if(w)w.textContent=errText(e);btn.setAttribute('aria-pressed','false');setTimeout(()=>{if(!card.deep[t.id])sec.remove()},4000)}
+      const out=await job;const points=(out.points||[]).filter(Boolean);
+      card.deep[t.id]=points;saveDiscovery(true,card);           // saved even if you left this card
+      if(cur&&cur.t===card.t){cur.deep[t.id]=points;const el=document.getElementById('sec-'+t.id);if(el)renderSection(t.id,el)}
+    }catch(e){
+      if(cur&&cur.t===card.t){const el=document.getElementById('sec-'+t.id);if(el){const w=el.querySelector('.wait');if(w)w.textContent=errText(e);setTimeout(()=>{if(!(cur.deep||{})[t.id])el.remove()},4000)}
+        const b=[...$('chips').children].find(x=>x.textContent===t.label);if(b)b.setAttribute('aria-pressed','false')}
+    }finally{pendingDeep.delete(key)}
   }
   function renderSection(id,existing){
     const t=TOPICS.find(x=>x.id===id);if(!t)return;
@@ -802,15 +836,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- discoveries (text in localStorage, photos in IndexedDB) ----------
   const geoPending=new Set();
-  function saveDiscovery(update){
-    if(!cur||!cur.name)return;
-    const h=store.get('history',[]);const isNew=!cur.t;if(isNew)cur.t=Date.now();
-    const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,
-      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',address:cur.address||'',fromGallery:!!cur.fromGallery,takenAt:cur.takenAt||null,deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
-    const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
+  function saveDiscovery(update,card){
+    card=card||cur;if(!card||!card.name)return;
+    const h=store.get('history',[]);const isNew=!card.t;if(isNew)card.t=Date.now();
+    const item={t:card.t,name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
+      pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
+    const i=h.findIndex(x=>x.t===item.t);
+    if(i>=0){item.deep={...(h[i].deep||{}),...item.deep};item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else h.unshift(item);
     store.set('history',h.slice(0,500));
-    if(cur.file&&!cur.photoSaved){const card=cur;card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
-    const geoPos=item.pos||cur.cityPos;
+    if(card.file&&!card.photoSaved){card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
+    const geoPos=item.pos||card.cityPos;
     if((!item.city||(item.pos&&!item.address))&&geoPos&&!geoPending.has(item.t)){const t=item.t;geoPending.add(t);placeInfo(geoPos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address}}).finally(()=>geoPending.delete(t))}
   }
   function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
@@ -863,13 +898,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('btn-delete').onclick=()=>{if(!cur||!cur.t)return;const t=cur.t;stopVoice();
     if(backTo==='mymap'){backTo=null;show('mymap')}else show('home');removeDiscovery(t)};
   async function openFromHistory(x,from){
-    backTo=from||null;
+    backTo=from||null;x=store.get('history',[]).find(y=>y.t===x.t)||x;
     let img=null;if(x.hasPhoto){const b=await getPhoto(x.t);if(b)img=await blobToDataURL(b)}
     cur=null;openCard({...x,img,near:null,osm:null},true);
   }
   function renderHome(){
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
+    if(photosPending>0){$('history').hidden=false;const li=document.createElement('li');li.className='pending';li.innerHTML='<span class="spin"></span>Averiguando qué es tu foto…';ul.appendChild(li)}
     h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
     if(h.length&&!store.get('swipeHinted',false)){const hint=document.createElement('li');hint.className='hint';hint.textContent='Desliza a la izquierda para borrar';ul.appendChild(hint)}
     $('btn-mymap').hidden=!h.length;
