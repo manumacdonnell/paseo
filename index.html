@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paseo Chismoso</title>
+<meta name="theme-color" content="#B8402A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Chismoso">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F2F4F5; --card:#FFFFFF; --ink:#18222C; --muted:#5C6975; --line:#D8DEE3; --soft:#E8ECEF;
+  --brick:#B8402A; --brick-ink:#FFFFFF; --ochre:#A87A1F; --ok:#1F8A5B;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Figtree","Helvetica Neue",Arial,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F151B; --card:#18222C; --ink:#EEF2F4; --muted:#98A6B2; --line:#2B3844; --soft:#22303B;
+  --brick:#D5573E; --ochre:#E0B25A; --ok:#3FBF86; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.1;text-wrap:balance}
+p{margin:0}
+[hidden]{display:none!important}
+
+.app{min-height:100%;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 14px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);max-width:560px;margin:0 auto;gap:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top h1{font-size:20px}
+.pill{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:600}
+.status{font-size:14px;color:var(--muted)}
+.status:empty{display:none}
+.status.err{color:var(--brick);font-weight:600}
+
+/* home */
+.home{flex:1;display:flex;flex-direction:column;gap:14px;justify-content:flex-end}
+.big{border:0;border-radius:24px;padding:28px 18px;background:var(--brick);color:var(--brick-ink);display:flex;flex-direction:column;align-items:center;gap:8px}
+.big svg{width:40px;height:40px}
+.big b{font-family:var(--display);font-size:26px;line-height:1.1}
+.big small{font-size:14px;opacity:.9}
+.history h2{font-size:13px;color:var(--muted);font-family:var(--body);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.history ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.history button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:10px}
+.history .when{color:var(--muted);font-size:13px;white-space:nowrap}
+
+/* loading */
+.loading{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;color:var(--muted)}
+.spinner{width:44px;height:44px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--brick);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* card */
+.result{display:flex;flex-direction:column;gap:12px}
+.thumb{width:100%;height:150px;object-fit:cover;border-radius:18px;display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.head h2{font-size:27px}
+.head .local{color:var(--muted);font-size:14px;margin-top:4px}
+.notthis{flex:none;background:var(--soft);border:0;border-radius:999px;padding:6px 11px;font-size:13px;font-weight:700;white-space:nowrap}
+.unsure{font-size:13px;font-weight:700;color:var(--ochre)}
+.label{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.block p{font-size:17px;line-height:1.55}
+.cool{border-top:1px solid var(--line);padding-top:12px}
+.cool .label{color:var(--brick)}
+.tools{display:flex;gap:8px;align-items:center}
+.icon{background:transparent;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:600}
+.src{font-size:13px;color:var(--muted);margin-left:auto}
+.src a{color:inherit}
+
+.deeper-btn{border:0;border-radius:18px;background:var(--ink);color:var(--bg);padding:16px;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;display:flex;justify-content:space-between;align-items:center}
+.deeper{display:flex;flex-direction:column;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-weight:600;font-size:15px}
+.chips button[aria-pressed="true"]{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
+.section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:8px}
+.section h3{font-size:18px}
+.section ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.section li{font-size:16px;line-height:1.5}
+.section li::marker{color:var(--brick)}
+.section .wait{color:var(--muted);font-size:14px}
+
+/* not this */
+.alts{display:flex;flex-direction:column;gap:10px}
+.alts h2{font-size:22px}
+.alts ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.alts li button{width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.alts .d{color:var(--muted);font-weight:500;white-space:nowrap}
+.plain{background:transparent;border:0;color:var(--muted);text-decoration:underline;padding:8px 0;align-self:flex-start}
+
+/* settings */
+.settings{display:flex;flex-direction:column;gap:14px}
+.settings label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:15px}
+.settings input,.settings select{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;font-weight:400;width:100%}
+.help{font-size:14px;color:var(--muted);font-weight:400}
+.settings ol{margin:0;padding-left:20px;font-size:15px;display:flex;flex-direction:column;gap:6px}
+.settings a{color:var(--brick)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-weight:600}
+.row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
+.note{font-size:13px;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <h1>Paseo Chismoso</h1>
+    <button class="pill" id="btn-back" hidden>← Back</button>
+    <button class="pill" id="btn-settings">Settings</button>
+  </div>
+  <p class="status" id="status"></p>
+
+  <!-- HOME -->
+  <section class="home" id="v-home">
+    <div class="history" id="history" hidden>
+      <h2>Recently</h2>
+      <ul id="history-list"></ul>
+    </div>
+    <button class="big" id="btn-photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
+      <b>What am I looking at?</b>
+      <small>Take a photo of it</small>
+    </button>
+    <input type="file" id="file" accept="image/*" capture="environment" hidden>
+  </section>
+
+  <!-- LOADING -->
+  <section class="loading" id="v-loading" hidden>
+    <div class="spinner"></div>
+    <p id="loading-text">Looking…</p>
+  </section>
+
+  <!-- CARD -->
+  <section class="result" id="v-result" hidden>
+    <img class="thumb" id="r-img" alt="Your photo" hidden>
+    <article class="card">
+      <div class="head">
+        <div>
+          <p class="unsure" id="r-unsure" hidden>Probably…</p>
+          <h2 id="r-name"></h2>
+          <p class="local" id="r-local" hidden></p>
+        </div>
+        <button class="notthis" id="btn-notthis">Not this?</button>
+      </div>
+      <div class="block">
+        <p class="label">What is it?</p>
+        <p id="r-what"></p>
+      </div>
+      <div class="block cool" id="r-cool-wrap">
+        <p class="label">One cool thing</p>
+        <p id="r-cool"></p>
+      </div>
+      <div class="tools">
+        <button class="icon" id="btn-listen">Listen</button>
+        <span class="src" id="r-src" hidden></span>
+      </div>
+    </article>
+    <button class="deeper-btn" id="btn-deeper" aria-expanded="false"><span>GO DEEPER</span><span aria-hidden="true">→</span></button>
+    <div class="deeper" id="deeper" hidden>
+      <div class="chips" id="chips"></div>
+      <div id="sections" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </section>
+
+  <!-- NOT THIS -->
+  <section class="alts" id="v-alts" hidden>
+    <h2 id="alts-title">What are you looking at?</h2>
+    <p class="help" id="alts-help">Other places within 100 m:</p>
+    <ul id="alts-list"></ul>
+    <button class="plain" id="alts-none">None of these</button>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="settings" id="v-settings" hidden>
+    <h2>Settings</h2>
+    <div id="setup-steps">
+      <p class="help" style="margin-bottom:8px">Necesitas una clave gratuita de Google Gemini. Se hace una vez:</p>
+      <ol>
+        <li>Entra en <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a> con tu cuenta de Google.</li>
+        <li>Toca “Create API key”. Sin tarjeta: así es gratis.</li>
+        <li>Copia la clave (empieza por “AIza…”) y pégala aquí.</li>
+      </ol>
+    </div>
+    <label>Gemini key
+      <input id="s-key" type="password" autocomplete="off" placeholder="AIza…">
+      <span class="help">Se guarda solo en este móvil.</span>
+    </label>
+    <label>Language of the answers
+      <select id="s-lang">
+        <option value="es">Español</option>
+        <option value="en">English</option>
+      </select>
+    </label>
+    <label>Model
+      <input id="s-model" autocomplete="off">
+      <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
+    </label>
+    <div class="row">
+      <button class="primary" id="s-save">Save</button>
+      <button id="s-clear">Clear history</button>
+    </div>
+    <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const store={
+    get(k,d){try{const v=localStorage.getItem('pc_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+    set(k,v){try{localStorage.setItem('pc_'+k,JSON.stringify(v))}catch(e){}}
+  };
+  const DEFAULT_MODEL='gemini-2.5-flash';
+  const cfg={key:store.get('key',''),lang:store.get('lang','es'),model:store.get('model',DEFAULT_MODEL)};
+  const LANG=()=>cfg.lang==='en'?'English':'español de España';
+
+  const TOPICS=[
+    {id:'history',label:'History',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción) y cómo encaja en la historia de la ciudad.'},
+    {id:'arch',label:'Architecture',ask:'La arquitectura: estilo, épocas, quién lo diseñó, materiales, y qué rasgos concretos lo hacen reconocible.'},
+    {id:'people',label:'People',ask:'Personajes relacionados: quién lo mandó construir, quién vivió, trabajó, fue enterrado o protagonizó algo aquí, y por qué importan.'},
+    {id:'weird',label:'Weird facts',ask:'Anécdotas, cosas raras, leyendas y rumores (dejando claro qué es leyenda), detalles poco conocidos.'},
+    {id:'seeing',label:'What am I seeing?',ask:'Mira la foto y explica los detalles concretos que la persona tiene delante: qué es cada elemento visible, qué significa, y qué debería buscar con la mirada (what to look at). Refiérete a partes visibles de la foto.',photo:true}
+  ];
+
+  // ---------- views ----------
+  const views=['home','loading','result','alts','settings'];
+  let cur=null; // current card
+  function show(v){views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home'||v==='loading';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHistory();window.scrollTo(0,0)}
+  function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
+  $('btn-back').onclick=()=>{status('');if(!$('v-alts').hidden&&cur){show('result');return}show('home')};
+  $('btn-settings').onclick=openSettings;
+
+  // ---------- location ----------
+  let posPromise=null;
+  function locate(){
+    posPromise=new Promise(res=>{
+      if(!('geolocation' in navigator))return res(null);
+      navigator.geolocation.getCurrentPosition(
+        p=>res({lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)}),
+        ()=>res(null),{enableHighAccuracy:true,timeout:12000,maximumAge:30000});
+    });
+    return posPromise;
+  }
+
+  // ---------- wikipedia ----------
+  async function nearby(pos,radius,limit){
+    const q=lang=>fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${pos.lat}|${pos.lon}&gsradius=${radius}&gslimit=${limit}&format=json&origin=*`)
+      .then(r=>r.json()).then(j=>(j.query&&j.query.geosearch||[]).map(g=>({title:g.title,lat:g.lat,lon:g.lon,dist:Math.round(g.dist),lang}))).catch(()=>[]);
+    const first=cfg.lang==='en'?'en':'es',second=first==='en'?'es':'en';
+    const [a,b]=await Promise.all([q(first),q(second)]);
+    const key=x=>Math.round(x.lat*5e3)+','+Math.round(x.lon*5e3);
+    const seen=new Set(a.map(key));
+    return [...a,...b.filter(x=>!seen.has(key(x)))].sort((x,y)=>x.dist-y.dist);
+  }
+  async function summary(lang,title){
+    try{const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`);
+      if(!r.ok)return null;const j=await r.json();
+      return{title:j.title,text:j.extract||'',url:j.content_urls&&j.content_urls.mobile&&j.content_urls.mobile.page}}catch(e){return null}
+  }
+
+  // ---------- gemini ----------
+  async function pickModel(){
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':cfg.key}});
+    if(!r.ok)return null;const j=await r.json();
+    const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+    const pref=ok.filter(n=>/flash/.test(n)&&!/lite|image|tts|live|audio|thinking|exp|preview/.test(n));
+    return pref.sort().reverse()[0]||ok.find(n=>/flash/.test(n))||null;
+  }
+  async function gemini(parts,retried){
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`,{
+      method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+      body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:'application/json',temperature:0.5}})});
+    if(r.status===404&&!retried){const m=await pickModel();if(m&&m!==cfg.model){cfg.model=m;store.set('model',m);return gemini(parts,true)}}
+    if(!r.ok){
+      let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
+      if(r.status===429)throw new Error('LIMIT');
+      if(r.status===403||(r.status===400&&/API key/i.test(msg)))throw new Error('KEY');
+      throw new Error('HTTP '+r.status+' '+msg);
+    }
+    const j=await r.json();
+    const txt=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
+    return JSON.parse(txt.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
+  }
+  function errText(e){
+    if(e.message==='LIMIT')return'Se acabó el límite gratis por ahora.';
+    if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Settings.';
+    if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
+    return'Algo falló: '+e.message;
+  }
+  const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano. Escribe en ${LANG()}.`;
+  const CARD_FORMAT=`Devuelve JSON: {"name": "nombre corto y reconocible", "local_name": "nombre en el idioma local si es distinto, o vacío", "sure": true/false, "what_is_it": "2 o 3 frases cortas, máximo 45 palabras en total: qué es y por qué importa", "cool_thing": "1 sola frase con el dato más sorprendente, máximo 25 palabras"}`;
+
+  // ---------- photo flow ----------
+  $('btn-photo').onclick=()=>{
+    if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);openSettings();return}
+    locate();$('file').value='';$('file').click();
+  };
+  $('file').onchange=async e=>{
+    const f=e.target.files&&e.target.files[0];if(!f)return;
+    status('');show('loading');$('loading-text').textContent='Looking…';
+    let img=null,pos=null,near=[];
+    try{
+      img=await shrink(f,1024);
+      pos=await (posPromise||locate());
+      if(pos){near=await nearby(pos,300,20)}
+      $('loading-text').textContent='Figuring out what it is…';
+      const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (±${pos.acc} m).`+(near.length?` Lugares de Wikipedia cerca: ${near.slice(0,15).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida.';
+      const out=await gemini([
+        {inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},
+        {text:`Alguien está parado en la calle, ve algo que le da curiosidad y saca esta foto. Identifica el elemento principal (edificio, monumento, estatua, placa, detalle…). Usa la ubicación y la lista de lugares para identificarlo con precisión, pero manda lo que se ve en la foto. Si no estás seguro, "sure": false y tu mejor hipótesis.\n\n${ctx}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`}
+      ]);
+      openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,deep:{}});
+    }catch(err){
+      if(err.message==='LIMIT'&&pos){ // fallback: let the person pick, show Wikipedia
+        cur={img,pos,near,noAI:true,deep:{}};status('Se acabó el límite gratis por ahora. Elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+      show('home');status(errText(err),true);
+    }
+  };
+  function shrink(file,max){
+    return new Promise((res,rej)=>{
+      const url=URL.createObjectURL(file),im=new Image();
+      im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height));const c=document.createElement('canvas');
+        c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+        URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.8))};
+      im.onerror=()=>rej(new Error('No pude leer la foto'));im.src=url;
+    });
+  }
+
+  // ---------- card ----------
+  function openCard(c,fromHistory){
+    cur=c;stopVoice();
+    $('r-img').hidden=!c.img;if(c.img)$('r-img').src=c.img;
+    $('r-unsure').hidden=c.sure!==false;
+    $('r-name').textContent=c.name||'Unknown';
+    const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
+    $('r-local').textContent=loc;$('r-local').hidden=!loc;
+    $('r-what').textContent=c.what||'';
+    $('r-cool').textContent=c.cool||'';$('r-cool-wrap').hidden=!c.cool;
+    $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Wikipedia</a>`;
+    $('btn-notthis').hidden=!c.pos;
+    $('btn-deeper').hidden=!!c.noAI||!cfg.key;
+    $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
+    renderChips();$('sections').innerHTML='';
+    Object.keys(c.deep||{}).forEach(id=>renderSection(id));
+    show('result');
+    if(!fromHistory)saveHistory();
+  }
+  $('btn-deeper').onclick=()=>{const d=$('deeper');d.hidden=!d.hidden;$('btn-deeper').setAttribute('aria-expanded',String(!d.hidden));if(!d.hidden)d.scrollIntoView({behavior:'smooth',block:'start'})};
+  function renderChips(){
+    const box=$('chips');box.innerHTML='';
+    TOPICS.forEach(t=>{if(t.photo&&!cur.img)return;
+      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed',cur.deep&&cur.deep[t.id]?'true':'false');
+      b.onclick=()=>goDeeper(t,b);box.appendChild(b)});
+  }
+  async function goDeeper(t,btn){
+    if(cur.deep[t.id]){const s=document.getElementById('sec-'+t.id);if(s)s.scrollIntoView({behavior:'smooth',block:'start'});return}
+    btn.setAttribute('aria-pressed','true');
+    const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
+    sec.innerHTML=`<h3></h3><p class="wait">Thinking…</p>`;sec.querySelector('h3').textContent=t.label;
+    $('sections').prepend(sec);sec.scrollIntoView({behavior:'smooth',block:'start'});
+    try{
+      const parts=[];
+      if(t.photo&&cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
+      const where=cur.pos?` (en lat ${cur.pos.lat.toFixed(4)}, lon ${cur.pos.lon.toFixed(4)})`:'';
+      parts.push({text:`La persona está delante de "${cur.name}"${cur.local?` / ${cur.local}`:''}${where}. Ya le dijiste: "${cur.what} ${cur.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. Da entre 3 y 6 puntos, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${cur.wiki?`\nResumen de Wikipedia como referencia: "${cur.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+      const out=await gemini(parts);
+      cur.deep[t.id]=(out.points||[]).filter(Boolean);
+      renderSection(t.id,sec);saveHistory(true);
+    }catch(e){sec.querySelector('.wait').textContent=errText(e);btn.setAttribute('aria-pressed','false')}
+  }
+  function renderSection(id,existing){
+    const t=TOPICS.find(x=>x.id===id);if(!t)return;
+    const sec=existing||document.createElement('div');sec.className='section';sec.id='sec-'+id;sec.innerHTML='';
+    const h=document.createElement('h3');h.textContent=t.label;const ul=document.createElement('ul');
+    (cur.deep[id]||[]).forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});
+    sec.append(h,ul);if(!existing)$('sections').appendChild(sec);
+  }
+
+  // ---------- not this ----------
+  $('btn-notthis').onclick=()=>showAlts(false);
+  async function showAlts(fromLimit){
+    show('alts');$('alts-list').innerHTML='<li class="help">Looking around…</li>';
+    $('alts-title').textContent=fromLimit?'What are you looking at?':'Not this? Maybe…';
+    let near=cur.near&&cur.near.length?cur.near:await nearby(cur.pos,300,20);cur.near=near;
+    const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+    const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
+    let list=near.filter(n=>n.dist<=100&&!same(n));let r=100;
+    if(list.length<2){list=near.filter(n=>n.dist<=200&&!same(n));r=200}
+    list=list.slice(0,fromLimit?5:3);
+    $('alts-help').textContent=list.length?`Other places within ${r} m:`:'No other known places nearby.';
+    const ul=$('alts-list');ul.innerHTML='';
+    list.forEach(n=>{const li=document.createElement('li'),b=document.createElement('button');
+      const a=document.createElement('span');a.textContent=n.title;const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
+      b.append(a,d);b.onclick=()=>choose(n);li.appendChild(b);ul.appendChild(li)});
+  }
+  $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else{show('home')}};
+  async function choose(n){
+    show('loading');$('loading-text').textContent='Checking '+n.title+'…';
+    const s=await summary(n.lang,n.title);
+    const base={img:cur.img,pos:cur.pos,near:cur.near,deep:{},url:s&&s.url,wiki:s&&s.text};
+    if(cur.noAI||!cfg.key){
+      const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
+      openCard({...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim(),cool:''});return}
+    try{
+      const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
+      parts.push({text:`La persona dice que está mirando "${n.title}" (a ${n.dist} m). ${s?`Resumen de Wikipedia: "${s.text}"`:''}\nLa foto es de apoyo. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`});
+      const out=await gemini(parts);
+      openCard({...base,name:out.name||n.title,local:out.local_name,sure:true,what:out.what_is_it,cool:out.cool_thing});
+    }catch(e){
+      const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
+      openCard({...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim(),cool:''});
+      status(errText(e)+' Te enseño Wikipedia.',true);
+    }
+  }
+
+  // ---------- voice ----------
+  let speaking=false;
+  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}speaking=false;$('btn-listen').textContent='Listen'}
+  $('btn-listen').onclick=()=>{
+    if(speaking){stopVoice();return}
+    if(!('speechSynthesis' in window)||!cur)return;
+    const u=new SpeechSynthesisUtterance(`${cur.name}. ${cur.what} ${cur.cool||''}`);
+    u.lang=cfg.lang==='en'?'en-GB':'es-ES';u.rate=1.05;
+    const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.toLowerCase()===u.lang.toLowerCase())||vs.find(v=>v.lang&&v.lang.startsWith(cfg.lang));
+    if(v)u.voice=v;u.onend=u.onerror=stopVoice;speaking=true;$('btn-listen').textContent='Stop';speechSynthesis.speak(u);
+  };
+
+  // ---------- history (without photos, to save space) ----------
+  function saveHistory(update){
+    if(!cur||!cur.name)return;
+    const h=store.get('history',[]);if(!cur.t)cur.t=Date.now();
+    const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,pos:cur.pos||null,deep:cur.deep||{},noAI:!!cur.noAI};
+    const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
+    store.set('history',h.slice(0,30));
+  }
+  function renderHistory(){
+    const h=store.get('history',[]);$('history').hidden=!h.length;
+    const ul=$('history-list');ul.innerHTML='';
+    h.slice(0,4).forEach(x=>{const li=document.createElement('li'),b=document.createElement('button');
+      const n=document.createElement('span');n.textContent=x.name;
+      const w=document.createElement('span');w.className='when';w.textContent=new Date(x.t).toLocaleString(cfg.lang==='en'?'en-GB':'es-ES',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      b.append(n,w);b.onclick=()=>openCard({...x,img:null,near:null},true);li.appendChild(b);ul.appendChild(li)});
+  }
+
+  // ---------- settings ----------
+  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;show('settings')}
+  $('s-save').onclick=()=>{
+    cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
+    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
+    show('home');status(cfg.key?'Saved. Ready.':'Saved. Sin clave no funciona la foto.');
+  };
+  $('s-clear').onclick=()=>{store.set('history',[]);status('History cleared.');show('home')};
+
+  if(!cfg.key)status('Toca “Settings” para poner tu clave gratuita de Gemini.');
+  show('home');
+  if('speechSynthesis' in window)speechSynthesis.getVoices();
+})();
+</script>
+</body>
+</html>
