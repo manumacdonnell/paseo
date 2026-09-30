@@ -263,6 +263,30 @@ p{margin:0}
     const seen=new Set(a.map(key));
     return [...a,...b.filter(x=>!seen.has(key(x)))].sort((x,y)=>x.dist-y.dist);
   }
+  // OpenStreetMap: named cafés, shops, bars, monuments… right around you (free, no key)
+  const KIND={cafe:'cafetería',restaurant:'restaurante',bar:'bar',pub:'pub',fast_food:'comida rápida',bakery:'panadería',ice_cream:'heladería',
+    place_of_worship:'iglesia / templo',museum:'museo',gallery:'galería',hotel:'hotel',theatre:'teatro',cinema:'cine',library:'biblioteca',
+    memorial:'memorial',monument:'monumento',statue:'estatua',artwork:'obra de arte',castle:'castillo',palace:'palacio',church:'iglesia',
+    university:'universidad',bank:'banco',pharmacy:'farmacia',books:'librería',clothes:'tienda de ropa',supermarket:'supermercado',
+    convenience:'tienda',attraction:'atracción',viewpoint:'mirador',fountain:'fuente',park:'parque',marketplace:'mercado',building:'edificio histórico',ruins:'ruinas',wayside_shrine:'capilla',city_gate:'puerta de la ciudad'};
+  async function osmNearby(pos,radius){
+    const q=`[out:json][timeout:8];nwr["name"][~"^(amenity|shop|tourism|historic|leisure|craft)$"~"."](around:${radius},${pos.lat},${pos.lon});out center 60;`;
+    const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),7000);
+    try{
+      const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:'data='+encodeURIComponent(q),headers:{'Content-Type':'application/x-www-form-urlencoded'},signal:ctl.signal});
+      clearTimeout(t);if(!r.ok)return[];const j=await r.json();
+      const R=6371000,rad=x=>x*Math.PI/180;
+      return(j.elements||[]).map(e=>{const la=e.lat||(e.center&&e.center.lat),lo=e.lon||(e.center&&e.center.lon);if(la==null)return null;
+        const tg=e.tags||{};const raw=tg.amenity||tg.shop||tg.tourism||tg.historic||tg.leisure||tg.craft||'';
+        const d=2*R*Math.asin(Math.sqrt(Math.sin(rad(la-pos.lat)/2)**2+Math.cos(rad(pos.lat))*Math.cos(rad(la))*Math.sin(rad(lo-pos.lon)/2)**2));
+        return{title:tg.name,kind:KIND[raw]||raw.replace(/_/g,' '),dist:Math.round(d),osm:true,wikipedia:tg.wikipedia||''}}).filter(Boolean)
+        .filter((x,i,a)=>a.findIndex(y=>y.title===x.title)===i).sort((a,b)=>a.dist-b.dist);
+    }catch(e){clearTimeout(t);return[]}
+  }
+  async function places(pos){
+    const [wiki,osm]=await Promise.all([nearby(pos,200,20),osmNearby(pos,70)]);
+    return{wiki,osm};
+  }
   async function summary(lang,title){
     try{const r=await fetch(`https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title.replace(/ /g,'_'))}`);
       if(!r.ok)return null;const j=await r.json();
@@ -338,21 +362,23 @@ p{margin:0}
   $('file').onchange=async e=>{
     const f=e.target.files&&e.target.files[0];if(!f)return;
     status('');show('loading');$('loading-text').textContent='Looking…';
-    let img=null,pos=null,near=[];
+    let img=null,pos=null,near=[],osm=[];
     try{
       img=await shrink(f,1024);
       pos=await (posPromise||locate());
-      if(pos){near=await nearby(pos,300,20)}
+      if(pos){$('loading-text').textContent='Checking what’s around you…';const p=await places(pos);near=p.wiki;osm=p.osm}
       $('loading-text').textContent='Figuring out what it is…';
-      const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (±${pos.acc} m).`+(near.length?` Lugares de Wikipedia cerca: ${near.slice(0,15).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida.';
+      const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión GPS ±${pos.acc} m).`+
+        (osm.length?`\nSitios con nombre a menos de 70 m según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
+        (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida.';
       const out=await gemini([
         {inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},
-        {text:`Alguien está parado en la calle, ve algo que le da curiosidad y saca esta foto. Identifica el elemento principal (edificio, monumento, estatua, placa, detalle…). Usa la ubicación y la lista de lugares para identificarlo con precisión, pero manda lo que se ve en la foto. Si no estás seguro, "sure": false y tu mejor hipótesis.\n\n${ctx}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`}
+        {text:`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: identifícalo usando las listas de abajo SOLO si un sitio encaja con lo que se ve. Nunca elijas un palacio o monumento de la lista solo porque está cerca: si la foto es el interior de una cafetería, la respuesta es esa cafetería (búscala en la lista de OpenStreetMap), no el palacio de al lado. Si sabes con certeza en qué edificio histórico está el local, puedes mencionarlo en el texto.\nPaso 3: si no puedes saber el nombre exacto, di qué es de forma genérica ("una cafetería de especialidad", "una placa conmemorativa") con "sure": false.\n\n${ctx}\n\nLo va a leer parado en 15 segundos. Si es un local o negocio, cuenta qué es y algo interesante del sitio o de la calle/edificio donde está, sin inventar.\n${RULES()}\n${CARD_FORMAT}`}
       ]);
-      openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,deep:{}});
+      openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,osm,deep:{}});
     }catch(err){
       if(err.message==='LIMIT'&&pos){ // fallback: let the person pick, show Wikipedia
-        cur={img,pos,near,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+        cur={img,pos,near,osm,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
       show('home');status(errText(err),true);
     }
   };
@@ -421,29 +447,35 @@ p{margin:0}
   async function showAlts(fromLimit){
     show('alts');$('alts-list').innerHTML='<li class="help">Looking around…</li>';
     $('alts-title').textContent=fromLimit?'What are you looking at?':'Not this? Maybe…';
-    let near=cur.near&&cur.near.length?cur.near:await nearby(cur.pos,300,20);cur.near=near;
+    if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
-    let list=near.filter(n=>n.dist<=100&&!same(n));let r=100;
-    if(list.length<2){list=near.filter(n=>n.dist<=200&&!same(n));r=200}
-    list=list.slice(0,fromLimit?5:3);
-    $('alts-help').textContent=list.length?`Other places within ${r} m:`:'No other known places nearby.';
+    // closest things first: named spots from OpenStreetMap (≤70 m) mixed with Wikipedia places (≤100 m)
+    const wiki=cur.near.filter(n=>n.dist<=100&&!same(n));
+    const osm=cur.osm.filter(n=>!same(n)&&!wiki.some(w=>norm(w.title)===norm(n.title)));
+    let list=[...osm,...wiki].sort((a,b)=>a.dist-b.dist);
+    if(list.length<2)list=[...list,...cur.near.filter(n=>n.dist>100&&n.dist<=200&&!same(n))];
+    list=list.slice(0,fromLimit?6:5);
+    $('alts-help').textContent=list.length?'Other things right around you:':'No other known places nearby.';
     const ul=$('alts-list');ul.innerHTML='';
     list.forEach(n=>{const li=document.createElement('li'),b=document.createElement('button');
-      const a=document.createElement('span');a.textContent=n.title;const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
+      const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
       b.append(a,d);b.onclick=()=>choose(n);li.appendChild(b);ul.appendChild(li)});
   }
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else{show('home')}};
   async function choose(n){
     show('loading');$('loading-text').textContent='Checking '+n.title+'…';
-    const s=await summary(n.lang,n.title);
-    const base={img:cur.img,pos:cur.pos,near:cur.near,deep:{},url:s&&s.url,wiki:s&&s.text};
+    let s=null;
+    if(n.osm){const m=(n.wikipedia||'').match(/^(\w+):(.+)$/);if(m)s=await summary(m[1],m[2])}
+    else s=await summary(n.lang,n.title);
+    const base={img:cur.img,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},url:s&&s.url,wiki:s&&s.text};
+    if(n.osm&&!s&&(cur.noAI||!cfg.key)){openCard({...base,noAI:true,name:n.title,sure:true,what:n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:'',cool:''});return}
     if(cur.noAI||!cfg.key){
       const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
       openCard({...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim(),cool:''});return}
     try{
       const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
-      parts.push({text:`La persona dice que está mirando "${n.title}" (a ${n.dist} m). ${s?`Resumen de Wikipedia: "${s.text}"`:''}\nLa foto es de apoyo. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`});
+      parts.push({text:`La persona dice que está mirando "${n.title}"${n.kind?` (${n.kind})`:''}, a ${n.dist} m${cur.pos?`, en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}`:''}. ${s?`Resumen de Wikipedia: "${s.text}"`:'No hay artículo de Wikipedia: si no conoces el sitio, di qué tipo de lugar es y algo cierto de la calle o el edificio donde está, sin inventar.'}\nLa foto es de apoyo. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT}`});
       const out=await gemini(parts);
       openCard({...base,name:out.name||n.title,local:out.local_name,sure:true,what:out.what_is_it,cool:out.cool_thing});
     }catch(e){
