@@ -139,6 +139,10 @@ p{margin:0}
 .row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
 .note{font-size:13px;color:var(--muted)}
 .icon.danger{color:var(--brick);border-color:transparent}
+.ask{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.ask-row{display:flex;gap:8px;flex-wrap:wrap}
+.ask-row button{flex:1 1 auto;border:1px solid var(--line);background:var(--soft);border-radius:12px;padding:11px 12px;font-weight:700;font-size:15px}
+.ask textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--bg);color:var(--ink);font:inherit;font-size:14px}
 /* swipe left to delete */
 .rows li{position:relative;overflow:hidden;border-radius:12px}
 .rows .del-bg{position:absolute;inset:0;background:var(--brick);color:#fff;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;font-weight:700;border-radius:12px}
@@ -209,8 +213,18 @@ p{margin:0}
       <div class="tools">
         <button class="icon" id="btn-listen">Escuchar</button>
         <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
+        <button class="icon" id="btn-ask" hidden>Preguntar más</button>
         <button class="icon danger" id="btn-delete" hidden>Borrar</button>
         <span class="src" id="r-src" hidden></span>
+      </div>
+      <div class="ask" id="ask-panel" hidden>
+        <p class="help">Copio el sitio, la dirección y lo que ya sabes. Pega en el chat y escribe tu pregunta.</p>
+        <div class="ask-row">
+          <button id="ask-chatgpt">Abrir ChatGPT</button>
+          <button id="ask-claude">Abrir Claude</button>
+          <button id="ask-copy">Solo copiar</button>
+        </div>
+        <textarea id="ask-text" readonly hidden></textarea>
       </div>
     </article>
     <button class="deeper-btn" id="btn-deeper" aria-expanded="false"><span>PROFUNDIZAR</span><span aria-hidden="true">→</span></button>
@@ -334,9 +348,14 @@ p{margin:0}
     placesPromise=posPromise.then(p=>p?places(p):{wiki:[],osm:[]});
     return posPromise;
   }
-  async function cityOf(pos){
-    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=10&lat=${pos.lat}&lon=${pos.lon}&accept-language=${cfg.lang}`);
-      if(!r.ok)return'';const a=(await r.json()).address||{};return a.city||a.town||a.village||a.municipality||a.county||a.state||''}catch(e){return''}
+  // city (for grouping the map) and street address (for "Preguntar más") in one lookup
+  async function placeInfo(pos){
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${pos.lat}&lon=${pos.lon}&accept-language=${cfg.lang}`);
+      if(!r.ok)return{};const a=(await r.json()).address||{};
+      const city=a.city||a.town||a.village||a.municipality||a.county||a.state||'';
+      const street=[a.road||a.pedestrian||a.square||a.footway,a.house_number].filter(Boolean).join(' ');
+      const address=[street,a.suburb||a.neighbourhood||a.quarter,city,a.country].filter(Boolean).join(', ');
+      return{city,address}}catch(e){return{}}
   }
 
   // ---------- wikipedia + openstreetmap ----------
@@ -593,7 +612,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-listen').hidden=!!opt.partial;$('btn-delete').hidden=!!opt.partial;
+    $('btn-listen').hidden=!!opt.partial;$('btn-delete').hidden=!!opt.partial;$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
     if(view!=='result')show('result');
@@ -688,6 +707,29 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     }catch(e){openCard(plain());status(errText(e)+' Te enseño Wikipedia.',true)}
   }
 
+  // ---------- "Preguntar más": copy the context and open ChatGPT or Claude ----------
+  function askText(){
+    const c=cur;const lines=[];
+    lines.push(`Estoy ahora mismo delante de: ${c.name}${c.local&&c.local!==c.name?` (${c.local})`:''}.`);
+    if(c.address)lines.push(`Dirección: ${c.address}.`);else if(c.city)lines.push(`Ciudad: ${c.city}.`);
+    if(c.pos)lines.push(`Coordenadas: ${c.pos.lat.toFixed(5)}, ${c.pos.lon.toFixed(5)} (https://maps.google.com/?q=${c.pos.lat.toFixed(5)},${c.pos.lon.toFixed(5)})`);
+    const known=[c.what,c.cool].filter(Boolean).join(' ');if(known)lines.push(`Lo que ya sé: ${known}`);
+    lines.push('','Mi pregunta: ');
+    return lines.join('\n');
+  }
+  $('btn-ask').onclick=()=>{askMsg('Copio el sitio, la dirección y lo que ya sabes. Pega en el chat y escribe tu pregunta.');const p=$('ask-panel');p.hidden=!p.hidden;$('ask-text').hidden=true;if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'nearest'})};
+  // the copy must happen right inside the tap, or the iPhone refuses it
+  function copyAsk(){
+    const txt=askText();
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).catch(()=>showAskText(txt));return true}}catch(e){}
+    showAskText(txt);return false;
+  }
+  function askMsg(t){$('ask-panel').querySelector('.help').textContent=t}
+  function showAskText(txt){const ta=$('ask-text');ta.value=txt;ta.hidden=false;ta.focus();ta.select();askMsg('No pude copiarlo solo: mantén pulsado el texto y cópialo.')}
+  $('ask-chatgpt').onclick=()=>{copyAsk();askMsg('Copiado. Pega en ChatGPT y escribe tu pregunta.');window.open('https://chatgpt.com/','_blank')};
+  $('ask-claude').onclick=()=>{copyAsk();askMsg('Copiado. Pega en Claude y escribe tu pregunta.');window.open('https://claude.ai/new','_blank')};
+  $('ask-copy').onclick=()=>{if(copyAsk())askMsg('Copiado. Pégalo donde quieras.')};
+
   // ---------- voice ----------
   let speaking=false;
   function stopVoice(){try{speechSynthesis.cancel()}catch(e){}speaking=false;$('btn-listen').textContent='Escuchar'}
@@ -705,11 +747,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(!cur||!cur.name)return;
     const h=store.get('history',[]);const isNew=!cur.t;if(isNew)cur.t=Date.now();
     const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,
-      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',fromGallery:!!cur.fromGallery,takenAt:cur.takenAt||null,deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
+      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',address:cur.address||'',fromGallery:!!cur.fromGallery,takenAt:cur.takenAt||null,deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
     store.set('history',h.slice(0,500));
     if(cur.file&&!cur.photoSaved){const card=cur;card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
-    if(!item.city&&item.pos){const t=item.t;cityOf(item.pos).then(c=>{if(!c)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=c;store.set('history',hh)}if(cur&&cur.t===t)cur.city=c})}
+    if((!item.city||!item.address)&&item.pos){const t=item.t;placeInfo(item.pos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address}})}
   }
   function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
   function row(x,onOpen,timeOnly){
