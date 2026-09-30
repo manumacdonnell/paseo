@@ -138,6 +138,15 @@ p{margin:0}
 .row button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-weight:600}
 .row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
 .note{font-size:13px;color:var(--muted)}
+.icon.danger{color:var(--brick);border-color:transparent}
+/* swipe left to delete */
+.rows li{position:relative;overflow:hidden;border-radius:12px}
+.rows .del-bg{position:absolute;inset:0;background:var(--brick);color:#fff;display:flex;align-items:center;justify-content:flex-end;padding-right:18px;font-weight:700;border-radius:12px}
+.rows li>button{position:relative;transition:transform .18s ease}
+.rows li.dragging>button{transition:none}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin-top:4px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 18px);background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 10px 10px 16px;display:flex;gap:14px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:1000;max-width:calc(100% - 32px)}
+.toast button{border:0;background:transparent;color:var(--bg);font-weight:700;text-decoration:underline;padding:6px}
 @media (prefers-reduced-motion:reduce){.spinner{animation-duration:3s}.typing::after{animation:none}}
 </style>
 </head>
@@ -200,6 +209,7 @@ p{margin:0}
       <div class="tools">
         <button class="icon" id="btn-listen">Escuchar</button>
         <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
+        <button class="icon danger" id="btn-delete" hidden>Borrar</button>
         <span class="src" id="r-src" hidden></span>
       </div>
     </article>
@@ -265,6 +275,7 @@ p{margin:0}
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
+  <div class="toast" id="toast" hidden><span id="toast-text"></span><button id="toast-undo">Deshacer</button></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -282,11 +293,10 @@ p{margin:0}
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
-    {id:'history',label:'Historia',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción) y cómo encaja en la historia de la ciudad.'},
-    {id:'arch',label:'Arquitectura',ask:'La arquitectura: estilo, épocas, quién lo diseñó, materiales, y qué rasgos concretos lo hacen reconocible.'},
-    {id:'people',label:'Personajes',ask:'Personajes relacionados: quién lo mandó construir, quién vivió, trabajó, fue enterrado o protagonizó algo aquí, y por qué importan.'},
-    {id:'weird',label:'Rarezas',ask:'Anécdotas, cosas raras, leyendas y rumores (dejando claro qué es leyenda), detalles poco conocidos.'},
-    {id:'seeing',label:'¿Qué estoy viendo?',ask:'Mira la foto y explica los detalles concretos que la persona tiene delante: qué es cada elemento visible, qué significa, y qué debería buscar con la mirada (what to look at). Refiérete a partes visibles de la foto.',photo:true}
+    {id:'history',label:'Historia',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción), quién lo impulsó o vivió aquí si es relevante, y cómo encaja en la historia de la ciudad.'},
+    {id:'arch',label:'Arquitectura',ask:'La arquitectura en profundidad: estilo y corriente, quién lo diseñó, en qué se inspiró (referentes, otros edificios, escuelas, influencias de otros países o épocas), cómo encaja en la historia de ese estilo, reformas o capas de distintas épocas, y qué detalles concretos de la fachada o el espacio delatan ese estilo para que la persona los busque con la mirada.',usePhoto:true},
+    {id:'curious',label:'Datos curiosos',ask:'Datos curiosos, anécdotas, leyendas y rumores (deja claro qué es leyenda), cosas poco conocidas o sorprendentes. Distintos del dato curioso que ya le dijiste.'},
+    {id:'film',label:'Cine y cultura visual',ask:'Cine y cultura visual: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; fotógrafos o artistas ligados al lugar; apariciones en publicidad, portadas o cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, directores ni escenas. Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión visual más cercana (la calle, el barrio o la ciudad en el cine o el arte).',few:true}
   ];
 
   // ---------- views ----------
@@ -304,6 +314,7 @@ p{margin:0}
   function idb(){if(!dbp)dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('paseo',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return dbp}
   async function putPhoto(t,blob){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').put(blob,t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
   async function getPhoto(t){try{const d=await idb();return await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
+  async function delPhoto(t){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').delete(t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
   async function clearPhotos(){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').clear();tx.oncomplete=res;tx.onerror=res})}catch(e){}}
   const urlCache=new Map();
   async function photoURL(t){if(urlCache.has(t))return urlCache.get(t);const b=await getPhoto(t);const u=b?URL.createObjectURL(b):null;urlCache.set(t,u);return u}
@@ -471,7 +482,7 @@ LOCAL: nombre en el idioma local si es distinto, o vacío
 CATEGORY: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street, other
 SOURCE: sign | list | knowledge | generic
 SURE: yes | no
-WHAT: 2 o 3 frases cortas (máximo 45 palabras) en presente, hablándole a la persona que lo tiene delante ahora mismo: qué es y por qué importa. No empieces con "Estás ante" (ya sale en pantalla).
+WHAT: 2 o 3 frases cortas (máximo 45 palabras) en presente, hablándole a la persona que lo tiene delante ahora mismo: qué es y por qué importa. No empieces con "Estás ante" (ya sale en pantalla). No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección): céntrate en qué es y por qué importa.
 COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras)
 Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
@@ -582,7 +593,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-listen').hidden=!!opt.partial;
+    $('btn-listen').hidden=!!opt.partial;$('btn-delete').hidden=!!opt.partial;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id))}
     if(view!=='result')show('result');
@@ -611,9 +622,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const card=cur;
     try{
       const parts=[];
-      if(t.photo&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
+      if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
       const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
-      parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. Da entre 3 y 6 puntos, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+      parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
       const out=await gemini(parts);
       card.deep[t.id]=(out.points||[]).filter(Boolean);
       if(cur===card){renderSection(t.id,sec);saveDiscovery(true)}
@@ -703,12 +714,48 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
   function row(x,onOpen,timeOnly){
     const li=document.createElement('li'),b=document.createElement('button');
+    const bg=document.createElement('div');bg.className='del-bg';bg.textContent='Borrar';li.appendChild(bg);
     const im=document.createElement('img');im.className='th';im.alt='';
     if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
     const n=document.createElement('span');n.className='nm';n.textContent=x.name;
     const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
-    b.append(im,n,w);b.onclick=onOpen;li.appendChild(b);return li;
+    b.append(im,n,w);li.appendChild(b);
+    // swipe left to delete
+    let x0=null,y0=0,dx=0,swiping=false;
+    b.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;swiping=false},{passive:true});
+    b.addEventListener('touchmove',e=>{if(x0===null)return;const mx=e.touches[0].clientX-x0,my=e.touches[0].clientY-y0;
+      if(!swiping&&Math.abs(mx)>10&&Math.abs(mx)>Math.abs(my)){swiping=true;li.classList.add('dragging')}
+      if(swiping){dx=Math.min(0,mx);b.style.transform=`translateX(${dx}px)`}},{passive:true});
+    b.addEventListener('touchend',()=>{li.classList.remove('dragging');
+      if(swiping&&dx<-Math.min(110,li.offsetWidth*0.3)){b.style.transform='translateX(-110%)';setTimeout(()=>removeDiscovery(x.t),160)}
+      else b.style.transform='';x0=null;setTimeout(()=>{swiping=false},0)});
+    b.onclick=e=>{if(swiping){e.preventDefault();return}onOpen()};
+    return li;
   }
+  // delete with a few seconds to undo; the photo is only erased when the undo window closes
+  let undoTimer=null,pendingDelete=null;
+  function removeDiscovery(t){
+    finishPendingDelete();
+    const h=store.get('history',[]);const i=h.findIndex(x=>x.t===t);if(i<0)return;
+    const item=h[i];h.splice(i,1);store.set('history',h);store.set('swipeHinted',true);
+    pendingDelete={item,i};
+    $('toast-text').textContent=`Borrado: ${item.name.length>28?item.name.slice(0,27)+'…':item.name}`;$('toast').hidden=false;
+    clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);
+    refreshLists();
+  }
+  function finishPendingDelete(){
+    clearTimeout(undoTimer);$('toast').hidden=true;
+    if(!pendingDelete)return;const t=pendingDelete.item.t;pendingDelete=null;
+    delPhoto(t);const u=urlCache.get(t);if(u)URL.revokeObjectURL(u);urlCache.delete(t);
+  }
+  $('toast-undo').onclick=()=>{
+    if(!pendingDelete)return;clearTimeout(undoTimer);
+    const h=store.get('history',[]);h.splice(Math.min(pendingDelete.i,h.length),0,pendingDelete.item);store.set('history',h);
+    pendingDelete=null;$('toast').hidden=true;refreshLists();
+  };
+  function refreshLists(){if(view==='home')renderHome();else if(view==='mymap'){if(!store.get('history',[]).length){show('home');return}openMyMap()}}
+  $('btn-delete').onclick=()=>{if(!cur||!cur.t)return;const t=cur.t;stopVoice();
+    if(backTo==='mymap'){backTo=null;show('mymap')}else show('home');removeDiscovery(t)};
   async function openFromHistory(x,from){
     backTo=from||null;
     let img=null;if(x.hasPhoto){const b=await getPhoto(x.t);if(b)img=await blobToDataURL(b)}
@@ -718,6 +765,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
     h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
+    if(h.length&&!store.get('swipeHinted',false)){const hint=document.createElement('li');hint.className='hint';hint.textContent='Desliza a la izquierda para borrar';ul.appendChild(hint)}
     $('btn-mymap').hidden=!h.length;
     const cities=[...new Set(h.map(x=>x.city).filter(Boolean))];
     $('mymap-count').textContent=`${h.length} ${h.length===1?'descubrimiento':'descubrimientos'}${cities.length?' · '+cities.slice(0,3).join(', '):''}`;
