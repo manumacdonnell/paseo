@@ -309,18 +309,19 @@ p{margin:0}
       lastDetail=`${model}: ${res.status} ${res.msg}`.slice(0,300);
       if(res.status===403||(res.status===400&&/API key|API_KEY/i.test(res.msg)))throw new Error('KEY');
       // 404 = model retired; 429 = no free quota for this model (or used up); 400 = model can't do this. Try the next one.
-      if(res.status===404||res.status===429||res.status===400){
+      if(res.status===404||res.status===429||res.status===400||res.status>=500){
         if(res.status===429)limitHits++;
-        dead.add(model);
+        if(res.status<500)dead.add(model); // 5xx = busy right now; skip it this time only
         if(queue.length===1)(await listModels()).forEach(m=>{if(!queue.includes(m))queue.push(m)});
         continue;
       }
       throw new Error('HTTP '+res.status+' '+res.msg);
     }
-    throw new Error(limitHits?'LIMIT':'NOMODEL');
+    throw new Error(limitHits?'LIMIT':/: 5\d\d /.test(lastDetail)?'BUSY':'NOMODEL');
   }
   function errText(e){
     if(e.message==='LIMIT')return'Ningún modelo gratis responde ahora (límite de Google). Detalle: '+lastDetail;
+    if(e.message==='BUSY')return'Los servidores de Google están saturados ahora mismo. Prueba en un minuto.';
     if(e.message==='NOMODEL')return'No encontré un modelo que funcione con tu clave. Detalle: '+lastDetail;
     if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Settings.';
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
