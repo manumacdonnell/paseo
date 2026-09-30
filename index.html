@@ -51,6 +51,7 @@ p{margin:0}
 .big svg{width:40px;height:40px}
 .big b{font-family:var(--display);font-size:26px;line-height:1.1}
 .big small{font-size:14px;opacity:.9}
+.alt{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px 16px;font-weight:600;font-size:15px}
 .mapbtn{border:1px solid var(--line);background:var(--card);border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left}
 .mapbtn svg{width:22px;height:22px;flex:none;color:var(--brick)}
 .mapbtn b{display:block;font-family:var(--display);font-size:17px}
@@ -144,63 +145,65 @@ p{margin:0}
 <div class="app">
   <div class="top">
     <h1>Paseo Chismoso</h1>
-    <button class="pill" id="btn-back" hidden>← Back</button>
-    <button class="pill" id="btn-settings">Settings</button>
+    <button class="pill" id="btn-back" hidden>← Volver</button>
+    <button class="pill" id="btn-settings">Ajustes</button>
   </div>
   <p class="status" id="status"></p>
 
   <!-- HOME -->
   <section class="home" id="v-home">
     <div class="history" id="history" hidden>
-      <h2>Recently</h2>
+      <h2>Recientes</h2>
       <ul class="rows" id="history-list"></ul>
     </div>
     <button class="mapbtn" id="btn-mymap" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
-      <span><b>My map</b><span class="sub" id="mymap-count"></span></span>
+      <span><b>Mi mapa</b><span class="sub" id="mymap-count"></span></span>
     </button>
     <button class="big" id="btn-photo">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg>
-      <b>What am I looking at?</b>
-      <small>Take a photo of it</small>
+      <b>¿Qué estoy mirando?</b>
+      <small>Sácale una foto</small>
     </button>
+    <button class="alt" id="btn-upload">Subir una foto de la galería</button>
     <input type="file" id="file" accept="image/*" capture="environment" hidden>
+    <input type="file" id="file-upload" accept="image/*" hidden>
   </section>
 
   <!-- LOADING -->
   <section class="loading" id="v-loading" hidden>
     <div class="spinner"></div>
-    <p id="loading-text">Looking…</p>
+    <p id="loading-text">Mirando…</p>
   </section>
 
   <!-- CARD -->
   <section class="result" id="v-result" hidden>
-    <img class="thumb" id="r-img" alt="Your photo" hidden>
+    <img class="thumb" id="r-img" alt="Tu foto" hidden>
     <article class="card">
       <div class="head">
         <div>
           <p class="eyebrow" id="r-eyebrow">Estás ante</p>
-          <p class="unsure" id="r-unsure" hidden>Probably…</p>
+          <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
         </div>
-        <button class="notthis" id="btn-notthis">Not this?</button>
+        <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
       <div class="block">
-        <p class="label">What is it?</p>
+        <p class="label">Qué es</p>
         <p id="r-what"></p>
       </div>
       <div class="block cool" id="r-cool-wrap">
-        <p class="label">One cool thing</p>
+        <p class="label">Un dato curioso</p>
         <p id="r-cool"></p>
       </div>
       <div class="tools">
-        <button class="icon" id="btn-listen">Listen</button>
-        <button class="icon" id="btn-savephoto" hidden>Save photo</button>
+        <button class="icon" id="btn-listen">Escuchar</button>
+        <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
         <span class="src" id="r-src" hidden></span>
       </div>
     </article>
-    <button class="deeper-btn" id="btn-deeper" aria-expanded="false"><span>GO DEEPER</span><span aria-hidden="true">→</span></button>
+    <button class="deeper-btn" id="btn-deeper" aria-expanded="false"><span>PROFUNDIZAR</span><span aria-hidden="true">→</span></button>
     <div class="deeper" id="deeper" hidden>
       <div class="chips" id="chips"></div>
       <div id="sections" style="display:flex;flex-direction:column;gap:12px"></div>
@@ -209,22 +212,22 @@ p{margin:0}
 
   <!-- NOT THIS -->
   <section class="alts" id="v-alts" hidden>
-    <h2 id="alts-title">What are you looking at?</h2>
-    <p class="help" id="alts-help">Other places within 100 m:</p>
+    <h2 id="alts-title">¿Qué estás mirando?</h2>
+    <p class="help" id="alts-help">Otros sitios cerca:</p>
     <ul id="alts-list"></ul>
     <form class="typed" id="alts-form">
-      <label for="alts-input" class="help">Not listed? Type what it is:</label>
+      <label for="alts-input" class="help">¿No sale? Escribe qué es:</label>
       <div class="typed-row">
-        <input id="alts-input" autocomplete="off" placeholder="Name on the sign, e.g. Café Bristol">
-        <button type="submit">Go</button>
+        <input id="alts-input" autocomplete="off" placeholder="El nombre del cartel, p. ej. Café Bristol">
+        <button type="submit">Ir</button>
       </div>
     </form>
-    <button class="plain" id="alts-none">None of these</button>
+    <button class="plain" id="alts-none">Ninguno de estos</button>
   </section>
 
   <!-- MY MAP -->
   <section class="mymap" id="v-mymap" hidden>
-    <h2>My map</h2>
+    <h2>Mi mapa</h2>
     <div class="cities" id="cities"></div>
     <div id="map"></div>
     <div id="days"></div>
@@ -232,7 +235,7 @@ p{margin:0}
 
   <!-- SETTINGS -->
   <section class="settings" id="v-settings" hidden>
-    <h2>Settings</h2>
+    <h2>Ajustes</h2>
     <div id="setup-steps">
       <p class="help" style="margin-bottom:8px">Necesitas una clave gratuita de Google Gemini. Se hace una vez:</p>
       <ol>
@@ -241,23 +244,23 @@ p{margin:0}
         <li>Copia la clave y pégala aquí.</li>
       </ol>
     </div>
-    <label>Gemini key
+    <label>Clave de Gemini
       <input id="s-key" type="password" autocomplete="off" placeholder="Pega tu clave">
       <span class="help">Se guarda solo en este móvil.</span>
     </label>
-    <label>Language of the answers
+    <label>Idioma de las respuestas
       <select id="s-lang">
         <option value="es">Español</option>
-        <option value="en">English</option>
+        <option value="en">Inglés</option>
       </select>
     </label>
-    <label>Model
+    <label>Modelo
       <input id="s-model" autocomplete="off">
       <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
     </label>
     <div class="row">
-      <button class="primary" id="s-save">Save</button>
-      <button id="s-clear">Clear map &amp; history</button>
+      <button class="primary" id="s-save">Guardar</button>
+      <button id="s-clear">Borrar mapa e historial</button>
     </div>
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
@@ -265,6 +268,7 @@ p{margin:0}
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
@@ -278,11 +282,11 @@ p{margin:0}
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
-    {id:'history',label:'History',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción) y cómo encaja en la historia de la ciudad.'},
-    {id:'arch',label:'Architecture',ask:'La arquitectura: estilo, épocas, quién lo diseñó, materiales, y qué rasgos concretos lo hacen reconocible.'},
-    {id:'people',label:'People',ask:'Personajes relacionados: quién lo mandó construir, quién vivió, trabajó, fue enterrado o protagonizó algo aquí, y por qué importan.'},
-    {id:'weird',label:'Weird facts',ask:'Anécdotas, cosas raras, leyendas y rumores (dejando claro qué es leyenda), detalles poco conocidos.'},
-    {id:'seeing',label:'What am I seeing?',ask:'Mira la foto y explica los detalles concretos que la persona tiene delante: qué es cada elemento visible, qué significa, y qué debería buscar con la mirada (what to look at). Refiérete a partes visibles de la foto.',photo:true}
+    {id:'history',label:'Historia',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción) y cómo encaja en la historia de la ciudad.'},
+    {id:'arch',label:'Arquitectura',ask:'La arquitectura: estilo, épocas, quién lo diseñó, materiales, y qué rasgos concretos lo hacen reconocible.'},
+    {id:'people',label:'Personajes',ask:'Personajes relacionados: quién lo mandó construir, quién vivió, trabajó, fue enterrado o protagonizó algo aquí, y por qué importan.'},
+    {id:'weird',label:'Rarezas',ask:'Anécdotas, cosas raras, leyendas y rumores (dejando claro qué es leyenda), detalles poco conocidos.'},
+    {id:'seeing',label:'¿Qué estoy viendo?',ask:'Mira la foto y explica los detalles concretos que la persona tiene delante: qué es cada elemento visible, qué significa, y qué debería buscar con la mirada (what to look at). Refiérete a partes visibles de la foto.',photo:true}
   ];
 
   // ---------- views ----------
@@ -425,7 +429,7 @@ p{margin:0}
     try{return await geminiPass(parts,opt)}
     catch(e){
       if(e.message!=='BUSY')throw e;
-      opt.onStatus&&opt.onStatus('Google is busy — retrying…');
+      opt.onStatus&&opt.onStatus('Google está saturado, reintentando…');
       await wait(2500);return geminiPass(parts,opt);
     }
   }
@@ -433,7 +437,7 @@ p{margin:0}
     const tried=[];let limitHits=0;const queue=[cfg.model];
     for(let i=0;i<queue.length&&tried.length<6;i++){
       const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      if(tried.length>1)opt.onStatus&&opt.onStatus('That model is busy — trying another…');
+      if(tried.length>1)opt.onStatus&&opt.onStatus('Ese modelo está ocupado, probando otro…');
       const res=await callModel(model,parts,opt);
       if(res.ok){
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
@@ -455,7 +459,7 @@ p{margin:0}
     if(e.message==='LIMIT')return'Ningún modelo gratis responde ahora (límite de Google). Detalle: '+lastDetail;
     if(e.message==='BUSY')return'Los servidores de Google están saturados ahora mismo. Prueba en un minuto.';
     if(e.message==='NOMODEL')return'No encontré un modelo que funcione con tu clave. Detalle: '+lastDetail;
-    if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Settings.';
+    if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Ajustes.';
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     return'Algo falló: '+e.message;
   }
@@ -484,27 +488,47 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);openSettings();return}
     locate();$('file').value='';$('file').click();
   };
-  $('file').onchange=async e=>{
-    const f=e.target.files&&e.target.files[0];if(!f)return;
-    status('');show('loading');$('loading-text').textContent='Looking…';backTo=null;
-    let img=null,pos=null,near=[],osm=[];
+  $('btn-upload').onclick=()=>{
+    if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);openSettings();return}
+    $('file-upload').value='';$('file-upload').click();
+  };
+  // location stored inside the photo (EXIF), if the iPhone kept it
+  async function photoLocation(f){
+    try{if(!window.exifr)return null;const g=await exifr.gps(f);
+      if(g&&isFinite(g.latitude)&&isFinite(g.longitude))return{lat:g.latitude,lon:g.longitude,acc:30,fromPhoto:true}}catch(e){}
+    return null;
+  }
+  async function photoDate(f){try{if(!window.exifr)return null;const x=await exifr.parse(f,['DateTimeOriginal']);return x&&x.DateTimeOriginal?new Date(x.DateTimeOriginal).getTime():null}catch(e){return null}}
+  $('file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,false)};
+  $('file-upload').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,true)};
+  async function processPhoto(f,fromGallery){
+    status('');show('loading');$('loading-text').textContent='Mirando…';backTo=null;
+    let img=null,pos=null,near=[],osm=[],note='';
     try{
       img=await resize(f,800,'dataurl');
-      if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
-      pos=await posPromise;
-      if(pos){$('loading-text').textContent='Checking what’s around you…';const p=await placesPromise;near=p.wiki;osm=p.osm}
-      $('loading-text').textContent='Figuring out what it is…';
-      const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión GPS ±${pos.acc} m).`+
+      if(fromGallery){
+        $('loading-text').textContent='Leyendo dónde se sacó la foto…';
+        pos=await photoLocation(f);
+        if(pos)placesPromise=places(pos);else note='Esta foto no trae ubicación, así que la identifico solo por la imagen.';
+      }else{
+        if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
+        pos=await posPromise;
+      }
+      if(pos){$('loading-text').textContent='Mirando qué hay alrededor…';const p=await placesPromise;near=p.wiki;osm=p.osm}
+      $('loading-text').textContent='Averiguando qué es…';
+      const where=pos?(pos.fromPhoto?'La foto se sacó en':'Foto tomada en'):'';
+      const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
-        (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida.';
+        (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
       const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
-      const base={img,file:f,pos,near,osm,deep:{}};
+      const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
+      if(note)status(note);
     }catch(err){
-      if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+      if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
       show('home');status(errText(err),true);
     }
-  };
+  }
   function resize(file,max,as){
     return new Promise((res,rej)=>{
       const url=URL.createObjectURL(file),im=new Image();
@@ -546,17 +570,17 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- card ----------
   function paintCard(c,opt={}){
-    $('r-eyebrow').textContent=cfg.lang==='en'?'You’re looking at':'Estás ante';
+    $('r-eyebrow').textContent='Estás ante';
     $('r-img').hidden=!c.img;if(c.img)$('r-img').src=c.img;
     $('r-unsure').hidden=c.sure!==false;
-    $('r-name').textContent=c.name||'Unknown';
+    $('r-name').textContent=c.name||'Sin nombre';
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
     $('r-what').textContent=c.what||'';$('r-what').classList.toggle('typing',!!opt.partial);
     $('r-cool').textContent=c.cool||'';$('r-cool').classList.remove('typing');$('r-cool-wrap').hidden=!opt.partial&&!c.cool;
-    $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Wikipedia</a>`;
+    $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Ver en Wikipedia</a>`;
     $('btn-notthis').hidden=!c.pos||!!opt.partial;
-    $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!opt.partial;
+    $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-listen').hidden=!!opt.partial;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
@@ -582,7 +606,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(open)open.remove();
     btn.setAttribute('aria-pressed','true');
     const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
-    sec.innerHTML=`<h3></h3><p class="wait">Thinking…</p>`;sec.querySelector('h3').textContent=t.label;
+    sec.innerHTML=`<h3></h3><p class="wait">Pensando…</p>`;sec.querySelector('h3').textContent=t.label;
     $('sections').prepend(sec);sec.scrollIntoView({behavior:'smooth',block:'start'});
     const card=cur;
     try{
@@ -619,8 +643,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- not this ----------
   $('btn-notthis').onclick=()=>showAlts(false);
   async function showAlts(fromLimit){
-    show('alts');$('alts-list').innerHTML='<li class="help">Looking around…</li>';
-    $('alts-title').textContent=fromLimit?'What are you looking at?':'Not this? Maybe…';
+    show('alts');$('alts-list').innerHTML='<li class="help">Mirando alrededor…</li>';
+    $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿No es esto? Quizás…';
     if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
@@ -629,7 +653,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     let list=[...osm,...wiki].sort((a,b)=>a.dist-b.dist);
     if(list.length<2)list=[...list,...cur.near.filter(n=>n.dist>100&&n.dist<=200&&!same(n))];
     list=list.slice(0,fromLimit?6:5);
-    $('alts-help').textContent=list.length?'Other things right around you:':'No other known places nearby.';
+    $('alts-help').textContent=list.length?'Otras cosas justo a tu alrededor:':'No hay otros sitios conocidos cerca.';
     const ul=$('alts-list');ul.innerHTML='';
     list.forEach(n=>{const li=document.createElement('li'),b=document.createElement('button');
       const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
@@ -638,7 +662,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
   async function choose(n){
-    show('loading');$('loading-text').textContent='Checking '+n.title+'…';
+    show('loading');$('loading-text').textContent='Buscando '+n.title+'…';
     let s=null;
     if(n.osm){const m=(n.wikipedia||'').match(/^(\w+):(.+)$/);if(m)s=await summary(m[1],m[2])}
     else s=await summary(n.lang,n.title);
@@ -655,14 +679,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- voice ----------
   let speaking=false;
-  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}speaking=false;$('btn-listen').textContent='Listen'}
+  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}speaking=false;$('btn-listen').textContent='Escuchar'}
   $('btn-listen').onclick=()=>{
     if(speaking){stopVoice();return}
     if(!('speechSynthesis' in window)||!cur)return;
     const u=new SpeechSynthesisUtterance(`${cfg.lang==='en'?'You’re looking at':'Estás ante'} ${cur.name}. ${cur.what} ${cur.cool||''}`);
     u.lang=LOCALE();u.rate=1.05;
     const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.toLowerCase()===u.lang.toLowerCase())||vs.find(v=>v.lang&&v.lang.startsWith(cfg.lang));
-    if(v)u.voice=v;u.onend=u.onerror=stopVoice;speaking=true;$('btn-listen').textContent='Stop';speechSynthesis.speak(u);
+    if(v)u.voice=v;u.onend=u.onerror=stopVoice;speaking=true;$('btn-listen').textContent='Parar';speechSynthesis.speak(u);
   };
 
   // ---------- discoveries (text in localStorage, photos in IndexedDB) ----------
@@ -670,7 +694,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(!cur||!cur.name)return;
     const h=store.get('history',[]);const isNew=!cur.t;if(isNew)cur.t=Date.now();
     const item={t:cur.t,name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,
-      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
+      pos:cur.pos?{lat:cur.pos.lat,lon:cur.pos.lon}:null,city:cur.city||'',fromGallery:!!cur.fromGallery,takenAt:cur.takenAt||null,deep:cur.deep||{},noAI:!!cur.noAI,hasPhoto:!!(cur.file||cur.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
     store.set('history',h.slice(0,500));
     if(cur.file&&!cur.photoSaved){const card=cur;card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
@@ -682,7 +706,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const im=document.createElement('img');im.className='th';im.alt='';
     if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
     const n=document.createElement('span');n.className='nm';n.textContent=x.name;
-    const w=document.createElement('span');w.className='when';w.textContent=timeOnly?new Date(x.t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(x.t);
+    const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
     b.append(im,n,w);b.onclick=onOpen;li.appendChild(b);return li;
   }
   async function openFromHistory(x,from){
@@ -696,7 +720,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
     $('btn-mymap').hidden=!h.length;
     const cities=[...new Set(h.map(x=>x.city).filter(Boolean))];
-    $('mymap-count').textContent=`${h.length} ${h.length===1?'discovery':'discoveries'}${cities.length?' · '+cities.slice(0,3).join(', '):''}`;
+    $('mymap-count').textContent=`${h.length} ${h.length===1?'descubrimiento':'descubrimientos'}${cities.length?' · '+cities.slice(0,3).join(', '):''}`;
   }
 
   // ---------- my map ----------
@@ -705,10 +729,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function openMyMap(){
     show('mymap');status('');
     const h=store.get('history',[]);
-    const byCity={};h.forEach(x=>{const c=x.city||'Other';(byCity[c]=byCity[c]||[]).push(x)});
+    const byCity={};h.forEach(x=>{const c=x.city||'Otros';(byCity[c]=byCity[c]||[]).push(x)});
     const cities=Object.keys(byCity).sort((a,b)=>byCity[b][0].t-byCity[a][0].t);
     if(!mapCity||!byCity[mapCity])mapCity=cities[0];
-    const box=$('cities');box.innerHTML='';box.hidden=cities.length<2&&cities[0]==='Other';
+    const box=$('cities');box.innerHTML='';box.hidden=cities.length<2&&cities[0]==='Otros';
     cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
     drawMap(byCity[mapCity]||[]);drawDays(byCity[mapCity]||[]);
@@ -724,8 +748,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
       const mk=L.marker([x.pos.lat,x.pos.lon],{icon:L.divIcon({html,className:'',iconSize:[44,44],iconAnchor:[22,22]})}).addTo(layer);
       const pop=document.createElement('div');const b=document.createElement('b');b.textContent=x.name;const br=document.createElement('br');
-      const w=document.createElement('span');w.style.color='#5C6975';w.textContent=fmtWhen(x.t);
-      const btn=document.createElement('button');btn.textContent='Open';btn.onclick=()=>openFromHistory(x,'mymap');
+      const w=document.createElement('span');w.style.color='#5C6975';w.textContent=fmtWhen(x.takenAt||x.t);
+      const btn=document.createElement('button');btn.textContent='Abrir';btn.onclick=()=>openFromHistory(x,'mymap');
       pop.append(b,br,w,document.createElement('br'),btn);mk.bindPopup(pop);
     });
     setTimeout(()=>{map.invalidateSize();
@@ -738,7 +762,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(!items.length){box.innerHTML='<p class="empty">Todavía no hay descubrimientos.</p>';return}
     let day='',ul=null;
     items.forEach(x=>{
-      const d=new Date(x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
+      const d=new Date(x.takenAt||x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
       if(d!==day){day=d;const hd=document.createElement('p');hd.className='day';hd.textContent=d;box.appendChild(hd);ul=document.createElement('ul');ul.className='rows';box.appendChild(ul)}
       ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true));
     });
@@ -749,12 +773,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('s-save').onclick=()=>{
     cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
     store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
-    show('home');status(cfg.key?'Saved. Ready.':'Saved. Sin clave no funciona la foto.');
+    show('home');status(cfg.key?'Guardado. Listo.':'Guardado. Sin clave no funciona la foto.');
   };
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
-  $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();status('Map & history cleared.');show('home')};
+  $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();status('Mapa e historial borrados.');show('home')};
 
-  if(!cfg.key)status('Toca “Settings” para poner tu clave gratuita de Gemini.');
+  if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
   if('speechSynthesis' in window)speechSynthesis.getVoices();
 })();
