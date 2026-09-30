@@ -681,8 +681,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
-    if(!opt.partial){renderChips();$('sections').innerHTML='';Object.keys(c.deep||{}).forEach(id=>renderSection(id));
-      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+t.id)&&!(c.deep||{})[t.id]){waitingSection(t);const b=[...$('chips').children].find(x=>x.textContent===t.label);if(b)b.setAttribute('aria-pressed','true')}})}
+    if(!opt.partial){renderChips();$('sections').innerHTML='';
+      Object.keys(c.deep||{}).forEach(id=>{renderSection(id);const el=document.getElementById('sec-'+id);if(el)el.hidden=true});
+      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+t.id)&&!(c.deep||{})[t.id])waitingSection(t).hidden=true})}
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
@@ -690,11 +691,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     cur=c;if(keepT&&!c.t)cur.t=keepT;stopVoice();paintCard(c);
     if(!fromHistory)saveDiscovery();
   }
-  $('btn-deeper').onclick=()=>{const d=$('deeper');d.hidden=!d.hidden;$('btn-deeper').setAttribute('aria-expanded',String(!d.hidden));if(!d.hidden)d.scrollIntoView({behavior:'smooth',block:'start'})};
+  $('btn-deeper').onclick=()=>{const d=$('deeper');d.hidden=!d.hidden;
+    if(d.hidden){[...$('sections').children].forEach(x=>x.hidden=true);[...$('chips').children].forEach(b=>b.setAttribute('aria-pressed','false'))}$('btn-deeper').setAttribute('aria-expanded',String(!d.hidden));if(!d.hidden)d.scrollIntoView({behavior:'smooth',block:'start'})};
   function renderChips(){
     const box=$('chips');box.innerHTML='';
     TOPICS.forEach(t=>{if(t.photo&&!cur.img)return;
-      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed',(cur.deep&&cur.deep[t.id])||pendingDeep.has(cur.t+'|'+t.id)?'true':'false');
+      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed','false');
       b.onclick=()=>goDeeper(t,b);box.appendChild(b)});
   }
   const pendingDeep=new Map(); // "card time|topic" → answer on its way
