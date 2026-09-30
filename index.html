@@ -70,7 +70,13 @@ p{margin:0}
 
 /* card */
 .result{display:flex;flex-direction:column;gap:12px}
-.thumb{width:100%;height:150px;object-fit:cover;border-radius:18px;display:block}
+.thumb{width:100%;height:150px;object-fit:cover;border-radius:18px;display:block;cursor:zoom-in}
+.viewer{position:fixed;inset:0;background:#0B0F13;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 16px) 12px calc(env(safe-area-inset-bottom,0px) + 16px)}
+.viewer img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px;-webkit-touch-callout:default;user-select:auto}
+.viewer p{color:#cfd6dc;font-size:14px;text-align:center;margin:0}
+.listen{margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);font-weight:600;font-size:14px;padding:4px 0}
+.listen svg{width:18px;height:18px}
+.listen.on{color:var(--brick)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px}
 .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brick);margin-bottom:4px}
@@ -191,7 +197,7 @@ p{margin:0}
 
   <!-- CARD -->
   <section class="result" id="v-result" hidden>
-    <img class="thumb" id="r-img" alt="Tu foto" hidden>
+    <img class="thumb" id="r-img" alt="Tu foto (toca para verla entera)" hidden>
     <article class="card">
       <div class="head">
         <div>
@@ -199,6 +205,7 @@ p{margin:0}
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
+          <button class="listen" id="btn-listen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span id="listen-label">Escuchar</span></button>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -211,7 +218,6 @@ p{margin:0}
         <p id="r-cool"></p>
       </div>
       <div class="tools">
-        <button class="icon" id="btn-listen">Escuchar</button>
         <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
         <button class="icon" id="btn-ask" hidden>Preguntar más</button>
         <button class="icon danger" id="btn-delete" hidden>Borrar</button>
@@ -278,6 +284,19 @@ p{margin:0}
         <option value="en">Inglés</option>
       </select>
     </label>
+    <label>Voz para “Escuchar”
+      <select id="s-voice"></select>
+      <span class="help">Las voces “Mejorada” o “Premium” suenan mucho más naturales. Si no ves ninguna: Ajustes del iPhone → Accesibilidad → Contenido leído → Voces → Español, y descarga una.</span>
+    </label>
+    <label>Estilo de la voz de Gemini
+      <select id="s-gvoice">
+        <option value="Sulafat">Cálida</option>
+        <option value="Achird">Cercana</option>
+        <option value="Vindemiatrix">Suave</option>
+        <option value="Algieba">Tranquila</option>
+      </select>
+      <span class="help">Solo si eliges “Voz de Gemini”. Lee con acento argentino y sin prisa. Tarda unos segundos en empezar y puede que tu plan gratis no la incluya: si falla, usa la del iPhone.</span>
+    </label>
     <label>Modelo
       <input id="s-model" autocomplete="off">
       <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
@@ -289,6 +308,7 @@ p{margin:0}
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
+  <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsada la foto → “Añadir a Fotos”. Toca fuera para cerrar.</p></div>
   <div class="toast" id="toast" hidden><span id="toast-text"></span><button id="toast-undo">Deshacer</button></div>
 </div>
 
@@ -349,7 +369,9 @@ p{margin:0}
     return posPromise;
   }
   // city (for grouping the map) and street address (for "Preguntar más") in one lookup
-  async function placeInfo(pos){
+  let geoChain=Promise.resolve();
+  function placeInfo(pos){const run=()=>placeInfoNow(pos);const p=geoChain.then(run,run);geoChain=p.then(()=>wait(1100),()=>wait(1100));return p}
+  async function placeInfoNow(pos){
     try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${pos.lat}&lon=${pos.lon}&accept-language=${cfg.lang}`);
       if(!r.ok)return{};const a=(await r.json()).address||{};
       const city=a.city||a.town||a.village||a.municipality||a.county||a.state||'';
@@ -539,7 +561,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(fromGallery){
         $('loading-text').textContent='Leyendo dónde se sacó la foto…';
         pos=await photoLocation(f);
-        if(pos)placesPromise=places(pos);else note='Esta foto no trae ubicación, así que la identifico solo por la imagen.';
+        if(pos)placesPromise=places(pos);else{note='Esta foto no trae ubicación, así que la identifico solo por la imagen.';locate()}
       }else{
         if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
         pos=await posPromise;
@@ -551,7 +573,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
       const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
-      const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null};
+      const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
       if(note)status(note);
     }catch(err){
@@ -731,18 +753,84 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('ask-copy').onclick=()=>{if(copyAsk())askMsg('Copiado. Pégalo donde quieras.')};
 
   // ---------- voice ----------
-  let speaking=false;
-  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}speaking=false;$('btn-listen').textContent='Escuchar'}
-  $('btn-listen').onclick=()=>{
+  // "gemini" = Gemini reads it (more human, may not be in the free plan); otherwise a voice from the phone
+  let speaking=false,audioEl=null;const audioCache=new Map();
+  function setListen(on){speaking=on;$('listen-label').textContent=on?'Parar':'Escuchar';$('btn-listen').classList.toggle('on',on)}
+  function stopVoice(){try{speechSynthesis.cancel()}catch(e){}if(audioEl){audioEl.pause();audioEl=null}setListen(false)}
+  const speakText=()=>`${cfg.lang==='en'?'You’re looking at':'Estás ante'} ${cur.name}. ${cur.what} ${cur.cool||''}`;
+  function phoneVoices(){try{return speechSynthesis.getVoices().filter(v=>v.lang&&v.lang.toLowerCase().startsWith(cfg.lang))}catch(e){return[]}}
+  const voiceQuality=v=>/premium/i.test(v.name)?3:/(enhanced|mejorad)/i.test(v.name)?2:0;
+  function pickPhoneVoice(){
+    const vs=phoneVoices();const saved=store.get('voice','');
+    if(saved&&saved!=='gemini'){const v=vs.find(x=>x.voiceURI===saved);if(v)return v}
+    const pref=cfg.lang==='es'?['es-ar','es-mx','es-us','es-es']:['en-gb','en-us'];
+    return vs.slice().sort((a,b)=>voiceQuality(b)-voiceQuality(a)||pref.indexOf(a.lang.toLowerCase())-pref.indexOf(b.lang.toLowerCase()))[0]||null;
+  }
+  function speakPhone(){
+    if(!('speechSynthesis' in window))return;
+    const u=new SpeechSynthesisUtterance(speakText());const v=pickPhoneVoice();
+    if(v){u.voice=v;u.lang=v.lang}else u.lang=LOCALE();
+    u.rate=0.92;u.pitch=1;u.onend=u.onerror=()=>setListen(false);setListen(true);speechSynthesis.speak(u);
+  }
+  // Gemini speech comes back as raw 16-bit audio; wrap it in a WAV header so the phone can play it
+  function pcmToWav(b64,rate){
+    const pcm=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));const buf=new ArrayBuffer(44+pcm.length);const d=new DataView(buf);
+    const w=(o,s)=>{for(let i=0;i<s.length;i++)d.setUint8(o+i,s.charCodeAt(i))};
+    w(0,'RIFF');d.setUint32(4,36+pcm.length,true);w(8,'WAVE');w(12,'fmt ');d.setUint32(16,16,true);d.setUint16(20,1,true);d.setUint16(22,1,true);
+    d.setUint32(24,rate,true);d.setUint32(28,rate*2,true);d.setUint16(32,2,true);d.setUint16(34,16,true);w(36,'data');d.setUint32(40,pcm.length,true);
+    new Uint8Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'});
+  }
+  async function geminiSpeech(text){
+    const style=cfg.lang==='es'?'Lee esto en español con acento argentino rioplatense, voz cálida y cercana, ritmo tranquilo, sin prisa, como un amigo contándote algo en la calle:':'Read this in a warm, calm, friendly voice, unhurried:';
+    const models=['gemini-2.5-flash-preview-tts','gemini-2.5-flash-tts'];
+    for(const m of models){
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+        body:JSON.stringify({contents:[{parts:[{text:`${style}\n\n${text}`}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:store.get('gvoice','Sulafat')}}}}})});
+      if(!r.ok){if(r.status===404)continue;throw new Error('TTS '+r.status)}
+      const j=await r.json();const part=((j.candidates||[])[0]||{}).content;const d=part&&part.parts&&part.parts.find(p=>p.inlineData||p.inline_data);
+      const inl=d&&(d.inlineData||d.inline_data);if(!inl)throw new Error('TTS empty');
+      const rate=+((inl.mimeType||inl.mime_type||'').match(/rate=(\d+)/)||[0,24000])[1];
+      return pcmToWav(inl.data,rate);
+    }
+    throw new Error('TTS 404');
+  }
+  $('btn-listen').onclick=async()=>{
     if(speaking){stopVoice();return}
-    if(!('speechSynthesis' in window)||!cur)return;
-    const u=new SpeechSynthesisUtterance(`${cfg.lang==='en'?'You’re looking at':'Estás ante'} ${cur.name}. ${cur.what} ${cur.cool||''}`);
-    u.lang=LOCALE();u.rate=1.05;
-    const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.lang&&v.lang.toLowerCase()===u.lang.toLowerCase())||vs.find(v=>v.lang&&v.lang.startsWith(cfg.lang));
-    if(v)u.voice=v;u.onend=u.onerror=stopVoice;speaking=true;$('btn-listen').textContent='Parar';speechSynthesis.speak(u);
+    if(!cur)return;
+    if(store.get('voice','')==='gemini'&&cfg.key){
+      const key=cur.t+'|'+store.get('gvoice','Sulafat');setListen(true);$('listen-label').textContent='Preparando…';
+      try{
+        let blob=audioCache.get(key);if(!blob){blob=await geminiSpeech(speakText());audioCache.set(key,blob)}
+        if(!speaking)return;
+        audioEl=new Audio(URL.createObjectURL(blob));audioEl.onended=()=>{audioEl=null;setListen(false)};
+        $('listen-label').textContent='Parar';await audioEl.play();
+      }catch(e){setListen(false);status('La voz de Gemini no está disponible ahora; uso la del iPhone.');speakPhone()}
+      return;
+    }
+    speakPhone();
   };
+  function fillVoices(){
+    const sel=$('s-voice');const saved=store.get('voice','');sel.innerHTML='';
+    const add=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o)};
+    add('','Automática (la mejor del iPhone)');add('gemini','Voz de Gemini (más humana, en pruebas)');
+    const country={'es-ar':'Argentina','es-mx':'México','es-es':'España','es-us':'EE. UU.','es-co':'Colombia','es-cl':'Chile','en-gb':'UK','en-us':'US'};
+    phoneVoices().sort((a,b)=>voiceQuality(b)-voiceQuality(a)||a.lang.localeCompare(b.lang)).forEach(v=>add(v.voiceURI,`${v.name} · ${country[v.lang.toLowerCase()]||v.lang}`));
+    sel.value=saved;if(sel.value!==saved)sel.value='';
+    $('s-gvoice').value=store.get('gvoice','Sulafat');
+  }
+  if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{if(view==='settings')fillVoices()};
+
+  // ---------- full-size photo (long-press to save) ----------
+  let viewerURL=null;
+  $('r-img').onclick=async()=>{
+    const blob=cur&&(cur.file||await getPhoto(cur.t));const im=$('viewer-img');
+    if(viewerURL)URL.revokeObjectURL(viewerURL);viewerURL=blob?URL.createObjectURL(blob):null;
+    im.src=viewerURL||$('r-img').src;$('viewer').hidden=false;
+  };
+  $('viewer').onclick=e=>{if(e.target.id!=='viewer-img')$('viewer').hidden=true};
 
   // ---------- discoveries (text in localStorage, photos in IndexedDB) ----------
+  const geoPending=new Set();
   function saveDiscovery(update){
     if(!cur||!cur.name)return;
     const h=store.get('history',[]);const isNew=!cur.t;if(isNew)cur.t=Date.now();
@@ -751,7 +839,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const i=h.findIndex(x=>x.t===item.t);if(i>=0)h[i]=item;else h.unshift(item);
     store.set('history',h.slice(0,500));
     if(cur.file&&!cur.photoSaved){const card=cur;card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
-    if((!item.city||!item.address)&&item.pos){const t=item.t;placeInfo(item.pos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address}})}
+    const geoPos=item.pos||cur.cityPos;
+    if((!item.city||(item.pos&&!item.address))&&geoPos&&!geoPending.has(item.t)){const t=item.t;geoPending.add(t);placeInfo(geoPos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address}}).finally(()=>geoPending.delete(t))}
   }
   function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
   function row(x,onOpen,timeOnly){
@@ -819,13 +908,26 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function openMyMap(){
     show('mymap');status('');
     const h=store.get('history',[]);
-    const byCity={};h.forEach(x=>{const c=x.city||'Otros';(byCity[c]=byCity[c]||[]).push(x)});
+    fillCities(h);
+    const byCity={};h.forEach(x=>{const c=x.city||'Sin ubicación';(byCity[c]=byCity[c]||[]).push(x)});
     const cities=Object.keys(byCity).sort((a,b)=>byCity[b][0].t-byCity[a][0].t);
     if(!mapCity||!byCity[mapCity])mapCity=cities[0];
-    const box=$('cities');box.innerHTML='';box.hidden=cities.length<2&&cities[0]==='Otros';
+    const box=$('cities');box.innerHTML='';box.hidden=cities.length<2;
     cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
     drawMap(byCity[mapCity]||[]);drawDays(byCity[mapCity]||[]);
+  }
+  // a discovery without a city takes the city of another one within 25 km; the rest are looked up again, one by one
+  function fillCities(h){
+    const R=6371,rad=x=>x*Math.PI/180;const km=(a,b)=>2*R*Math.asin(Math.sqrt(Math.sin(rad(b.lat-a.lat)/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(rad(b.lon-a.lon)/2)**2));
+    let changed=false;
+    h.forEach(x=>{if(x.city||!x.pos)return;const n=h.find(y=>y.city&&y.pos&&km(x.pos,y.pos)<25);if(n){x.city=n.city;changed=true}});
+    if(changed)store.set('history',h);
+    h.filter(x=>x.pos&&(!x.city||!x.address)&&!geoPending.has(x.t)).slice(0,5).forEach(x=>{geoPending.add(x.t);placeInfo(x.pos).then(({city,address})=>{
+      const hh=store.get('history',[]);const y=hh.find(z=>z.t===x.t);if(!y)return;let ch=false;
+      if(city&&!y.city){y.city=city;ch=true}if(address&&!y.address){y.address=address;ch=true}
+      if(ch){store.set('history',hh);if(city&&view==='mymap'&&!x.city){x.city=city;clearTimeout(fillCities.t);fillCities.t=setTimeout(()=>{if(view==='mymap')openMyMap()},400)}}
+    }).finally(()=>geoPending.delete(x.t))});
   }
   function drawMap(items){
     const pts=items.filter(x=>x.pos);
@@ -859,10 +961,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
 
   // ---------- settings ----------
-  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
+  function openSettings(){fillVoices();$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
   $('s-save').onclick=()=>{
     cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
-    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
+    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);store.set('voice',$('s-voice').value);store.set('gvoice',$('s-gvoice').value);audioCache.clear();
     show('home');status(cfg.key?'Guardado. Listo.':'Guardado. Sin clave no funciona la foto.');
   };
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
