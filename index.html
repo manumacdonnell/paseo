@@ -270,30 +270,58 @@ p{margin:0}
   }
 
   // ---------- gemini ----------
-  async function pickModel(){
-    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':cfg.key}});
-    if(!r.ok)return null;const j=await r.json();
-    const ok=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
-    const pref=ok.filter(n=>/flash/.test(n)&&!/lite|image|tts|live|audio|thinking|exp|preview/.test(n));
-    return pref.sort().reverse()[0]||ok.find(n=>/flash/.test(n))||null;
+  // Models ranked for this job: newest "flash" first, then "flash-lite", then anything else that can answer.
+  let candidates=null;const dead=new Set();let lastDetail='';
+  async function listModels(){
+    if(candidates)return candidates;
+    try{
+      const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=300',{headers:{'x-goog-api-key':cfg.key}});
+      if(!r.ok){candidates=[];return candidates}
+      const j=await r.json();
+      const names=(j.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''))
+        .filter(n=>/gemini/.test(n)&&!/image|tts|live|audio|embedding|robotics|computer|learnlm|nano|veo|imagen/.test(n));
+      const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};
+      const rank=n=>(/flash/.test(n)&&!/lite/.test(n)?0:/flash-lite/.test(n)?1:/pro/.test(n)?3:2)*10+(/preview|exp/.test(n)?1:0);
+      candidates=names.sort((a,b)=>rank(a)-rank(b)||ver(b)-ver(a)||(/latest/.test(b)?1:0)-(/latest/.test(a)?1:0));
+    }catch(e){candidates=[]}
+    return candidates;
   }
-  async function gemini(parts,retried){
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${cfg.model}:generateContent`,{
+  async function callModel(model,parts){
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{
       method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
       body:JSON.stringify({contents:[{parts}],generationConfig:{responseMimeType:'application/json',temperature:0.5}})});
-    if(r.status===404&&!retried){const m=await pickModel();if(m&&m!==cfg.model){cfg.model=m;store.set('model',m);return gemini(parts,true)}}
-    if(!r.ok){
-      let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
-      if(r.status===429)throw new Error('LIMIT');
-      if(r.status===403||(r.status===400&&/API key/i.test(msg)))throw new Error('KEY');
-      throw new Error('HTTP '+r.status+' '+msg);
+    if(r.ok)return{ok:true,json:await r.json()};
+    let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
+    return{ok:false,status:r.status,msg};
+  }
+  async function gemini(parts){
+    const tried=[];let limitHits=0;
+    const queue=[cfg.model];
+    for(let i=0;i<queue.length&&tried.length<6;i++){
+      const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
+      const res=await callModel(model,parts);
+      if(res.ok){
+        if(cfg.model!==model){cfg.model=model;store.set('model',model)}
+        const j=res.json;
+        const txt=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
+        return JSON.parse(txt.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
+      }
+      lastDetail=`${model}: ${res.status} ${res.msg}`.slice(0,300);
+      if(res.status===403||(res.status===400&&/API key|API_KEY/i.test(res.msg)))throw new Error('KEY');
+      // 404 = model retired; 429 = no free quota for this model (or used up); 400 = model can't do this. Try the next one.
+      if(res.status===404||res.status===429||res.status===400){
+        if(res.status===429)limitHits++;
+        dead.add(model);
+        if(queue.length===1)(await listModels()).forEach(m=>{if(!queue.includes(m))queue.push(m)});
+        continue;
+      }
+      throw new Error('HTTP '+res.status+' '+res.msg);
     }
-    const j=await r.json();
-    const txt=((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
-    return JSON.parse(txt.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
+    throw new Error(limitHits?'LIMIT':'NOMODEL');
   }
   function errText(e){
-    if(e.message==='LIMIT')return'Se acabó el límite gratis por ahora.';
+    if(e.message==='LIMIT')return'Ningún modelo gratis responde ahora (límite de Google). Detalle: '+lastDetail;
+    if(e.message==='NOMODEL')return'No encontré un modelo que funcione con tu clave. Detalle: '+lastDetail;
     if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Settings.';
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     return'Algo falló: '+e.message;
@@ -323,7 +351,7 @@ p{margin:0}
       openCard({name:out.name,local:out.local_name,sure:!!out.sure,what:out.what_is_it,cool:out.cool_thing,img,pos,near,deep:{}});
     }catch(err){
       if(err.message==='LIMIT'&&pos){ // fallback: let the person pick, show Wikipedia
-        cur={img,pos,near,noAI:true,deep:{}};status('Se acabó el límite gratis por ahora. Elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
+        cur={img,pos,near,noAI:true,deep:{}};status(errText(err)+' — Mientras, elige lo que estás mirando y te enseño Wikipedia.',true);showAlts(true);return}
       show('home');status(errText(err),true);
     }
   };
