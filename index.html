@@ -671,7 +671,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
-  const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano. Escribe en ${LANG()}.`;
+  const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
 NAME: nombre propio exacto (genérico solo si SOURCE es generic)
@@ -679,8 +679,8 @@ LOCAL: nombre en el idioma local si es distinto, o vacío
 CATEGORY: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street, other
 SOURCE: sign | list | knowledge | generic
 SURE: yes | no
-WHAT: 2 o 3 frases cortas (máximo 45 palabras) en presente, hablándole a la persona que lo tiene delante ahora mismo: qué es y por qué importa. No empieces con "Estás ante" (ya sale en pantalla). No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección): céntrate en qué es y por qué importa.
-COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras)
+WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Empieza directamente por lo más interesante de ESTO: lo que lo hace especial, su origen sorprendente o por qué importa aquí; la primera frase tiene que enganchar. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de", "Este/Esta es" o con el nombre seguido de "es un/una". Nada de describir lo que se ve en la foto (eso ya lo sabe). Termina con algo que deje ganas de saber más, pero sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Ejemplos solo del TONO (no copies los datos): "Nació de la escasez: en tiempos de guerra la zanahoria hacía de azúcar, y la receta se quedó." / "Lo que parece del siglo XVII se levantó en los años 70, piedra a piedra, copiando cuadros y fotos antiguas." No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
+COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto de WHAT. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
 Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
   function parseCard(txt){
