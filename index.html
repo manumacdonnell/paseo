@@ -300,6 +300,8 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .copied .ico svg:not(.chk){opacity:0;transform:scale(.6)}
 .ask-row a,.ask-row button,.copyplace,.ask-row svg{transition:color .35s ease}
 .ask-row .copied .ext{display:block}
+
+.pin.nophoto img{display:none}.pin.nophoto{background:var(--ink)!important;transform:scale(.35)}
 </style>
 </head>
 <body>
@@ -471,8 +473,8 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
-    {id:'history',label:'Historia',ask:'HISTORIA del lugar: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. NO incluyas anécdotas sueltas, leyendas ni rarezas (van en Datos curiosos), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
-    {id:'curious',label:'Datos curiosos',ask:'DATOS CURIOSOS del propio lugar: rarezas, récords, detalles escondidos que se pueden buscar con la vista, leyendas y supersticiones (marca claramente qué es leyenda), costumbres del sitio. Distintos del dato curioso que ya le dijiste. NO cuentes la historia general (va en Historia), ni cine, arte o cultura (van en Cine y cultura), ni famosos, escándalos o noticias (van en Chimento).'},
+    {id:'history',label:'Historia',ask:'HISTORIA de esto: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. NO incluyas anécdotas sueltas, leyendas ni rarezas (van en Datos curiosos), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
+    {id:'curious',label:'Datos curiosos',ask:'DATOS CURIOSOS de esto en concreto: rarezas, récords, detalles escondidos que se pueden buscar con la vista, leyendas y supersticiones (marca claramente qué es leyenda), costumbres del sitio. Distintos del dato curioso que ya le dijiste. NO cuentes la historia general (va en Historia), ni cine, arte o cultura (van en Cine y cultura), ni famosos, escándalos o noticias (van en Chimento).'},
     {id:'culture',label:'Cine y cultura',ask:'CINE Y CULTURA: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; libros, canciones o artistas ligados al lugar; apariciones en la cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, autores, directores ni escenas. NO incluyas la vida personal de famosos ni noticias (van en Chimento), ni historia general (va en Historia). Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión cultural más cercana (la calle, el barrio o la ciudad).',few:true},
     {id:'gossip',label:'Chimento',ask:'CHIMENTO, en tono de cotilleo con gracia pero con datos: famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. NO repitas historia general (va en Historia), leyendas o rarezas (van en Datos curiosos) ni películas u obras (van en Cine y cultura). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
   ];
@@ -861,7 +863,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const parts=[];
     if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
-    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nDE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
     const here=()=>cur&&cur.t===card.t&&cur.name===card.name&&document.getElementById('acc-'+t.id);
     const job=retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'))});
     pendingDeep.set(key,job);
@@ -1167,7 +1169,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     layer.clearLayers();
     pts.forEach(x=>{
       const html=document.createElement('div');html.className='pin';const im=document.createElement('img');im.alt='';html.appendChild(im);
-      if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
+      if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u;else html.classList.add('nophoto')});else html.classList.add('nophoto');
       const mk=L.marker([x.pos.lat,x.pos.lon],{icon:L.divIcon({html,className:'',iconSize:[44,44],iconAnchor:[22,22]})}).addTo(layer);
       const pop=document.createElement('div');const b=document.createElement('b');b.textContent=x.name;const br=document.createElement('br');
       const w=document.createElement('span');w.className='pop-when';w.textContent=fmtWhen(x.takenAt||x.t);
@@ -1211,6 +1213,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
+  // one-off tidy-up: drop old entries that have no photo (from before photos were saved)
+  (async()=>{if(store.get('tidyNoPhoto1',false))return;const h=store.get('history',[]);const keep=[];
+    for(const x of h){if(x.hasPhoto&&await getPhoto(x.t))keep.push(x)}
+    store.set('tidyNoPhoto1',true);if(keep.length!==h.length){store.set('history',keep);if(view==='home')renderHome()}})();
 })();
 </script>
 </body>
