@@ -314,6 +314,9 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation}
 .app>section:not(#v-mymap),.top,.minibar{touch-action:pan-y}
 #v-mymap>:not(.mapbox){touch-action:pan-y}
+
+.eyebrow-meta{margin:0 0 8px}
+.meta span+span::before{content:"·";margin-right:14px}
 </style>
 </head>
 <body>
@@ -365,11 +368,10 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
     <article class="card">
       <div class="head">
         <div>
-          <p class="eyebrow" id="r-eyebrow">Estás ante</p>
+          <p class="meta eyebrow-meta" id="r-meta"></p>
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
-          <p class="meta" id="r-meta"></p>
           <button class="backprev" id="btn-prev" hidden></button>
           <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
         </div>
@@ -705,7 +707,7 @@ LOCAL: nombre en el idioma local si es distinto, o vacío
 CATEGORY: si lo protagonista es un sitio: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street; si es otra cosa: uno de food, drink, object, art, nature, animal, person, activity, other
 SOURCE: sign | list | knowledge | generic | thing (thing = no es un sitio sino una comida, objeto, obra, planta, actividad…)
 SURE: yes | no
-WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Empieza directamente por lo más interesante de ESTO: lo que lo hace especial, su origen sorprendente o por qué importa aquí; la primera frase tiene que enganchar. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de", "Este/Esta es" o con el nombre seguido de "es un/una". Nada de describir lo que se ve en la foto (eso ya lo sabe). Termina con algo que deje ganas de saber más, pero sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Ejemplos solo del TONO (no copies los datos): "Nació de la escasez: en tiempos de guerra la zanahoria hacía de azúcar, y la receta se quedó." / "Lo que parece del siglo XVII se levantó en los años 70, piedra a piedra, copiando cuadros y fotos antiguas." No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
+WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Responde a "¿qué es?". La 1.ª frase dice qué es, directa y sin verbo de relleno, SIN repetir el nombre (ya sale como título): p. ej. "Un bizcocho especiado de zanahoria rallada, nueces y crema de queso." / "La residencia de los reyes de Polonia durante casi tres siglos." / "Una cafetería de cadena británica." La 2.ª (y 3.ª) añade lo que lo hace interesante: su origen, por qué importa aquí, algo que no se ve a simple vista; que deje ganas de saber más, sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de" o el nombre. No describas lo que se ve en la foto. No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
 COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto de WHAT. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
 Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
@@ -847,7 +849,6 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- card ----------
   function paintCard(c,opt={}){
-    $('r-eyebrow').textContent='Estás ante';
     $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
     $('r-unsure').hidden=c.sure!==false;
     $('r-name').textContent=c.name||'Sin nombre';
