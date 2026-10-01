@@ -370,6 +370,18 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .confirm button{border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600}
 .confirm button.no{background:transparent;color:var(--muted);padding:8px 4px;font-weight:500}
 .confirm.done{color:var(--live)}
+
+/* Mi mapa: recently added + diary by day */
+.day.sect{margin:22px 0 4px}
+.dayblock{border-bottom:1px solid var(--line)}
+button.dayhead{width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:0;padding:16px 0;margin:0;text-align:left;color:var(--ink)}
+button.dayhead .day{flex:1;margin:0;font-family:var(--sans);font-size:16px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink)}
+button.dayhead .day::first-letter{text-transform:uppercase}
+button.dayhead .cnt{font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.04em}
+button.dayhead .chev{width:16px;height:16px;color:var(--muted);transition:transform .2s ease}
+button.dayhead[aria-expanded="true"] .chev{transform:rotate(90deg)}
+.daybody .rows{border-top:0}
+.dayexport{background:transparent;border:0;color:var(--muted);font-size:14px;padding:10px 0 16px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
 </style>
 </head>
 <body>
@@ -1383,22 +1395,42 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       else if(pts.length)map.fitBounds(pts.map(x=>[x.pos.lat,x.pos.lon]),{padding:[40,40],maxZoom:17});
       else map.setView([52.23,21.01],5)},60);
   }
+  // Mi mapa below the map: what you added last (it may be an old photo), then a diary by the day you saw things,
+  // one day open at a time so the list never becomes endless
+  const openDays=new Set();
   function drawDays(items){
     const box=$('days');box.innerHTML='';
     if(!items.length){box.innerHTML='<p class="empty">Todavía no hay descubrimientos.</p>';return}
     const when=x=>x.takenAt||x.t;
-    items=items.slice().sort((a,b)=>{const da=new Date(when(a)),db=new Date(when(b));
-      const ka=da.getFullYear()*10000+da.getMonth()*100+da.getDate(),kb=db.getFullYear()*10000+db.getMonth()*100+db.getDate();
-      return kb-ka||when(a)-when(b)});
-    let day='',ul=null;
-    items.forEach(x=>{
-      const d=new Date(x.takenAt||x.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
-      if(d!==day){day=d;const head=document.createElement('div');head.className='dayhead';
-        const hd=document.createElement('p');hd.className='day';hd.textContent=d;
-        const ex=document.createElement('button');ex.textContent='Exportar día';const dayItems=items.filter(y=>new Date(y.takenAt||y.t).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'})===d);
-        ex.onclick=()=>exportPlaces(dayItems,`${mapCity} · ${d}`);head.append(hd,ex);box.appendChild(head);
-        ul=document.createElement('ul');ul.className='rows';box.appendChild(ul)}
-      ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true));
+    const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()*10000+d.getMonth()*100+d.getDate()};
+    const dayLabel=ts=>new Date(ts).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
+    // recently added
+    if(items.length>3){
+      const added=items.slice().sort((a,b)=>b.t-a.t).slice(0,3);
+      const h=document.createElement('p');h.className='day sect';h.textContent='Recién añadidos';box.appendChild(h);
+      const ul=document.createElement('ul');ul.className='rows';
+      added.forEach(x=>{const r=row(x,()=>openFromHistory(x,'mymap'),true);
+        if(x.takenAt&&dayKey(x.takenAt)!==dayKey(x.t)){const w=r.querySelector('.when');if(w)w.textContent='foto del '+new Date(x.takenAt).toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.','')}
+        ul.appendChild(r)});
+      box.appendChild(ul);
+      const d=document.createElement('p');d.className='day sect';d.textContent='Por día';box.appendChild(d);
+    }
+    // diary
+    const groups=new Map();
+    items.slice().sort((a,b)=>dayKey(when(b))-dayKey(when(a))||when(a)-when(b)).forEach(x=>{const k=dayKey(when(x));if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)});
+    const keys=[...groups.keys()];
+    if(![...openDays].some(k=>groups.has(k)))openDays.add(keys[0]);
+    keys.forEach(k=>{
+      const list=groups.get(k),label=dayLabel(when(list[0]));
+      const wrap=document.createElement('div');wrap.className='dayblock';
+      const head=document.createElement('button');head.className='dayhead';head.setAttribute('aria-expanded',openDays.has(k)?'true':'false');
+      head.innerHTML=`<span class="day"></span><span class="cnt"></span>${chev}`;head.querySelector('.day').textContent=label;head.querySelector('.cnt').textContent=list.length===1?'1 lugar':`${list.length} lugares`;
+      const body=document.createElement('div');body.className='daybody';body.hidden=!openDays.has(k);
+      const ul=document.createElement('ul');ul.className='rows';list.forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true)));
+      const ex=document.createElement('button');ex.className='dayexport';ex.textContent='Exportar este día';ex.onclick=()=>exportPlaces(list,`${mapCity} · ${label}`);
+      body.append(ul,ex);
+      head.onclick=()=>{const open=body.hidden;body.hidden=!open;head.setAttribute('aria-expanded',open?'true':'false');open?openDays.add(k):openDays.delete(k)};
+      wrap.append(head,body);box.appendChild(wrap);
     });
   }
 
