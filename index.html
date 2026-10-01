@@ -302,6 +302,11 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .ask-row .copied .ext{display:block}
 
 .pin.nophoto img{display:none}.pin.nophoto{background:var(--ink)!important;transform:scale(.35)}
+
+.scan{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--faint);min-height:1.5em;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:-6px}
+.scan.in{animation:scanin .9s ease both}
+@keyframes scanin{0%{opacity:0;transform:translateY(4px)}20%,75%{opacity:1;transform:none}100%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.scan.in{animation:none}}
 </style>
 </head>
 <body>
@@ -341,6 +346,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   <section class="loading" id="v-loading" hidden>
     <div class="spinner"></div>
     <p id="loading-text">Mirando…</p>
+    <p class="scan" id="loading-scan" aria-hidden="true"></p>
   </section>
 
   <!-- CARD -->
@@ -473,10 +479,10 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
-    {id:'history',label:'Historia',ask:'HISTORIA de esto: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. NO incluyas anécdotas sueltas, leyendas ni rarezas (van en Datos curiosos), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
-    {id:'curious',label:'Datos curiosos',ask:'DATOS CURIOSOS de esto en concreto: rarezas, récords, detalles escondidos que se pueden buscar con la vista, leyendas y supersticiones (marca claramente qué es leyenda), costumbres del sitio. Distintos del dato curioso que ya le dijiste. NO cuentes la historia general (va en Historia), ni cine, arte o cultura (van en Cine y cultura), ni famosos, escándalos o noticias (van en Chimento).'},
+    {id:'history',label:'Historia',ask:'HISTORIA de esto: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. Si hay una leyenda conocida ligada a su historia, puedes contarla marcada como leyenda. NO incluyas detalles para mirar ni costumbres (van en Fíjate en), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
+    {id:'look',label:'Fíjate en',usePhoto:true,ask:'FÍJATE EN: lo que puede mirar o hacer AHORA que lo tiene delante. Si es un sitio: detalles concretos que se pueden buscar con la vista (una placa, una marca, un símbolo, algo que casi nadie ve; usa la foto para señalarlos si se ven) y cómo lo viven los de aquí (cuándo ir, qué pedir, una costumbre del sitio). Si es una cosa (comida, bebida, objeto, obra…): en qué fijarse para apreciarla y cómo la toman, usan o viven los locales. Práctico y para este momento. NO cuentes historia (va en Historia), ni cine o arte (van en Cine y cultura), ni famosos o noticias (van en Chimento), ni repitas lo que ya le dijiste.'},
     {id:'culture',label:'Cine y cultura',ask:'CINE Y CULTURA: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; libros, canciones o artistas ligados al lugar; apariciones en la cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, autores, directores ni escenas. NO incluyas la vida personal de famosos ni noticias (van en Chimento), ni historia general (va en Historia). Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión cultural más cercana (la calle, el barrio o la ciudad).',few:true},
-    {id:'gossip',label:'Chimento',ask:'CHIMENTO, en tono de cotilleo con gracia pero con datos: famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. NO repitas historia general (va en Historia), leyendas o rarezas (van en Datos curiosos) ni películas u obras (van en Cine y cultura). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
+    {id:'gossip',label:'Chimento',ask:'CHIMENTO, en tono de cotilleo con gracia pero con datos: famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. NO repitas historia general (va en Historia), detalles para mirar o costumbres (van en Fíjate en) ni películas u obras (van en Cine y cultura). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
   ];
 
   // ---------- views ----------
@@ -637,7 +643,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     try{return await geminiPass(parts,opt)}
     catch(e){
       if(e.message!=='BUSY')throw e;
-      opt.onStatus&&opt.onStatus('Un momento…');
+      opt.onStatus&&opt.onStatus('');
       await wait(2500);return geminiPass(parts,opt);
     }
   }
@@ -645,7 +651,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     const tried=[];let limitHits=0;const queue=[cfg.model];
     for(let i=0;i<queue.length&&tried.length<6;i++){
       const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      if(tried.length>1)opt.onStatus&&opt.onStatus('Un momento…');
+      if(tried.length>1)opt.onStatus&&opt.onStatus('');
       const res=await callModel(model,parts,opt);
       if(res.ok){
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
@@ -718,8 +724,22 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function processPhoto(f,fromGallery,hint){
     photosPending++;try{await processPhotoNow(f,fromGallery,hint)}finally{photosPending--;if(view==='home')renderHome()}
   }
+  // while it thinks, the real names around you scroll by: what it is actually weighing, in the local language
+  function scanPlaces(osm,near){
+    clearInterval(scanPlaces.t);const el=$('loading-scan');el.textContent='';
+    const seen=new Set(),list=[];
+    [...osm,...near].sort((a,b)=>a.dist-b.dist).forEach(x=>{const k=(x.title||'').toLowerCase();if(k&&!seen.has(k)){seen.add(k);list.push(x)}});
+    if(!list.length)return;
+    let i=0;const step=()=>{
+      if(view!=='loading'){clearInterval(scanPlaces.t);el.textContent='';return}
+      const x=list[i%list.length];i++;
+      el.classList.remove('in');void el.offsetWidth;
+      el.textContent=`${x.title}  ·  ${x.dist} m`;el.classList.add('in');
+    };
+    step();scanPlaces.t=setInterval(step,900);
+  }
   async function processPhotoNow(f,fromGallery,hint){
-    status('');show('loading');$('loading-text').textContent='Mirando…';backTo=null;
+    status('');show('loading');$('loading-text').textContent='Mirando…';$('loading-scan').textContent='';clearInterval(scanPlaces.t);backTo=null;
     let img=null,pos=null,near=[],osm=[],note='';
     try{
       img=await resize(f,800,'dataurl');
@@ -731,7 +751,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
         pos=await posPromise;
       }
-      if(pos){$('loading-text').textContent='Mirando qué hay alrededor…';const p=await placesPromise;near=p.wiki;osm=p.osm}
+      if(pos){$('loading-text').textContent='Mirando alrededor…';const p=await placesPromise;near=p.wiki;osm=p.osm;scanPlaces(osm,near)}
       $('loading-text').textContent='Averiguando qué es…';
       const where=pos?(pos.fromPhoto?'La foto se sacó en':'Foto tomada en'):'';
       const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
@@ -787,7 +807,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       $('r-what').classList.toggle('typing',!!o.WHAT&&!done.WHAT||(!o.WHAT&&!!o.SURE));
       $('r-cool').classList.toggle('typing',!!o.COOL);
     };
-    const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Seguimos…'});
+    const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(t&&!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Seguimos…'});
     const {o}=parseCard(txt);
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
     const isThing=/thing/i.test(o.SOURCE||'')||/^(food|drink|object|art|nature|animal|person|activity)$/i.test((o.CATEGORY||'').trim());
