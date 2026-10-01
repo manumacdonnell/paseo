@@ -329,10 +329,10 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 /* quick question */
 .quick{display:flex;flex-direction:column;gap:12px;margin-top:auto}
 .home .homemeta{margin-top:0}
-.q-form{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px}
+.q-form{display:flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px}
 .q-form input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font-size:16px;padding:9px 0}
 .q-form input::placeholder{color:var(--faint)}
-.q-form button{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.q-form button{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--raise);color:var(--ink);display:grid;place-items:center}
 .q-form button svg{width:18px;height:18px}
 .q-answer{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto}
 .q-q{font-size:13px;color:var(--muted)}
@@ -343,6 +343,9 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .q-tools svg{width:14px;height:14px;color:var(--muted)}
 .q-tools button{margin-left:auto;color:var(--muted)}
 .q-tools .copied,.q-tools .copied svg{color:var(--live)}
+
+.home-pending{margin-top:auto;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
+.home-pending:not([hidden])+.quick{margin-top:0}
 </style>
 </head>
 <body>
@@ -360,6 +363,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
       <h2>Recientes</h2>
       <ul class="rows" id="history-list"></ul>
     </div>
+    <p class="home-pending" id="home-pending" hidden><span class="spin"></span>Averiguando qué es tu foto…</p>
     <div class="quick" id="quick">
       <div class="q-answer" id="q-answer" hidden>
         <p class="q-q" id="q-q"></p>
@@ -754,8 +758,8 @@ COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto
 Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
   function parseCard(txt){
-    const re=/^\s*\**(NAME|LOCAL|CATEGORY|SOURCE|SURE|WHAT|COOL)\**\s*:\s*/gm;const hits=[];let m;
-    while((m=re.exec(txt)))hits.push({k:m[1],start:m.index,from:m.index+m[0].length});
+    const re=/^[ \t]*[*_#-]*[ \t]*(NAME|LOCAL|CATEGORY|SOURCE|SURE|WHAT|COOL)[*_]*[ \t]*:[*_]*[ \t]*/gmi;const hits=[];let m;
+    while((m=re.exec(txt)))hits.push({k:m[1].toUpperCase(),start:m.index,from:m.index+m[0].length});
     const o={},done={};
     hits.forEach((h,i)=>{const end=i+1<hits.length?hits[i+1].start:txt.length;o[h.k]=txt.slice(h.from,end).trim();done[h.k]=i+1<hits.length});
     return{o,done};
@@ -894,7 +898,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(match){name=match.title;sure=match.dist<=25}
     }
     if(!name||/^(sin nombre|unknown|desconocido|n\/a)$/i.test(name.trim()))name=await nameFallback(parts,o,ctx);
-    const card={...base,name,local:o.LOCAL,sure,what:o.WHAT||'',cool:o.COOL||''};
+    if(!(o.WHAT||'').trim()){   // the short text never came: ask for just that, once
+      try{const img=parts.find(p=>p.inline_data);
+        const out=await gemini([...(img?[img]:[]),{text:`Esto es "${name}". Escribe para alguien que lo tiene delante:\n- "what": 2 o 3 frases cortas (máximo 45 palabras): la 1.ª dice qué es, sin repetir el nombre; luego lo que lo hace interesante. No describas la foto.\n- "cool": 1 frase con el dato más sorprendente (máximo 25 palabras).\n${RULES()}\nDevuelve JSON: {"what": "...", "cool": "..."}`}]);
+        if(out&&out.what)o.WHAT=out.what;if(out&&out.cool&&!o.COOL)o.COOL=out.cool;
+      }catch(e){}
+    }
+    const card={...base,name,local:o.LOCAL,sure,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
     if(here()){openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
     saveDiscovery(false,card);if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
@@ -913,7 +923,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c.pos);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
+    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     setMeta(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
@@ -995,7 +1005,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
 
   // ---------- "Cómo llegar": hands the spot to Google Maps ----------
-  function routeURL(p){return`https://www.google.com/maps/dir/?api=1&destination=${p.lat.toFixed(6)},${p.lon.toFixed(6)}&travelmode=walking`}
+  // a named place goes by its name (Maps shows the real spot); a thing or a corner goes by the exact point
+  function routeURL(c){
+    const p=c.pos;const isPlace=c.kind==='place'||(!c.kind&&(c.url||c.local));
+    const dest=isPlace&&c.name&&c.sure!==false?[c.local||c.name,c.city].filter(Boolean).join(', '):`${p.lat.toFixed(6)},${p.lon.toFixed(6)}`;
+    return`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=walking`}
 
   // ---------- quick question: one question, one short answer, knows where you are ----------
   function quickPos(){return new Promise(res=>{if(!('geolocation' in navigator))return res(lastKnown);let done=false;const t=setTimeout(()=>{done=true;res(lastKnown)},3500);
@@ -1171,7 +1185,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function saveDiscovery(update,card){
     card=card||cur;if(!card||!card.name)return;
     const h=store.get('history',[]);const isNew=!card.t;if(isNew)card.t=Date.now();
-    const item={t:card.t,name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
+    const item={t:card.t,kind:card.kind||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
       pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);
     if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
@@ -1247,11 +1261,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)tickClock()});
   function renderHome(){
     tickClock();quickPlaceholder();
-    const h=store.get('history',[]);$('history').hidden=!h.length;
-    const ul=$('history-list');ul.innerHTML='';
-    if(photosPending>0){$('history').hidden=false;const li=document.createElement('li');li.className='pending';li.innerHTML='<span class="spin"></span>Averiguando qué es tu foto…';ul.appendChild(li)}
-    h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
-    if(h.length&&!store.get('swipeHinted',false)){const hint=document.createElement('li');hint.className='hint';hint.textContent='Desliza a la izquierda para borrar';ul.appendChild(hint)}
+    // the home screen is just the camera and a question; your discoveries live in Mi mapa
+    const h=store.get('history',[]);$('history').hidden=true;
+    $('home-pending').hidden=!(photosPending>0);
     $('btn-mymap').hidden=!h.length;
     const cities=[...new Set(h.map(x=>x.city).filter(Boolean))];
     $('mymap-count').textContent=h.length>99?'99+':String(h.length);
@@ -1320,7 +1332,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const pop=document.createElement('div');const b=document.createElement('b');b.textContent=x.name;const br=document.createElement('br');
       const w=document.createElement('span');w.className='pop-when';w.textContent=fmtWhen(x.takenAt||x.t);
       const btn=document.createElement('button');btn.textContent='Abrir';btn.onclick=()=>openFromHistory(x,'mymap');
-      const rt=document.createElement('a');rt.className='pop-route';rt.textContent='Cómo llegar';rt.href=routeURL(x.pos);rt.target='_blank';rt.rel='noopener';
+      const rt=document.createElement('a');rt.className='pop-route';rt.textContent='Cómo llegar';rt.href=routeURL(x);rt.target='_blank';rt.rel='noopener';
       pop.append(b,br,w,document.createElement('br'),btn,rt);mk.bindPopup(pop);
     });
     if(keepView)return;
