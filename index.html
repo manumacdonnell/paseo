@@ -14,7 +14,7 @@
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* manu-go — sumi ink ground, washi text, one vermilion seal (朱). Mincho for names, quiet gothic for reading, mono for metadata. */
@@ -22,7 +22,7 @@
   --bg:#0D0D0C; --surface:#161615; --raise:#1E1E1C; --line:#2A2926; --ink:#ECEAE4; --muted:#8C8A84; --faint:#5C5A55;
   --shu:#8C8A84; --danger:#B4533F; --ok:#8DB596; --ochre:#8C8A84;
   --serif:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
-  --sans:"Zen Kaku Gothic New","Hiragino Sans","Helvetica Neue",Arial,sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
   color-scheme:dark;
 }
@@ -232,6 +232,20 @@ body.has-nav .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
 .navback svg{width:22px;height:22px}
 .navback:active,.fab:active{transform:scale(.94)}
 @media (prefers-reduced-motion:reduce){.spinner,.spin{animation-duration:3s}.typing::after,#loading-text::after{animation:none}}
+
+/* legibility pass: serif only for big titles, system sans for everything you read or tap, mono only for tiny data */
+body{font-size:17px;line-height:1.5;letter-spacing:0}
+.rows .nm,.mapbtn b,.acc-head .lb,.cityrow span,.minibar button,.leaflet-popup-content b,.head .local,.alts li button{font-family:var(--sans);font-weight:600;letter-spacing:-.01em}
+.rows .nm{font-size:16px}.acc-head .lb{font-size:18px}.alts li button{font-size:16px}.head .local{font-weight:400;font-size:16px}
+.block p{font-size:17px;line-height:1.55;color:var(--ink)}
+.acc-body li{font-size:16px;line-height:1.55}
+.eyebrow,.history h2,.deeper-title,.label,.day,.prep label,.settings label,.unsure{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.pill,.notthis,.copyplace,.plain,.cityrow button,.dayhead button,.cities button,.mapfull,.deleteentry,.alt,.backprev,.src,.viewer p,.big small,.hint,.status,.acc-body .wait,.rows li.pending,.mapbtn span.sub,.rows .del-bg{font-family:var(--sans);text-transform:none;letter-spacing:0}
+.pill,.notthis,.cities button,.mapfull{font-size:13px;font-weight:500}
+.copyplace,.plain,.cityrow button,.dayhead button,.alt,.backprev,.src,.big small,.mapbtn span.sub{font-size:14px}
+.deleteentry,.hint,.viewer p{font-size:13px}
+.status,.acc-body .wait,.rows li.pending{font-size:14px}
+.big b{font-size:24px}
 </style>
 </head>
 <body>
