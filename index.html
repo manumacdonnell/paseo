@@ -382,6 +382,14 @@ button.dayhead .chev{width:16px;height:16px;color:var(--muted);transition:transf
 button.dayhead[aria-expanded="true"] .chev{transform:rotate(90deg)}
 .daybody .rows{border-top:0}
 .dayexport{background:transparent;border:0;color:var(--muted);font-size:14px;padding:10px 0 16px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
+
+.daytop{display:flex;align-items:center;gap:14px}
+.daytop .dayhead{flex:1;min-width:0}
+.daytop.isopen .cnt{display:none}
+.daychev{flex:none;background:transparent;border:0;padding:16px 0 16px 4px;color:var(--muted);display:grid;place-items:center}
+.daychev .chev{width:16px;height:16px;transition:transform .25s ease}
+.daytop.isopen .daychev .chev{transform:rotate(90deg)}
+.dayexport{padding:16px 0!important;flex:none}
 </style>
 </head>
 <body>
@@ -979,6 +987,23 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const pendingDeep=new Map(); // "card time|name|topic" → answer on its way
   const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
   const keyOf=(c,t)=>c.t+'|'+c.name+'|'+t.id;
+  // smooth open/close for anything that folds (Profundizar, days): height + fade, nothing jumps
+  function slide(el,open){
+    clearTimeout(el._slideT);const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){el.hidden=!open;el.style.height='';return}
+    if(open){
+      el.hidden=false;el.dataset.closing='';const h=el.scrollHeight;
+      el.style.overflow='hidden';el.style.height='0px';el.style.opacity='0';void el.offsetHeight;
+      el.style.transition='height .28s cubic-bezier(.2,.7,.2,1), opacity .22s ease';el.style.height=h+'px';el.style.opacity='1';
+      el._slideT=setTimeout(()=>{el.style.height='';el.style.overflow='';el.style.transition=''},300);
+    }else{
+      if(el.hidden)return;el.dataset.closing='1';
+      el.style.overflow='hidden';el.style.height=el.scrollHeight+'px';void el.offsetHeight;
+      el.style.transition='height .24s cubic-bezier(.2,.7,.2,1), opacity .18s ease';el.style.height='0px';el.style.opacity='0';
+      el._slideT=setTimeout(()=>{el.hidden=true;el.dataset.closing='';el.style.height='';el.style.overflow='';el.style.opacity='';el.style.transition=''},260);
+    }
+  }
+  const isOpen=el=>!el.hidden&&!el.dataset.closing;
   function renderAccordion(c){
     const box=$('acc');box.innerHTML='';
     TOPICS.forEach(t=>{
@@ -989,24 +1014,26 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const body=document.createElement('div');body.className='acc-body';body.hidden=true;
       head.onclick=()=>toggleTopic(t,item);
       // one-handed: a tap anywhere on the open text closes it; if its title ran off the top, bring it back into view
-      body.onclick=()=>{if(body.hidden||window.getSelection().toString())return;body.hidden=true;head.setAttribute('aria-expanded','false');
+      body.onclick=()=>{if(!isOpen(body)||window.getSelection().toString())return;slide(body,false);head.setAttribute('aria-expanded','false');
         const top=head.getBoundingClientRect().top;if(top<70)window.scrollBy({top:top-80,behavior:'smooth'})};
       item.append(head,body);box.appendChild(item);
     });
   }
   function setPreview(head,points){const pv=head.querySelector('.pv');if(!pv)return;if(points&&points.length){pv.textContent=points[0];pv.hidden=false}else pv.hidden=true}
   function fillBody(body,points){
+    const grow=isOpen(body)&&!body._slideT?body.offsetHeight:0;
     body.innerHTML='';const ul=document.createElement('ul');
     points.forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});body.appendChild(ul);
+    if(grow){const h1=body.scrollHeight;if(h1!==grow){body.style.overflow='hidden';body.style.height=grow+'px';void body.offsetHeight;body.style.transition='height .28s cubic-bezier(.2,.7,.2,1)';body.style.height=h1+'px';setTimeout(()=>{body.style.height='';body.style.overflow='';body.style.transition=''},300)}}
   }
   function waiting(body){body.innerHTML='<div class="skel" aria-label="Cargando"><i></i><i></i><i></i></div>'}
   function toggleTopic(t,item){
     const head=item.querySelector('.acc-head'),body=item.querySelector('.acc-body');
-    if(!body.hidden){body.hidden=true;head.setAttribute('aria-expanded','false');return}
-    body.hidden=false;head.setAttribute('aria-expanded','true');
+    if(isOpen(body)){slide(body,false);head.setAttribute('aria-expanded','false');return}
+    head.setAttribute('aria-expanded','true');
     const card=cur;
-    if((card.deep||{})[t.id]){fillBody(body,card.deep[t.id]);return}
-    waiting(body);
+    if((card.deep||{})[t.id]){fillBody(body,card.deep[t.id]);slide(body,true);return}
+    waiting(body);slide(body,true);
     if(!pendingDeep.has(keyOf(card,t)))askTopic(t,card);
   }
   const ABOUT=card=>`La persona ya lo tiene delante: no describas lo que se ve en la foto (salvo en "Fíjate en", para señalar un detalle concreto que se le puede escapar). DE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.`;
@@ -1029,7 +1056,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     }catch(e){
       if(given){retry=true;return}   // the all-in-one call missed this one: ask for it alone if it's open (or on the next tap)
       const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e);body.appendChild(p);
-        setTimeout(()=>{if(!(cur.deep||{})[t.id]){body.hidden=true;it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
+        setTimeout(()=>{if(!(cur.deep||{})[t.id]){slide(body,false);it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
     }finally{pendingDeep.delete(key)}
     if(retry){const it=here();if(it&&!it.querySelector('.acc-body').hidden)askTopic(t,card)}
   }
@@ -1423,14 +1450,18 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     keys.forEach(k=>{
       const list=groups.get(k),label=dayLabel(when(list[0]));
       const wrap=document.createElement('div');wrap.className='dayblock';
+      const top=document.createElement('div');top.className='daytop';
       const head=document.createElement('button');head.className='dayhead';head.setAttribute('aria-expanded',openDays.has(k)?'true':'false');
-      head.innerHTML=`<span class="day"></span><span class="cnt"></span>${chev}`;head.querySelector('.day').textContent=label;head.querySelector('.cnt').textContent=list.length===1?'1 lugar':`${list.length} lugares`;
+      head.innerHTML=`<span class="day"></span><span class="cnt"></span>`;head.querySelector('.day').textContent=label;head.querySelector('.cnt').textContent=list.length===1?'1 lugar':`${list.length} lugares`;
       const body=document.createElement('div');body.className='daybody';body.hidden=!openDays.has(k);
       const ul=document.createElement('ul');ul.className='rows';list.forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true)));
-      const ex=document.createElement('button');ex.className='dayexport';ex.textContent='Exportar este día';ex.onclick=()=>exportPlaces(list,`${mapCity} · ${label}`);
-      body.append(ul,ex);
-      head.onclick=()=>{const open=body.hidden;body.hidden=!open;head.setAttribute('aria-expanded',open?'true':'false');open?openDays.add(k):openDays.delete(k)};
-      wrap.append(head,body);box.appendChild(wrap);
+      const ex=document.createElement('button');ex.className='dayexport';ex.textContent='Exportar';ex.hidden=!openDays.has(k);ex.onclick=()=>exportPlaces(list,`${mapCity} · ${label}`);
+      body.append(ul);
+      const cv=document.createElement('button');cv.className='daychev';cv.setAttribute('aria-label','Abrir o cerrar');cv.innerHTML=chev;
+      const tog=()=>{const open=!isOpen(body);slide(body,open);ex.hidden=!open;top.classList.toggle('isopen',open);head.setAttribute('aria-expanded',open?'true':'false');open?openDays.add(k):openDays.delete(k)};
+      head.onclick=tog;cv.onclick=tog;
+      top.classList.toggle('isopen',openDays.has(k));
+      top.append(head,ex,cv);wrap.append(top,body);box.appendChild(wrap);
     });
   }
 
