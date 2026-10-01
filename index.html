@@ -364,6 +364,12 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .rc-name{font-size:13px;font-weight:500;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .rc:active .rc-img{transform:scale(.97)}
 .askbottom{margin-top:6px;border-top:0!important;padding-top:10px!important}
+
+/* ¿Es esto? */
+.confirm{display:flex;align-items:center;gap:14px;margin-top:14px;font-size:15px;color:var(--muted)}
+.confirm button{border:0;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600}
+.confirm button.no{background:transparent;color:var(--muted);padding:8px 4px;font-weight:500}
+.confirm.done{color:var(--live)}
 </style>
 </head>
 <body>
@@ -377,10 +383,6 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 
   <!-- HOME -->
   <section class="home" id="v-home">
-    <div class="recent" id="recent" hidden>
-      <p class="recent-h">Recientes</p>
-      <div class="recent-row" id="recent-row"></div>
-    </div>
     <div class="history" id="history" hidden>
       <h2>Recientes</h2>
       <ul class="rows" id="history-list"></ul>
@@ -440,6 +442,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
           <button class="backprev" id="btn-prev" hidden></button>
+          <div class="confirm" id="r-confirm" hidden><span>¿Es esto?</span><button id="btn-yes">Sí, es esto</button><button class="no" id="btn-no">No</button></div>
           <div class="placetools"><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
           <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a></div>
         </div>
@@ -940,6 +943,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function paintCard(c,opt={}){
     $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
     $('r-unsure').hidden=c.sure!==false;
+    $('r-confirm').hidden=!!opt.partial||!!c.noAI||!!c.confirmed||!(c.prev||c.sure===false);
     $('r-name').textContent=c.name||(opt.partial?'…':'Algo por descubrir');
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
@@ -1100,6 +1104,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
       b.append(a,d);b.onclick=()=>choose(n);li.appendChild(b);ul.appendChild(li)});
   }
+  $('btn-yes').onclick=()=>{if(!cur)return;cur.confirmed=true;cur.sure=true;saveDiscovery(true,cur);
+    $('r-unsure').hidden=true;$('btn-prev').hidden=true;const el=$('r-confirm');el.classList.add('done');el.innerHTML='<span>Guardado ✓</span>';
+    setTimeout(()=>{el.hidden=true;el.classList.remove('done');el.innerHTML='<span>¿Es esto?</span><button id="btn-yes">Sí, es esto</button><button class="no" id="btn-no">No</button>';bindConfirm()},1400)};
+  $('btn-no').onclick=()=>$('btn-notthis').click();
+  function bindConfirm(){const y=$('btn-yes'),n=$('btn-no');if(y&&!y.onclick)y.onclick=yesHandler;if(n)n.onclick=()=>$('btn-notthis').click()}
+  const yesHandler=$('btn-yes').onclick;
   $('alts-retry').onclick=()=>choose({title:'',dist:0,typed:true,retry:true});
   $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
@@ -1213,7 +1223,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function saveDiscovery(update,card){
     card=card||cur;if(!card||!card.name)return;
     const h=store.get('history',[]);const isNew=!card.t;if(isNew)card.t=Date.now();
-    const item={t:card.t,kind:card.kind||'',src:card.src||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
+    const item={t:card.t,confirmed:!!card.confirmed,kind:card.kind||'',src:card.src||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
       pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);
     if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
@@ -1291,12 +1301,10 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function renderHome(){
     tickClock();quickPlaceholder();
     // the home screen is just the camera and a question; your discoveries live in Mi mapa
-    const h=store.get('history',[]);$('history').hidden=true;
-    const rr=$('recent-row');rr.innerHTML='';$('recent').hidden=!h.length;
-    h.slice(0,3).forEach(x=>{const b=document.createElement('button');b.className='rc';
-      const im=document.createElement('span');im.className='rc-img';if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.style.backgroundImage=`url("${u}")`});
-      const nm=document.createElement('span');nm.className='rc-name';nm.textContent=x.name||'';
-      b.append(im,nm);b.onclick=()=>openFromHistory(x);rr.appendChild(b)});
+    const h=store.get('history',[]);$('history').hidden=!h.length;
+    const ul=$('history-list');ul.innerHTML='';
+    h.slice(0,3).forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x))));
+    if(h.length&&!store.get('swipeHinted',false)){const hint=document.createElement('li');hint.className='hint';hint.textContent='Desliza a la izquierda para borrar';ul.appendChild(hint)}
     $('home-pending').hidden=!(photosPending>0);
     $('btn-mymap').hidden=!h.length;
     const cities=[...new Set(h.map(x=>x.city).filter(Boolean))];
