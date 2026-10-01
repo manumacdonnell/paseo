@@ -654,31 +654,44 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
       await wait(2500);return geminiPass(parts,opt);
     }
   }
-  async function geminiPass(parts,opt){
-    const tried=[];let limitHits=0;const queue=[cfg.model];
+  // Each model gets a short time-out when Google says "too many" (per-minute limit) instead of being dropped for good,
+  // and when every model is resting for a few seconds the app simply waits and tries again.
+  const coolUntil=new Map(),coolWhy=new Map();
+  function rest(model,ms,why){coolUntil.set(model,Date.now()+ms);coolWhy.set(model,why)}
+  async function geminiPass(parts,opt,again){
+    const tried=[];const queue=[cfg.model];(await listModels()).forEach(m=>{if(!queue.includes(m))queue.push(m)});
     for(let i=0;i<queue.length&&tried.length<6;i++){
-      const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      if(tried.length>1)opt.onStatus&&opt.onStatus('');
+      const model=queue[i];if((coolUntil.get(model)||0)>Date.now()||tried.includes(model))continue;tried.push(model);
       const res=await callModel(model,parts,opt);
       if(res.ok){
+        coolUntil.delete(model);
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
         return opt.stream?res.text:JSON.parse(res.text.replace(/^\s*```(json)?/,'').replace(/```\s*$/,'').trim());
       }
       lastDetail=`${model}: ${res.status} ${res.msg}`.slice(0,300);
       if(res.status===403||(res.status===400&&/API key|API_KEY/i.test(res.msg)))throw new Error('KEY');
-      if(res.status===404||res.status===429||res.status===400||res.status>=500){
-        if(res.status===429)limitHits++;
-        if(res.status<500)dead.add(model);
-        if(queue.length===1)(await listModels()).forEach(m=>{if(!queue.includes(m))queue.push(m)});
-        continue;
+      if(res.status===429){
+        const daily=/per.?day|PerDay|daily/i.test(res.msg);const sec=parseFloat((res.msg.match(/retry in ([\d.]+)\s*s/i)||[])[1]);
+        rest(model,daily?3*3600e3:((sec||60)*1000+500),daily?'day':'minute');continue;
       }
+      if(res.status===404){rest(model,Infinity,'gone');continue}
+      if(res.status===400){rest(model,/model|think|not supported|not found/i.test(res.msg)?Infinity:600e3,'bad');continue}
+      if(res.status>=500){rest(model,20e3,'busy');continue}
       throw new Error('HTTP '+res.status+' '+res.msg);
     }
-    throw new Error(limitHits?'LIMIT':/: 5\d\d /.test(lastDetail)?'BUSY':'NOMODEL');
+    // nothing answered: if a model frees up within half a minute, wait for it once
+    const now=Date.now();const next=Math.min(...queue.map(m=>coolUntil.get(m)||Infinity));
+    if(!again&&next-now<=30000){opt.onStatus&&opt.onStatus('');await wait(Math.max(0,next-now)+300);return geminiPass(parts,opt,true)}
+    const whys=queue.map(m=>(coolUntil.get(m)||0)>now?coolWhy.get(m):null);
+    if(whys.includes('minute'))throw new Error('RATE');
+    if(whys.includes('day'))throw new Error('LIMIT');
+    if(whys.includes('busy'))throw new Error('BUSY');
+    throw new Error('NOMODEL');
   }
   function errText(e){
     if(e.message==='LIMIT'){console.warn(lastDetail);return'Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.'}
     if(e.message==='BUSY')return'Google va lento ahora mismo. Prueba otra vez en un minuto.';
+    if(e.message==='RATE'){console.warn(lastDetail);return'Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.'}
     if(e.message==='NOMODEL'){console.warn(lastDetail);return'No pude conectar con Google. Prueba otra vez en un momento.'}
     if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Ajustes.';
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
