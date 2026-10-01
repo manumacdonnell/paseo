@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>manu-go</title>
 <meta name="theme-color" content="#0D0D0C">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -307,6 +307,13 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .scan.in{animation:scanin .9s ease both}
 @keyframes scanin{0%{opacity:0;transform:translateY(4px)}20%,75%{opacity:1;transform:none}100%{opacity:.4}}
 @media (prefers-reduced-motion:reduce){.scan.in{animation:none}}
+
+.acc-body{cursor:pointer;-webkit-user-select:none;user-select:none}
+
+/* app-like: the page only scrolls up and down; no sideways drift, no accidental zoom */
+html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation}
+.app>section:not(#v-mymap),.top,.minibar{touch-action:pan-y}
+#v-mymap>:not(.mapbox){touch-action:pan-y}
 </style>
 </head>
 <body>
@@ -677,7 +684,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
-  const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
+  const RULES=()=>`Hoy es ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
 NAME: si es un sitio, su nombre propio exacto (genérico solo si SOURCE es generic); si es una cosa (SOURCE thing), lo que es, concreto y bien dicho (p. ej. "Tarta de zanahoria", "Pierogi ruskie"), NUNCA el nombre del local donde está
@@ -862,6 +869,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       setPreview(head,(c.deep||{})[t.id]);
       const body=document.createElement('div');body.className='acc-body';body.hidden=true;
       head.onclick=()=>toggleTopic(t,item);
+      // one-handed: a tap anywhere on the open text closes it; if its title ran off the top, bring it back into view
+      body.onclick=()=>{if(body.hidden||window.getSelection().toString())return;body.hidden=true;head.setAttribute('aria-expanded','false');
+        const top=head.getBoundingClientRect().top;if(top<70)window.scrollBy({top:top-80,behavior:'smooth'})};
       item.append(head,body);box.appendChild(item);
     });
   }
