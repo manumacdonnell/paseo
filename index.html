@@ -285,6 +285,21 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .ask-row #ask-copy.copied,.ask-row #ask-copy.copied svg{color:var(--live)!important}
 .ask-row .copied .ext{display:none}
 .tools{display:none}.tools:has(>:not([hidden])){display:flex}
+
+/* loading skeleton for Profundizar */
+.skel{display:flex;flex-direction:column;gap:10px;padding:4px 0 6px}
+.skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface) 0%,var(--raise) 40%,var(--surface) 80%);background-size:300% 100%;animation:shimmer 1.6s ease-in-out infinite}
+.skel i:nth-child(1){width:92%}.skel i:nth-child(2){width:78%;animation-delay:.12s}.skel i:nth-child(3){width:54%;animation-delay:.24s}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.skel i{animation:none}}
+/* copied: icon crossfades to a check, colour eases in and out */
+.ico{position:relative;display:inline-grid;width:15px;height:15px;flex:none}
+.ico svg{grid-area:1/1;width:15px!important;height:15px!important;transition:opacity .3s ease,transform .3s ease}
+.ico .chk{opacity:0;transform:scale(.6)}
+.copied .ico .chk{opacity:1;transform:none}
+.copied .ico svg:not(.chk){opacity:0;transform:scale(.6)}
+.ask-row a,.ask-row button,.copyplace,.ask-row svg{transition:color .35s ease}
+.ask-row .copied .ext{display:block}
 </style>
 </head>
 <body>
@@ -620,7 +635,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     try{return await geminiPass(parts,opt)}
     catch(e){
       if(e.message!=='BUSY')throw e;
-      opt.onStatus&&opt.onStatus('Google está saturado, reintentando…');
+      opt.onStatus&&opt.onStatus('Un momento…');
       await wait(2500);return geminiPass(parts,opt);
     }
   }
@@ -628,7 +643,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     const tried=[];let limitHits=0;const queue=[cfg.model];
     for(let i=0;i<queue.length&&tried.length<6;i++){
       const model=queue[i];if(dead.has(model)||tried.includes(model))continue;tried.push(model);
-      if(tried.length>1)opt.onStatus&&opt.onStatus('Ese modelo está ocupado, probando otro…');
+      if(tried.length>1)opt.onStatus&&opt.onStatus('Un momento…');
       const res=await callModel(model,parts,opt);
       if(res.ok){
         if(cfg.model!==model){cfg.model=model;store.set('model',model)}
@@ -647,12 +662,12 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     throw new Error(limitHits?'LIMIT':/: 5\d\d /.test(lastDetail)?'BUSY':'NOMODEL');
   }
   function errText(e){
-    if(e.message==='LIMIT')return'Ningún modelo gratis responde ahora (límite de Google). Detalle: '+lastDetail;
-    if(e.message==='BUSY')return'Los servidores de Google están saturados ahora mismo. Prueba en un minuto.';
-    if(e.message==='NOMODEL')return'No encontré un modelo que funcione con tu clave. Detalle: '+lastDetail;
+    if(e.message==='LIMIT'){console.warn(lastDetail);return'Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.'}
+    if(e.message==='BUSY')return'Google va lento ahora mismo. Prueba otra vez en un minuto.';
+    if(e.message==='NOMODEL'){console.warn(lastDetail);return'No pude conectar con Google. Prueba otra vez en un momento.'}
     if(e.message==='KEY')return'La clave de Gemini no funciona. Revísala en Ajustes.';
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
-    return'Algo falló: '+e.message;
+    console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
   const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
@@ -770,7 +785,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       $('r-what').classList.toggle('typing',!!o.WHAT&&!done.WHAT||(!o.WHAT&&!!o.SURE));
       $('r-cool').classList.toggle('typing',!!o.COOL);
     };
-    const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Retomando…'});
+    const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Seguimos…'});
     const {o}=parseCard(txt);
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
     if(ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
@@ -831,7 +846,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     body.innerHTML='';const ul=document.createElement('ul');
     points.forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});body.appendChild(ul);
   }
-  function waiting(body,text){body.innerHTML=`<p class="wait"><span class="spin"></span><span></span></p>`;body.querySelector('.wait span:last-child').textContent=text||'Pensando…'}
+  function waiting(body){body.innerHTML='<div class="skel" aria-label="Cargando"><i></i><i></i><i></i></div>'}
   function toggleTopic(t,item){
     const head=item.querySelector('.acc-head'),body=item.querySelector('.acc-body');
     if(!body.hidden){body.hidden=true;head.setAttribute('aria-expanded','false');return}
@@ -848,7 +863,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
     parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
     const here=()=>cur&&cur.t===card.t&&cur.name===card.name&&document.getElementById('acc-'+t.id);
-    const job=retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'),'Retomando…')});
+    const job=retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'))});
     pendingDeep.set(key,job);
     try{
       const out=await job;const points=(out.points||[]).filter(Boolean);
@@ -857,7 +872,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(it){cur.deep[t.id]=points;const head=it.querySelector('.acc-head');setPreview(head,points);
         const body=it.querySelector('.acc-body');if(!body.hidden)fillBody(body,points)}
     }catch(e){
-      const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e)+' Toca para reintentar.';body.appendChild(p);
+      const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e);body.appendChild(p);
         setTimeout(()=>{if(!(cur.deep||{})[t.id]){body.hidden=true;it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
     }finally{pendingDeep.delete(key)}
   }
@@ -940,7 +955,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('btn-copyplace').onclick=()=>{
     if(!cur)return;const c=cur;
     const txt=(c.local&&c.local.trim())||c.name; // original name, ready to search photos
-    const ok=()=>flashCopied($('btn-copyplace'),$('copyplace-label'),'Copiar nombre');
+    const ok=()=>flashCopied($('btn-copyplace'));
     try{navigator.clipboard.writeText(txt).then(ok,()=>status('No pude copiarlo.',true))}catch(e){status('No pude copiarlo.',true)}
   };
 
@@ -965,14 +980,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function askMsg(t){$('ask-panel').querySelector('.help').textContent=t}
   function showAskText(txt){const ta=$('ask-text');ta.value=txt;ta.hidden=false;ta.focus();ta.select();askMsg('No pude copiarlo solo: mantén pulsado el texto y cópialo.')}
   // a quick green "Copiado" that fades back to the original label
-  function flashCopied(btn,lab,orig,done){
-    clearTimeout(btn._t1);clearTimeout(btn._t2);
-    lab.classList.add('swap');
-    btn._t1=setTimeout(()=>{lab.textContent=done||'Copiado ✓';btn.classList.add('copied');lab.classList.remove('swap');
-      btn._t2=setTimeout(()=>{lab.classList.add('swap');btn._t1=setTimeout(()=>{lab.textContent=orig;btn.classList.remove('copied');lab.classList.remove('swap')},160)},1300)},90);
-  }
+  // a quick green check that eases back; the words never change, so nothing jumps
+  const CHECK='<svg class="chk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function addCheck(btn){if(btn.querySelector('.ico'))return;const ic=btn.querySelector('svg');const w=document.createElement('span');w.className='ico';ic.replaceWith(w);w.appendChild(ic);w.insertAdjacentHTML('beforeend',CHECK)}
+  function flashCopied(btn){addCheck(btn);clearTimeout(btn._t1);btn.classList.add('copied');btn._t1=setTimeout(()=>btn.classList.remove('copied'),1500)}
+
   ['ask-chatgpt','ask-claude','ask-copy'].forEach(id=>{const b=$(id);if(b.querySelector('.lab')){b._orig=b.querySelector('.lab').textContent;return}const sp=document.createElement('span');sp.className='lab';sp.textContent=b.textContent;b.textContent='';b.appendChild(sp);b._orig=sp.textContent});
-  const askFlash=id=>flashCopied($(id),$(id).querySelector('.lab'),$(id)._orig,id==='ask-copy'?'Copiado ✓':$(id)._orig+' ✓');
+  const askFlash=id=>flashCopied($(id));
   $('ask-chatgpt').onclick=()=>{if(copyAsk())askFlash('ask-chatgpt')}; // the link itself opens the chat
   $('ask-claude').onclick=()=>{if(copyAsk())askFlash('ask-claude')};
   $('ask-copy').onclick=()=>{if(copyAsk())askFlash('ask-copy')};
