@@ -71,7 +71,11 @@ p{margin:0}
 
 /* card */
 .result{display:flex;flex-direction:column;gap:12px}
+.photo{position:relative}
 .thumb{width:100%;height:150px;object-fit:cover;border-radius:18px;display:block;cursor:zoom-in}
+.photo-save{position:absolute;right:10px;bottom:10px;width:40px;height:40px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.photo-save svg{width:20px;height:20px}
+.photo-save.done{background:rgba(31,138,91,.85)}
 .viewer{position:fixed;inset:0;background:#0B0F13;z-index:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:calc(env(safe-area-inset-top,0px) + 16px) 12px calc(env(safe-area-inset-bottom,0px) + 16px)}
 .viewer img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px;-webkit-touch-callout:default;user-select:auto}
 .viewer p{color:#cfd6dc;font-size:14px;text-align:center;margin:0}
@@ -96,17 +100,20 @@ p{margin:0}
 .src{font-size:13px;color:var(--muted);margin-left:auto}
 .src a{color:inherit}
 
-.deeper-btn{border:0;border-radius:18px;background:var(--ink);color:var(--bg);padding:16px;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.02em;display:flex;justify-content:space-between;align-items:center}
+.deeper{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+.deeper-title{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.acc{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.acc-item+.acc-item{border-top:1px solid var(--line)}
+.acc-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:transparent;border:0;padding:16px 18px;font-family:var(--display);font-weight:700;font-size:18px;text-align:left}
+.acc-head .chev{width:18px;height:18px;color:var(--muted);transition:transform .2s ease;flex:none}
+.acc-head[aria-expanded="true"] .chev{transform:rotate(90deg);color:var(--brick)}
+.acc-head .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);margin-left:auto;margin-right:2px;flex:none}
+.acc-body{padding:0 18px 16px}
+.acc-body ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
+.acc-body li{font-size:16px;line-height:1.5}
+.acc-body li::marker{color:var(--brick)}
+.acc-body .wait{color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px}
 .deeper{display:flex;flex-direction:column;gap:12px}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:9px 14px;font-weight:600;font-size:15px}
-.chips button[aria-pressed="true"]{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
-.section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:8px}
-.section h3{font-size:18px}
-.section ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px}
-.section li{font-size:16px;line-height:1.5}
-.section li::marker{color:var(--brick)}
-.section .wait{color:var(--muted);font-size:14px}
 
 /* not this */
 .alts{display:flex;flex-direction:column;gap:10px}
@@ -236,7 +243,10 @@ p{margin:0}
 
   <!-- CARD -->
   <section class="result" id="v-result" hidden>
-    <img class="thumb" id="r-img" alt="Tu foto (toca para verla entera)" hidden>
+    <div class="photo" id="r-photo" hidden>
+      <img class="thumb" id="r-img" alt="Tu foto (toca para verla entera)">
+      <button class="photo-save" id="btn-savephoto" aria-label="Guardar la foto en tu iPhone" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg></button>
+    </div>
     <article class="card">
       <div class="head">
         <div>
@@ -258,7 +268,6 @@ p{margin:0}
         <p id="r-cool"></p>
       </div>
       <div class="tools">
-        <button class="icon" id="btn-savephoto" hidden>Guardar foto</button>
         <button class="icon" id="btn-ask" hidden>Seguir en ChatGPT o Claude</button>
         <span class="src" id="r-src" hidden></span>
       </div>
@@ -272,10 +281,9 @@ p{margin:0}
         <textarea id="ask-text" readonly hidden></textarea>
       </div>
     </article>
-    <button class="deeper-btn" id="btn-deeper" aria-expanded="false"><span>PROFUNDIZAR</span><span aria-hidden="true">→</span></button>
-    <div class="deeper" id="deeper" hidden>
-      <div class="chips" id="chips"></div>
-      <div id="sections" style="display:flex;flex-direction:column;gap:12px"></div>
+    <div class="deeper" id="btn-deeper">
+      <p class="deeper-title">Profundizar</p>
+      <div class="acc" id="acc"></div>
     </div>
     <button class="deleteentry" id="btn-delete" hidden>Borrar esta entrada</button>
   </section>
@@ -692,7 +700,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- card ----------
   function paintCard(c,opt={}){
     $('r-eyebrow').textContent='Estás ante';
-    $('r-img').hidden=!c.img;if(c.img)$('r-img').src=c.img;
+    $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
     $('r-unsure').hidden=c.sure!==false;
     $('r-name').textContent=c.name||'Sin nombre';
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
@@ -704,10 +712,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev)$('btn-prev').textContent=`↩ Volver a «${c.prev.name}»`;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
-    $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
-    if(!opt.partial){renderChips();$('sections').innerHTML='';
-      Object.keys(c.deep||{}).forEach(id=>{renderSection(id);const el=document.getElementById('sec-'+id);if(el)el.hidden=true});
-      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+c.name+'|'+t.id)&&!(c.deep||{})[t.id])waitingSection(t).hidden=true})}
+    if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
@@ -715,59 +720,64 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     cur=c;if(keepT&&!c.t)cur.t=keepT;stopVoice();paintCard(c);
     if(!fromHistory)saveDiscovery();
   }
-  $('btn-deeper').onclick=()=>{const d=$('deeper');d.hidden=!d.hidden;
-    if(d.hidden){[...$('sections').children].forEach(x=>x.hidden=true);[...$('chips').children].forEach(b=>b.setAttribute('aria-pressed','false'))}$('btn-deeper').setAttribute('aria-expanded',String(!d.hidden));if(!d.hidden)d.scrollIntoView({behavior:'smooth',block:'start'})};
-  function renderChips(){
-    const box=$('chips');box.innerHTML='';
-    TOPICS.forEach(t=>{if(t.photo&&!cur.img)return;
-      const b=document.createElement('button');b.textContent=t.label;b.setAttribute('aria-pressed','false');
-      b.onclick=()=>goDeeper(t,b);box.appendChild(b)});
+  // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
+  const pendingDeep=new Map(); // "card time|name|topic" → answer on its way
+  const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+  const keyOf=(c,t)=>c.t+'|'+c.name+'|'+t.id;
+  function renderAccordion(c){
+    const box=$('acc');box.innerHTML='';
+    TOPICS.forEach(t=>{
+      const item=document.createElement('div');item.className='acc-item';item.id='acc-'+t.id;
+      const head=document.createElement('button');head.className='acc-head';head.setAttribute('aria-expanded','false');
+      head.innerHTML=`<span></span>${(c.deep||{})[t.id]?'<i class="dot" title="Ya cargado"></i>':''}${chev}`;head.querySelector('span').textContent=t.label;
+      const body=document.createElement('div');body.className='acc-body';body.hidden=true;
+      head.onclick=()=>toggleTopic(t,item);
+      item.append(head,body);box.appendChild(item);
+    });
   }
-  const pendingDeep=new Map(); // "card time|topic" → answer on its way
-  function waitingSection(t,where){
-    const sec=document.createElement('div');sec.className='section';sec.id='sec-'+t.id;
-    sec.innerHTML=`<h3></h3><p class="wait">Pensando…</p>`;sec.querySelector('h3').textContent=t.label;
-    (where||$('sections')).prepend(sec);return sec;
+  function fillBody(body,points){
+    body.innerHTML='';const ul=document.createElement('ul');
+    points.forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});body.appendChild(ul);
   }
-  async function goDeeper(t,btn){
-    const open=document.getElementById('sec-'+t.id);
-    if(open&&!open.hidden){open.hidden=true;btn.setAttribute('aria-pressed','false');return}
-    if(open&&(cur.deep[t.id]||pendingDeep.has(cur.t+'|'+cur.name+'|'+t.id))){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
-    if(open)open.remove();
-    btn.setAttribute('aria-pressed','true');
-    const sec=waitingSection(t);sec.scrollIntoView({behavior:'smooth',block:'start'});
-    const card=cur,key=card.t+'|'+card.name+'|'+t.id;
+  function waiting(body,text){body.innerHTML=`<p class="wait"><span class="spin"></span><span></span></p>`;body.querySelector('.wait span:last-child').textContent=text||'Pensando…'}
+  function toggleTopic(t,item){
+    const head=item.querySelector('.acc-head'),body=item.querySelector('.acc-body');
+    if(!body.hidden){body.hidden=true;head.setAttribute('aria-expanded','false');return}
+    body.hidden=false;head.setAttribute('aria-expanded','true');
+    const card=cur;
+    if((card.deep||{})[t.id]){fillBody(body,card.deep[t.id]);return}
+    waiting(body);
+    if(!pendingDeep.has(keyOf(card,t)))askTopic(t,card);
+  }
+  async function askTopic(t,card){
+    const key=keyOf(card,t);
     const parts=[];
     if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
     parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
-    const job=retryOnReturn(()=>gemini(parts),()=>{const w=document.getElementById('sec-'+t.id);if(w&&cur&&cur.t===card.t){const p=w.querySelector('.wait');if(p)p.textContent='Retomando…'}});
+    const here=()=>cur&&cur.t===card.t&&cur.name===card.name&&document.getElementById('acc-'+t.id);
+    const job=retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'),'Retomando…')});
     pendingDeep.set(key,job);
     try{
       const out=await job;const points=(out.points||[]).filter(Boolean);
       card.deep[t.id]=points;saveDiscovery(true,card);           // saved even if you left this card
-      if(cur&&cur.t===card.t&&cur.name===card.name){cur.deep[t.id]=points;const el=document.getElementById('sec-'+t.id);if(el)renderSection(t.id,el)}
+      const it=here();
+      if(it){cur.deep[t.id]=points;const head=it.querySelector('.acc-head');if(!head.querySelector('.dot'))head.querySelector('.chev').insertAdjacentHTML('beforebegin','<i class="dot" title="Ya cargado"></i>');
+        const body=it.querySelector('.acc-body');if(!body.hidden)fillBody(body,points)}
     }catch(e){
-      if(cur&&cur.t===card.t&&cur.name===card.name){const el=document.getElementById('sec-'+t.id);if(el){const w=el.querySelector('.wait');if(w)w.textContent=errText(e);setTimeout(()=>{if(!(cur.deep||{})[t.id])el.remove()},4000)}
-        const b=[...$('chips').children].find(x=>x.textContent===t.label);if(b)b.setAttribute('aria-pressed','false')}
+      const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e)+' Toca para reintentar.';body.appendChild(p);
+        setTimeout(()=>{if(!(cur.deep||{})[t.id]){body.hidden=true;it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
     }finally{pendingDeep.delete(key)}
-  }
-  function renderSection(id,existing){
-    const t=TOPICS.find(x=>x.id===id);if(!t)return;
-    const sec=existing||document.createElement('div');sec.className='section';sec.id='sec-'+id;sec.innerHTML='';
-    const h=document.createElement('h3');h.textContent=t.label;const ul=document.createElement('ul');
-    (cur.deep[id]||[]).forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});
-    sec.append(h,ul);if(!existing)$('sections').appendChild(sec);
   }
 
   // ---------- save photo to the phone ----------
   // Browsers can't write to the photo library directly; the share sheet offers "Save Image" in one tap.
-  $('btn-savephoto').onclick=async()=>{
+  $('btn-savephoto').onclick=async e=>{e.stopPropagation();
     const blob=cur.file||await getPhoto(cur.t);if(!blob){status('No encuentro la foto.',true);return}
     const nm=(cur.name||'foto').replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'').slice(0,40)||'foto';
     const file=new File([blob],`${nm}.jpg`,{type:blob.type||'image/jpeg'});
     try{
-      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});$('btn-savephoto').classList.add('done');return}
     }catch(e){if(e.name==='AbortError')return}
     const u=URL.createObjectURL(file);window.open(u,'_blank');
     status('Mantén pulsada la foto y elige “Guardar en Fotos”.');
@@ -872,7 +882,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- mini bar: photo + name stay at hand while you read further down ----------
   function updateMinibar(){
     const bar=$('minibar');const img=$('r-img');
-    if(view!=='result'||img.hidden||!img.src){bar.classList.remove('on');bar.hidden=true;return}
+    if(view!=='result'||$('r-photo').hidden||!img.src){bar.classList.remove('on');bar.hidden=true;return}
     bar.hidden=false;
     const r=img.getBoundingClientRect();bar.classList.toggle('on',r.bottom<20);
     $('minibar-img').src=img.src;$('minibar-name').textContent=$('r-name').textContent;
