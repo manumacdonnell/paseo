@@ -270,9 +270,9 @@ p{margin:0}
   <section class="alts" id="v-alts" hidden>
     <h2 id="alts-title">¿Qué estás mirando?</h2>
     <form class="typed" id="alts-form">
-      <label for="alts-input" class="help">¿Lo pone en la puerta o en un cartel? Escríbelo:</label>
+      <label for="alts-input" class="help">Dime qué es o en qué te fijas. Puede ser el nombre del cartel o algo como “el hombre de la trompeta”.</label>
       <div class="typed-row">
-        <input id="alts-input" autocomplete="off" placeholder="p. ej. Café Bristol">
+        <input id="alts-input" autocomplete="off" placeholder="p. ej. Café Bristol · las flores del balcón">
         <button type="submit">Ir</button>
       </div>
     </form>
@@ -605,7 +605,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
-      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué tipo de cosa es: fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, etc.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
+      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
       const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
       if(note&&view==='result')status(note);
@@ -682,7 +682,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('r-what').textContent=c.what||'';$('r-what').classList.toggle('typing',!!opt.partial);
     $('r-cool').textContent=c.cool||'';$('r-cool').classList.remove('typing');$('r-cool-wrap').hidden=!opt.partial&&!c.cool;
     $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Ver en Wikipedia</a>`;
-    $('btn-notthis').hidden=!c.pos||!!opt.partial;
+    $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
@@ -760,7 +760,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function showAlts(fromLimit,msg){
     show('alts');if(msg)status(msg,true);$('alts-list').innerHTML='<li class="help">Mirando alrededor…</li>';
     $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿Qué es, entonces?';
-    if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
+    if(!cur.pos){cur.near=cur.near||[];cur.osm=cur.osm||[]}
+    else if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
     const wiki=cur.near.filter(n=>n.dist<=100&&!same(n));
@@ -779,14 +780,27 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
   async function choose(n){
-    show('loading');$('loading-text').textContent='Buscando '+n.title+'…';
+    show('loading');$('loading-text').textContent=n.typed?'Volviendo a mirar la foto…':'Buscando '+n.title+'…';
     let s=null;
+    if(!n.typed){
     if(n.osm){const m=(n.wikipedia||'').match(/^(\w+):(.+)$/);if(m)s=await summary(m[1],m[2])}
     else s=await summary(n.lang,n.title);
+    }
     const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},url:s&&s.url,wiki:s&&s.text};
     const plain=()=>{const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
       return{...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
     if(cur.noAI||!cfg.key){openCard(plain());return}
+    if(n.typed){
+      try{
+        const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
+        const near=(cur.osm||[]).slice(0,15).map(x=>`${x.title} [${x.kind}] (${x.dist} m)`).join('; ');
+        const wikis=(cur.near||[]).slice(0,10).map(x=>`${x.title} (${x.dist} m)`).join('; ');
+        const where=cur.pos?`Foto tomada en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}${cur.city?` (${cur.city})`:''}.`+(near?`\nSitios cerca (OpenStreetMap): ${near}.`:'')+(wikis?`\nLugares con artículo de Wikipedia cerca: ${wikis}.`:''):(cur.city?`En ${cur.city}.`:'Ubicación desconocida.');
+        parts.push({text:`Antes identificaste mal o te fijaste en otra cosa${cur.name?` (dijiste "${cur.name}")`:''}. La persona te aclara: "${n.title}".\n\nPuede ser:\n- un nombre propio (de un sitio, local, obra…): entonces es eso, úsalo como NAME tal cual;\n- o una indicación de en qué se fija dentro de la foto (una persona tocando un instrumento, unas flores, un cuadro, un detalle…): entonces busca ESO en la foto y cuéntale qué es en el contexto de este lugar concreto (si es una tradición o costumbre local, por qué ocurre aquí, qué significa). En ese caso NAME es un título corto y concreto de lo que es (no inventes nombres de personas ni identifiques a nadie por su cara).\n\n${where}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
+        await streamCard(parts,base,null);
+      }catch(e){show('result');status(errText(e),true)}
+      return;
+    }
     try{
       const parts=[];if(cur.img)parts.push({inline_data:{mime_type:'image/jpeg',data:cur.img.split(',')[1]}});
       parts.push({text:`La persona dice que está mirando "${n.title}"${n.kind?` (${n.kind})`:''}${n.typed?' (lo ha escrito ella misma: fíate del nombre)':`, a ${n.dist} m`}${cur.pos?`, en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}`:''}. ${s?`Resumen de Wikipedia: "${s.text}"`:'No hay artículo de Wikipedia: si no conoces el sitio, di qué tipo de lugar es y algo cierto de la calle o el edificio donde está, sin inventar.'}\nLa foto es de apoyo. Usa "${n.title}" como NAME. Lo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
