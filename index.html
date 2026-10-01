@@ -317,6 +317,32 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 
 .eyebrow-meta{margin:0 0 8px}
 .meta span+span::before{content:"·";margin-right:14px}
+
+.backprev:not([hidden]){display:inline-flex!important;align-items:center;gap:7px;color:var(--muted)!important}
+.backprev svg{width:14px;height:14px;flex:none}
+.backprev{max-width:100%}.backprev span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+
+/* Cómo llegar */
+.placetools{display:flex;flex-wrap:wrap;column-gap:22px;margin-top:12px}.placetools .copyplace{margin-top:0}
+.copyplace.route{text-decoration:none}
+.leaflet-popup-content .pop-route{display:inline-block;margin-left:14px;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint)}
+/* quick question */
+.quick{display:flex;flex-direction:column;gap:12px;margin-top:auto}
+.home .homemeta{margin-top:0}
+.q-form{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 4px 4px 16px}
+.q-form input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--ink);font-size:16px;padding:9px 0}
+.q-form input::placeholder{color:var(--faint)}
+.q-form button{flex:none;width:36px;height:36px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center}
+.q-form button svg{width:18px;height:18px}
+.q-answer{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow:auto}
+.q-q{font-size:13px;color:var(--muted)}
+.q-text{font-size:16px;line-height:1.55;color:var(--ink)}
+.q-text .skel{padding:2px 0}
+.q-tools{display:flex;align-items:center;gap:20px}
+.q-tools a,.q-tools button{display:inline-flex;align-items:center;gap:5px;background:transparent;border:0;padding:6px 0;color:var(--ink);font-size:14px;text-decoration:none;transition:color .35s ease}
+.q-tools svg{width:14px;height:14px;color:var(--muted)}
+.q-tools button{margin-left:auto;color:var(--muted)}
+.q-tools .copied,.q-tools .copied svg{color:var(--live)}
 </style>
 </head>
 <body>
@@ -333,6 +359,21 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
     <div class="history" id="history" hidden>
       <h2>Recientes</h2>
       <ul class="rows" id="history-list"></ul>
+    </div>
+    <div class="quick" id="quick">
+      <div class="q-answer" id="q-answer" hidden>
+        <p class="q-q" id="q-q"></p>
+        <p class="q-text" id="q-text"></p>
+        <div class="q-tools">
+          <a id="q-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="lab">Seguir en ChatGPT</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          <a id="q-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="lab">Claude</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          <button id="q-close">Cerrar</button>
+        </div>
+      </div>
+      <form class="q-form" id="q-form" autocomplete="off">
+        <input id="q-input" enterkeyhint="send" placeholder="Pregunta algo sobre donde estás…" aria-label="Pregunta rápida">
+        <button type="submit" id="q-send" aria-label="Preguntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+      </form>
     </div>
     <p class="homemeta" id="homemeta"></p>
     <div class="dock">
@@ -373,7 +414,8 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
           <button class="backprev" id="btn-prev" hidden></button>
-          <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
+          <div class="placetools"><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
+          <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a></div>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -707,8 +749,8 @@ LOCAL: nombre en el idioma local si es distinto, o vacío
 CATEGORY: si lo protagonista es un sitio: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street; si es otra cosa: uno de food, drink, object, art, nature, animal, person, activity, other
 SOURCE: sign | list | knowledge | generic | thing (thing = no es un sitio sino una comida, objeto, obra, planta, actividad…)
 SURE: yes | no
-WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Responde a "¿qué es?". La 1.ª frase dice qué es, directa y sin verbo de relleno, SIN repetir el nombre (ya sale como título): p. ej. "Un bizcocho especiado de zanahoria rallada, nueces y crema de queso." / "La residencia de los reyes de Polonia durante casi tres siglos." / "Una cafetería de cadena británica." La 2.ª (y 3.ª) añade lo que lo hace interesante: su origen, por qué importa aquí, algo que no se ve a simple vista; que deje ganas de saber más, sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de" o el nombre. No describas lo que se ve en la foto. No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
-COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto de WHAT. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
+WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Responde a "¿qué es?". La 1.ª frase dice qué es, directa y sin verbo de relleno, SIN repetir el nombre (ya sale como título): p. ej. "Un bizcocho especiado de zanahoria rallada, nueces y crema de queso." / "La residencia de los reyes de Polonia durante casi tres siglos." / "Una cafetería de cadena británica." La 2.ª (y 3.ª) añade lo que lo hace interesante: su origen, por qué importa aquí, algo que no se ve a simple vista; que deje ganas de saber más, sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de" o el nombre. La persona YA lo está viendo: nunca describas la foto ni la escena (colores, carteles, letreros, luces, gente, ambiente, "con un cartel rosa", "reúne a jóvenes en la acera"…); la foto solo sirve para identificarlo. Cuenta lo que NO se ve: qué es, su historia, quién está detrás, por qué es conocido, qué lo hace especial. No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
+COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto de WHAT y que no se pueda ver en la foto. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
 Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const KEYS=['NAME','LOCAL','CATEGORY','SOURCE','SURE','WHAT','COOL'];
   function parseCard(txt){
@@ -759,6 +801,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       el.textContent=`${x.title}  ·  ${x.dist} m`;el.classList.add('in');
     };
     step();scanPlaces.t=setInterval(step,900);
+  }
+  // there is always a title: ask once more just for the name; if that fails too, say what kind of thing it is
+  const KIND_ES={cafe:'Una cafetería',restaurant:'Un restaurante',bar:'Un bar',pub:'Un pub',bakery:'Una panadería',shop:'Una tienda',hotel:'Un hotel',church:'Una iglesia',museum:'Un museo',gallery:'Una galería',theatre:'Un teatro',monument:'Un monumento',statue:'Una estatua',memorial:'Un memorial',fountain:'Una fuente',building:'Un edificio con historia',street:'Una calle con historia',food:'Algo rico',drink:'Algo para beber',object:'Un objeto curioso',art:'Una obra',nature:'Algo de la naturaleza',animal:'Un animal',person:'Una escena callejera',activity:'Algo que está pasando'};
+  async function nameFallback(parts,o,ctx){
+    try{
+      const img=parts.find(p=>p.inline_data);
+      const out=await gemini([...(img?[img]:[]),{text:`Pon un título corto (2 a 6 palabras) a lo protagonista de esta foto: el nombre propio si es un sitio que reconoces, o lo que es si es una cosa (p. ej. "Tarta de zanahoria"). ${o.WHAT?`Contexto: "${o.WHAT}". `:''}Nunca respondas "sin nombre" ni "desconocido". Escribe en ${LANG()}. Devuelve JSON: {"name": "..."}`}]);
+      const n=(out&&out.name||'').trim();if(n&&!/sin nombre|desconocido|unknown/i.test(n))return n;
+    }catch(e){}
+    return KIND_ES[(o.CATEGORY||'').trim().toLowerCase()]||'Algo por descubrir';
   }
   async function processPhotoNow(f,fromGallery,hint){
     status('');show('loading');$('loading-text').textContent='Mirando…';$('loading-scan').textContent='';clearInterval(scanPlaces.t);backTo=null;
@@ -841,6 +893,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const match=want&&ctx.osm.find(x=>want.includes(x.raw)&&x.dist<=Math.max(50,(ctx.pos&&ctx.pos.acc||0)+20));
       if(match){name=match.title;sure=match.dist<=25}
     }
+    if(!name||/^(sin nombre|unknown|desconocido|n\/a)$/i.test(name.trim()))name=await nameFallback(parts,o,ctx);
     const card={...base,name,local:o.LOCAL,sure,what:o.WHAT||'',cool:o.COOL||''};
     if(here()){openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
@@ -851,7 +904,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function paintCard(c,opt={}){
     $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
     $('r-unsure').hidden=c.sure!==false;
-    $('r-name').textContent=c.name||'Sin nombre';
+    $('r-name').textContent=c.name||(opt.partial?'…':'Algo por descubrir');
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
     $('r-what').textContent=c.what||'';$('r-what').classList.toggle('typing',!!opt.partial);
@@ -860,14 +913,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev)$('btn-prev').textContent=`↩ Volver a «${c.prev.name}»`;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
+    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c.pos);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     setMeta(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
     const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
-    cur=c;if(keepT&&!c.t)cur.t=keepT;stopVoice();paintCard(c);
+    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory;stopVoice();paintCard(c);
     if(!fromHistory){saveDiscovery();prefetchDeep(cur)}
   }
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
@@ -904,7 +957,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     waiting(body);
     if(!pendingDeep.has(keyOf(card,t)))askTopic(t,card);
   }
-  const ABOUT=card=>`DE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.`;
+  const ABOUT=card=>`La persona ya lo tiene delante: no describas lo que se ve en la foto (salvo en "Fíjate en", para señalar un detalle concreto que se le puede escapar). DE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.`;
   async function askTopic(t,card,given){
     const key=keyOf(card,t);
     const parts=[];
@@ -940,6 +993,37 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const all=retryOnReturn(()=>gemini(parts),()=>{});
     todo.forEach(t=>askTopic(t,card,all.then(out=>{const p=out&&out[t.id];if(!Array.isArray(p)||!p.filter(Boolean).length)throw new Error('MISSING');return{points:p}})));
   }
+
+  // ---------- "Cómo llegar": hands the spot to Google Maps ----------
+  function routeURL(p){return`https://www.google.com/maps/dir/?api=1&destination=${p.lat.toFixed(6)},${p.lon.toFixed(6)}&travelmode=walking`}
+
+  // ---------- quick question: one question, one short answer, knows where you are ----------
+  function quickPos(){return new Promise(res=>{if(!('geolocation' in navigator))return res(lastKnown);let done=false;const t=setTimeout(()=>{done=true;res(lastKnown)},3500);
+    navigator.geolocation.getCurrentPosition(p=>{if(done)return;clearTimeout(t);lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};res(lastKnown)},()=>{if(done)return;clearTimeout(t);res(lastKnown)},{enableHighAccuracy:false,timeout:3500,maximumAge:60000})})}
+  function quickCity(){const h=store.get('history',[]);return(h[0]&&h[0].city)||''}
+  let quickRun=0,quickLast=null;
+  $('q-form').onsubmit=async e=>{
+    e.preventDefault();const q=$('q-input').value.trim();if(!q)return;
+    if(!cfg.key){status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');return}
+    const run=++quickRun;$('q-input').value='';$('q-input').blur();
+    $('q-q').textContent=q;$('q-text').innerHTML='<span class="skel"><i></i><i></i><i></i></span>';$('q-text').classList.remove('typing');$('q-answer').hidden=false;
+    $('q-answer').querySelector('.q-tools').hidden=true;
+    const pos=await quickPos();const city=quickCity();
+    const where=pos?`Está en lat ${pos.lat.toFixed(4)}, lon ${pos.lon.toFixed(4)}${city?` (${city})`:''}.`:(city?`Está en ${city}.`:'');
+    const prompt=`Alguien está paseando y le surge una pregunta. ${where} Si la pregunta habla de "aquí", "esta ciudad", "este barrio" o similar, se refiere a ese lugar.\n\nPregunta: "${q}"\n\nResponde en 3 o 4 frases cortas (máximo 70 palabras), directo a lo que pregunta, para leer caminando. Sin introducciones ni despedidas, sin markdown, sin listas.\n${RULES()}`;
+    try{
+      const txt=await gemini([{text:prompt}],{fast:true,stream:true,onText:t=>{if(run!==quickRun)return;$('q-text').textContent=t;$('q-text').classList.add('typing')}});
+      if(run!==quickRun)return;
+      $('q-text').textContent=txt.trim();$('q-text').classList.remove('typing');$('q-answer').querySelector('.q-tools').hidden=false;
+      quickLast={q,a:txt.trim(),where:pos?`${city?city+', ':''}${pos.lat.toFixed(4)}, ${pos.lon.toFixed(4)}`:city};
+    }catch(err){if(run!==quickRun)return;$('q-text').textContent=errText(err);$('q-text').classList.remove('typing')}
+  };
+  $('q-close').onclick=()=>{quickRun++;$('q-answer').hidden=true;quickLast=null};
+  function quickCopy(){if(!quickLast)return false;const t=`Estoy paseando${quickLast.where?` por ${quickLast.where}`:''}.\nMe pregunté: ${quickLast.q}\nMe dijeron: ${quickLast.a}\n\nQuiero saber más: `;
+    try{navigator.clipboard.writeText(t);return true}catch(e){return false}}
+  $('q-chatgpt').onclick=()=>{if(quickCopy())flashCopied($('q-chatgpt'))};
+  $('q-claude').onclick=()=>{if(quickCopy())flashCopied($('q-claude'))};
+  function quickPlaceholder(){const c=quickCity();$('q-input').placeholder=c?`Pregunta algo sobre ${c}…`:'Pregunta algo sobre donde estás…'}
 
   // ---------- save photo to the phone ----------
   // Browsers can't write to the photo library directly; the share sheet offers "Save Image" in one tap.
@@ -1162,7 +1246,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function tickClock(){if(view==='home')$('homemeta').textContent=homeMeta();clearTimeout(tickClock.t);tickClock.t=setTimeout(tickClock,60000-Date.now()%60000+50)}
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)tickClock()});
   function renderHome(){
-    tickClock();
+    tickClock();quickPlaceholder();
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
     if(photosPending>0){$('history').hidden=false;const li=document.createElement('li');li.className='pending';li.innerHTML='<span class="spin"></span>Averiguando qué es tu foto…';ul.appendChild(li)}
@@ -1236,7 +1320,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const pop=document.createElement('div');const b=document.createElement('b');b.textContent=x.name;const br=document.createElement('br');
       const w=document.createElement('span');w.className='pop-when';w.textContent=fmtWhen(x.takenAt||x.t);
       const btn=document.createElement('button');btn.textContent='Abrir';btn.onclick=()=>openFromHistory(x,'mymap');
-      pop.append(b,br,w,document.createElement('br'),btn);mk.bindPopup(pop);
+      const rt=document.createElement('a');rt.className='pop-route';rt.textContent='Cómo llegar';rt.href=routeURL(x.pos);rt.target='_blank';rt.rel='noopener';
+      pop.append(b,br,w,document.createElement('br'),btn,rt);mk.bindPopup(pop);
     });
     if(keepView)return;
     setTimeout(()=>{map.invalidateSize();
