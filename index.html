@@ -674,10 +674,10 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   const RULES=()=>`Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
-NAME: nombre propio exacto (genérico solo si SOURCE es generic)
+NAME: si es un sitio, su nombre propio exacto (genérico solo si SOURCE es generic); si es una cosa (SOURCE thing), lo que es, concreto y bien dicho (p. ej. "Tarta de zanahoria", "Pierogi ruskie"), NUNCA el nombre del local donde está
 LOCAL: nombre en el idioma local si es distinto, o vacío
-CATEGORY: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street, other
-SOURCE: sign | list | knowledge | generic
+CATEGORY: si lo protagonista es un sitio: uno de cafe, restaurant, bar, pub, bakery, shop, hotel, church, museum, gallery, theatre, monument, statue, memorial, fountain, building, street; si es otra cosa: uno de food, drink, object, art, nature, animal, person, activity, other
+SOURCE: sign | list | knowledge | generic | thing (thing = no es un sitio sino una comida, objeto, obra, planta, actividad…)
 SURE: yes | no
 WHAT: 2 o 3 frases cortas (máximo 45 palabras), en presente. Empieza directamente por lo más interesante de ESTO: lo que lo hace especial, su origen sorprendente o por qué importa aquí; la primera frase tiene que enganchar. Prohibido empezar con "Ves", "Estás viendo", "Tienes delante", "Estás ante", "Esto es", "Se trata de", "Este/Esta es" o con el nombre seguido de "es un/una". Nada de describir lo que se ve en la foto (eso ya lo sabe). Termina con algo que deje ganas de saber más, pero sin preguntas retóricas, sin "¿sabías que…?" y sin exclamaciones. Ejemplos solo del TONO (no copies los datos): "Nació de la escasez: en tiempos de guerra la zanahoria hacía de azúcar, y la receta se quedó." / "Lo que parece del siglo XVII se levantó en los años 70, piedra a piedra, copiando cuadros y fotos antiguas." No hables de arquitectura ni de estilos arquitectónicos aquí (eso va en otra sección).
 COOL: 1 sola frase con el dato más sorprendente (máximo 25 palabras), distinto de WHAT. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
@@ -737,7 +737,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
-      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.${hint?`\n\nIMPORTANTE: la persona te dice en qué se fija: "${hint}". Si es un nombre propio, es eso. Si es una indicación (una persona, un objeto, un detalle), céntrate en ESO dentro de la foto y en el contexto de este lugar.`:''}\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
+      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.${hint?`\n\nIMPORTANTE: la persona te dice en qué se fija: "${hint}". Si es un nombre propio, es eso. Si es una indicación (una persona, un objeto, un detalle), céntrate en ESO dentro de la foto y en el contexto de este lugar.`:''}\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: SOLO si lo protagonista es un sitio (edificio, local, monumento, calle, plaza…), busca su NOMBRE PROPIO; el objetivo es dar el nombre exacto, nunca una descripción genérica. Si lo protagonista es una cosa (comida, bebida, objeto, obra, planta, persona o actividad), NAME es lo que es (p. ej. "Tarta de zanahoria"), SOURCE thing, y NO uses el nombre del local donde está aunque lo veas en la lista o en un cartel. Para sitios, en este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
       const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
       if(note&&view==='result')status(note);
@@ -790,7 +790,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Seguimos…'});
     const {o}=parseCard(txt);
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
-    if(ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
+    const isThing=/thing/i.test(o.SOURCE||'')||/^(food|drink|object|art|nature|animal|person|activity)$/i.test((o.CATEGORY||'').trim());
+    if(isThing)sure=true;
+    if(!isThing&&ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
       const want={cafe:['cafe','coffee'],restaurant:['restaurant','fast_food'],bar:['bar','pub'],pub:['pub','bar'],bakery:['bakery','pastry','confectionery'],
         hotel:['hotel','hostel','guest_house'],church:['place_of_worship','church'],museum:['museum'],gallery:['gallery','arts_centre'],theatre:['theatre'],
         monument:['monument','memorial'],statue:['statue','artwork','memorial'],memorial:['memorial','monument'],fountain:['fountain']}[(o.CATEGORY||'').trim().toLowerCase()];
@@ -825,7 +827,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function openCard(c,fromHistory){
     const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
     cur=c;if(keepT&&!c.t)cur.t=keepT;stopVoice();paintCard(c);
-    if(!fromHistory)saveDiscovery();
+    if(!fromHistory){saveDiscovery();prefetchDeep(cur)}
   }
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
   const pendingDeep=new Map(); // "card time|name|topic" → answer on its way
@@ -858,14 +860,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     waiting(body);
     if(!pendingDeep.has(keyOf(card,t)))askTopic(t,card);
   }
-  async function askTopic(t,card){
+  const ABOUT=card=>`DE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.`;
+  async function askTopic(t,card,given){
     const key=keyOf(card,t);
     const parts=[];
     if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
-    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\nDE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
+    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\nAhora quiere profundizar en esto: ${t.ask}\n\n${ABOUT(card)}\n\nNo repitas lo que ya le dijiste. ${t.few?'Da entre 1 y 5 puntos':'Da entre 3 y 6 puntos'}, cada uno de 1 o 2 frases (máximo 35 palabras por punto), concretos y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {"points": ["...", "..."]}`});
     const here=()=>cur&&cur.t===card.t&&cur.name===card.name&&document.getElementById('acc-'+t.id);
-    const job=retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'))});
+    let retry=false;
+    const job=given||retryOnReturn(()=>gemini(parts),()=>{const it=here();if(it)waiting(it.querySelector('.acc-body'))});
     pendingDeep.set(key,job);
     try{
       const out=await job;const points=(out.points||[]).filter(Boolean);
@@ -874,9 +878,23 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(it){cur.deep[t.id]=points;const head=it.querySelector('.acc-head');setPreview(head,points);
         const body=it.querySelector('.acc-body');if(!body.hidden)fillBody(body,points)}
     }catch(e){
+      if(given){retry=true;return}   // the all-in-one call missed this one: ask for it alone if it's open (or on the next tap)
       const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e);body.appendChild(p);
         setTimeout(()=>{if(!(cur.deep||{})[t.id]){body.hidden=true;it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
     }finally{pendingDeep.delete(key)}
+    if(retry){const it=here();if(it&&!it.querySelector('.acc-body').hidden)askTopic(t,card)}
+  }
+
+  // everything in one go: as soon as a new card is ready, one call fetches all four sections in the background
+  function prefetchDeep(card){
+    if(!card||card.noAI||!cfg.key)return;
+    const todo=TOPICS.filter(t=>!(card.deep||{})[t.id]&&!pendingDeep.has(keyOf(card,t)));if(!todo.length)return;
+    card.deep=card.deep||{};
+    const parts=[];if(card.img&&todo.some(t=>t.usePhoto))parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
+    const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
+    parts.push({text:`La persona está delante de "${card.name}"${card.local?` / ${card.local}`:''}${where}. Ya le dijiste: "${card.what} ${card.cool||''}"\n\n${ABOUT(card)}\n\nPrepárale estas secciones para profundizar. Cada sección tiene su propio tema y NO se repiten entre ellas ni repiten lo que ya le dijiste:\n${todo.map(t=>`- "${t.id}": ${t.ask} ${t.few?'(entre 1 y 5 puntos)':'(entre 3 y 6 puntos)'}`).join('\n')}\n\nCada punto: 1 o 2 frases (máximo 35 palabras), concreto y con sustancia.${card.wiki?`\nResumen de Wikipedia como referencia: "${card.wiki}"`:''}\n${RULES()}\nDevuelve JSON: {${todo.map(t=>`"${t.id}": ["...", "..."]`).join(', ')}}`});
+    const all=retryOnReturn(()=>gemini(parts),()=>{});
+    todo.forEach(t=>askTopic(t,card,all.then(out=>{const p=out&&out[t.id];if(!Array.isArray(p)||!p.filter(Boolean).length)throw new Error('MISSING');return{points:p}})));
   }
 
   // ---------- save photo to the phone ----------
