@@ -126,8 +126,8 @@ p{margin:0}
 .src a{color:inherit}
 .ask{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
 .help{font-size:14px;color:var(--muted);font-weight:400;line-height:1.6}
-.ask-row{display:flex;gap:8px;flex-wrap:wrap}
-.ask-row button,.ask-row a{flex:1 1 auto;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:transparent;border-radius:999px;padding:11px 14px;font-weight:500;font-size:14px}
+.ask-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ask-row button,.ask-row a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:transparent;border-radius:999px;padding:11px 14px;font-weight:500;font-size:14px}
 .ask-row a:first-child{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .ask textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12px}
 
@@ -271,6 +271,10 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .dockside .ic{position:relative;display:block;font-style:normal}
 .dockside .badge{position:absolute;top:-2px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--ink);color:var(--bg);font-family:var(--mono);font-size:11px;font-weight:500;line-height:20px;text-align:center}
 .dock #btn-mymap[hidden]{display:flex!important;visibility:hidden}
+
+.askcopy{margin-top:0;align-self:flex-start}
+.ask .help{min-height:3em}
+.copyplace.copied{background-color:transparent!important}
 </style>
 </head>
 <body>
@@ -294,7 +298,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
       <button class="big" id="btn-photo" aria-label="¿Qué estoy mirando? Sacar una foto"><span class="shutter" aria-hidden="true"></span></button>
       <button class="dockside" id="btn-mymap" hidden aria-label="Mi mapa"><i class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><b class="badge" id="mymap-count"></b></i><span>Mi mapa</span></button>
     </div>
-    <p class="dockhint">Apunta a algo y toca</p>
+    <p class="dockhint">Haz una foto y te digo qué es</p>
     <input type="file" id="file" accept="image/*" capture="environment" hidden>
     <input type="file" id="file-upload" accept="image/*" hidden>
   </section>
@@ -348,8 +352,8 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
         <div class="ask-row">
           <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">Copiar y abrir ChatGPT</a>
           <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener">Copiar y abrir Claude</a>
-          <button id="ask-copy">Solo copiar</button>
         </div>
+        <button class="copyplace askcopy" id="ask-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="lab">Solo copiar el texto</span></button>
         <textarea id="ask-text" readonly hidden></textarea>
       </div>
     </article>
@@ -956,11 +960,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     btn._t1=setTimeout(()=>{lab.textContent='Copiado ✓';btn.classList.add('copied');lab.classList.remove('swap');
       btn._t2=setTimeout(()=>{lab.classList.add('swap');btn._t1=setTimeout(()=>{lab.textContent=orig;btn.classList.remove('copied');lab.classList.remove('swap')},160)},1300)},90);
   }
-  ['ask-chatgpt','ask-claude','ask-copy'].forEach(id=>{const b=$(id);const sp=document.createElement('span');sp.className='lab';sp.textContent=b.textContent;b.textContent='';b.appendChild(sp);b._orig=sp.textContent});
+  ['ask-chatgpt','ask-claude','ask-copy'].forEach(id=>{const b=$(id);if(b.querySelector('.lab')){b._orig=b.querySelector('.lab').textContent;return}const sp=document.createElement('span');sp.className='lab';sp.textContent=b.textContent;b.textContent='';b.appendChild(sp);b._orig=sp.textContent});
   const askFlash=id=>flashCopied($(id),$(id).querySelector('.lab'),$(id)._orig);
-  $('ask-chatgpt').onclick=()=>{copyAsk();askFlash('ask-chatgpt');askMsg('Copiado. Pega en ChatGPT y escribe tu pregunta.')}; // the link itself opens the chat
-  $('ask-claude').onclick=()=>{copyAsk();askFlash('ask-claude');askMsg('Copiado. Pega en Claude y escribe tu pregunta.')};
-  $('ask-copy').onclick=()=>{if(copyAsk()){askFlash('ask-copy');askMsg('Copiado. Pégalo donde quieras.')}};
+  $('ask-chatgpt').onclick=()=>{if(copyAsk())askFlash('ask-chatgpt')}; // the link itself opens the chat
+  $('ask-claude').onclick=()=>{if(copyAsk())askFlash('ask-claude')};
+  $('ask-copy').onclick=()=>{if(copyAsk())askFlash('ask-copy')};
 
   function stopVoice(){}
 
@@ -1065,8 +1069,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function homeMeta(){const d=new Date();const day=d.toLocaleDateString('es-ES',{weekday:'short',day:'2-digit',month:'short'}).replace(/[.,]/g,'').toUpperCase();
     const t=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});const h=store.get('history',[]);const city=h[0]&&h[0].city;
     return [day,t,city?city.toUpperCase():''].filter(Boolean).join('  ·  ')}
+  // keep the home clock in step with the real one
+  function tickClock(){if(view==='home')$('homemeta').textContent=homeMeta();clearTimeout(tickClock.t);tickClock.t=setTimeout(tickClock,60000-Date.now()%60000+50)}
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)tickClock()});
   function renderHome(){
-    $('homemeta').textContent=homeMeta();
+    tickClock();
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
     if(photosPending>0){$('history').hidden=false;const li=document.createElement('li');li.className='pending';li.innerHTML='<span class="spin"></span>Averiguando qué es tu foto…';ul.appendChild(li)}
