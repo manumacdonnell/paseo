@@ -156,6 +156,7 @@ p{margin:0}
 .row button{flex:1 1 auto;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:12px 14px;font-weight:600}
 .row button.primary{background:var(--brick);border-color:var(--brick);color:var(--brick-ink)}
 .note{font-size:13px;color:var(--muted)}
+.backprev{display:block;margin-top:6px;background:transparent;border:0;padding:4px 0;color:var(--ochre);font-weight:700;font-size:14px;text-align:left}
 .copyplace{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:transparent;border:0;color:var(--muted);font-weight:600;font-size:14px;padding:4px 0}
 .copyplace svg{width:17px;height:17px}
 .copyplace.done{color:var(--ok)}
@@ -163,6 +164,11 @@ p{margin:0}
 .minibar.on{transform:none}
 .minibar img{width:42px;height:42px;border-radius:9px;object-fit:cover;flex:none;cursor:zoom-in}
 .minibar button{flex:1;min-width:0;text-align:left;background:transparent;border:0;font-family:var(--display);font-weight:700;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 0}
+.prep{display:flex;flex-direction:column;gap:12px}
+.prep img{width:100%;max-height:46vh;object-fit:cover;border-radius:18px}
+.prep input{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;font-size:16px;width:100%}
+.big.small{padding:16px}
+.big.small b{font-size:22px}
 .fab{position:fixed;right:18px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:60px;height:60px;border-radius:50%;border:0;background:var(--brick);color:var(--brick-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.28);z-index:700}
 .fab svg{width:28px;height:28px}
 .app.with-fab{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
@@ -216,6 +222,13 @@ p{margin:0}
   </section>
 
   <!-- LOADING -->
+  <section class="prep" id="v-prep" hidden>
+    <img id="prep-img" alt="La foto que has elegido">
+    <label for="prep-hint" class="help">¿En qué me fijo? (opcional)</label>
+    <input id="prep-hint" autocomplete="off" placeholder="p. ej. el hombre de la trompeta">
+    <button class="big small" id="prep-go"><b>Buscar</b></button>
+  </section>
+
   <section class="loading" id="v-loading" hidden>
     <div class="spinner"></div>
     <p id="loading-text">Mirando…</p>
@@ -231,6 +244,7 @@ p{margin:0}
           <p class="unsure" id="r-unsure" hidden>Probablemente…</p>
           <h2 id="r-name"></h2>
           <p class="local" id="r-local" hidden></p>
+          <button class="backprev" id="btn-prev" hidden></button>
           <button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
@@ -346,14 +360,14 @@ p{margin:0}
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
-    {id:'history',label:'Historia',ask:'La historia del lugar: cuándo y por qué se hizo, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción), quién lo impulsó o vivió aquí si es relevante, y cómo encaja en la historia de la ciudad.'},
-    {id:'arch',label:'Arquitectura',ask:'La arquitectura en profundidad: estilo y corriente, quién lo diseñó, en qué se inspiró (referentes, otros edificios, escuelas, influencias de otros países o épocas), cómo encaja en la historia de ese estilo, reformas o capas de distintas épocas, y qué detalles concretos de la fachada o el espacio delatan ese estilo para que la persona los busque con la mirada.',usePhoto:true},
-    {id:'curious',label:'Datos curiosos',ask:'Datos curiosos, anécdotas, leyendas y rumores (deja claro qué es leyenda), cosas poco conocidas o sorprendentes. Distintos del dato curioso que ya le dijiste.'},
-    {id:'film',label:'Cine y cultura visual',ask:'Cine y cultura visual: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; fotógrafos o artistas ligados al lugar; apariciones en publicidad, portadas o cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, directores ni escenas. Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión visual más cercana (la calle, el barrio o la ciudad en el cine o el arte).',few:true}
+    {id:'history',label:'Historia',ask:'HISTORIA del lugar: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. NO incluyas anécdotas sueltas, leyendas ni rarezas (van en Datos curiosos), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
+    {id:'curious',label:'Datos curiosos',ask:'DATOS CURIOSOS del propio lugar: rarezas, récords, detalles escondidos que se pueden buscar con la vista, leyendas y supersticiones (marca claramente qué es leyenda), costumbres del sitio. Distintos del dato curioso que ya le dijiste. NO cuentes la historia general (va en Historia), ni cine, arte o cultura (van en Cine y cultura), ni famosos, escándalos o noticias (van en Chimento).'},
+    {id:'culture',label:'Cine y cultura',ask:'CINE Y CULTURA: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; libros, canciones o artistas ligados al lugar; apariciones en la cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, autores, directores ni escenas. NO incluyas la vida personal de famosos ni noticias (van en Chimento), ni historia general (va en Historia). Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión cultural más cercana (la calle, el barrio o la ciudad).',few:true},
+    {id:'gossip',label:'Chimento',ask:'CHIMENTO, en tono de cotilleo con gracia pero con datos: famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. NO repitas historia general (va en Historia), leyendas o rarezas (van en Datos curiosos) ni películas u obras (van en Cine y cultura). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
   ];
 
   // ---------- views ----------
-  const views=['home','loading','result','alts','mymap','settings'];
+  const views=['home','prep','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
   function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=v==='home';$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
@@ -581,12 +595,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   async function photoDate(f){try{if(!window.exifr)return null;const x=await exifr.parse(f,['DateTimeOriginal']);return x&&x.DateTimeOriginal?new Date(x.DateTimeOriginal).getTime():null}catch(e){return null}}
   $('file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,false)};
-  $('file-upload').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,true)};
+  let prepFile=null,prepURL=null;
+  $('file-upload').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;
+    prepFile=f;if(prepURL)URL.revokeObjectURL(prepURL);prepURL=URL.createObjectURL(f);$('prep-img').src=prepURL;$('prep-hint').value='';show('prep')};
+  $('prep-go').onclick=()=>{const f=prepFile;if(!f)return;prepFile=null;processPhoto(f,true,$('prep-hint').value.trim())};
+  $('prep-hint').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('prep-go').click()}});
   let photosPending=0;
-  async function processPhoto(f,fromGallery){
-    photosPending++;try{await processPhotoNow(f,fromGallery)}finally{photosPending--;if(view==='home')renderHome()}
+  async function processPhoto(f,fromGallery,hint){
+    photosPending++;try{await processPhotoNow(f,fromGallery,hint)}finally{photosPending--;if(view==='home')renderHome()}
   }
-  async function processPhotoNow(f,fromGallery){
+  async function processPhotoNow(f,fromGallery,hint){
     status('');show('loading');$('loading-text').textContent='Mirando…';backTo=null;
     let img=null,pos=null,near=[],osm=[],note='';
     try{
@@ -605,7 +623,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
-      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
+      const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.${hint?`\n\nIMPORTANTE: la persona te dice en qué se fija: "${hint}". Si es un nombre propio, es eso. Si es una indicación (una persona, un objeto, un detalle), céntrate en ESO dentro de la foto y en el contexto de este lugar.`:''}\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: busca el NOMBRE PROPIO. El objetivo es siempre dar el nombre exacto, nunca una descripción genérica. En este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
       const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
       if(note&&view==='result')status(note);
@@ -685,11 +703,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
+    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev)$('btn-prev').textContent=`↩ Volver a «${c.prev.name}»`;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
     $('deeper').hidden=true;$('btn-deeper').setAttribute('aria-expanded','false');
     if(!opt.partial){renderChips();$('sections').innerHTML='';
       Object.keys(c.deep||{}).forEach(id=>{renderSection(id);const el=document.getElementById('sec-'+id);if(el)el.hidden=true});
-      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+t.id)&&!(c.deep||{})[t.id])waitingSection(t).hidden=true})}
+      TOPICS.forEach(t=>{if(c.t&&pendingDeep.has(c.t+'|'+c.name+'|'+t.id)&&!(c.deep||{})[t.id])waitingSection(t).hidden=true})}
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
@@ -714,11 +732,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function goDeeper(t,btn){
     const open=document.getElementById('sec-'+t.id);
     if(open&&!open.hidden){open.hidden=true;btn.setAttribute('aria-pressed','false');return}
-    if(open&&(cur.deep[t.id]||pendingDeep.has(cur.t+'|'+t.id))){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
+    if(open&&(cur.deep[t.id]||pendingDeep.has(cur.t+'|'+cur.name+'|'+t.id))){open.hidden=false;btn.setAttribute('aria-pressed','true');$('sections').prepend(open);open.scrollIntoView({behavior:'smooth',block:'start'});return}
     if(open)open.remove();
     btn.setAttribute('aria-pressed','true');
     const sec=waitingSection(t);sec.scrollIntoView({behavior:'smooth',block:'start'});
-    const card=cur,key=card.t+'|'+t.id;
+    const card=cur,key=card.t+'|'+card.name+'|'+t.id;
     const parts=[];
     if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
@@ -728,9 +746,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     try{
       const out=await job;const points=(out.points||[]).filter(Boolean);
       card.deep[t.id]=points;saveDiscovery(true,card);           // saved even if you left this card
-      if(cur&&cur.t===card.t){cur.deep[t.id]=points;const el=document.getElementById('sec-'+t.id);if(el)renderSection(t.id,el)}
+      if(cur&&cur.t===card.t&&cur.name===card.name){cur.deep[t.id]=points;const el=document.getElementById('sec-'+t.id);if(el)renderSection(t.id,el)}
     }catch(e){
-      if(cur&&cur.t===card.t){const el=document.getElementById('sec-'+t.id);if(el){const w=el.querySelector('.wait');if(w)w.textContent=errText(e);setTimeout(()=>{if(!(cur.deep||{})[t.id])el.remove()},4000)}
+      if(cur&&cur.t===card.t&&cur.name===card.name){const el=document.getElementById('sec-'+t.id);if(el){const w=el.querySelector('.wait');if(w)w.textContent=errText(e);setTimeout(()=>{if(!(cur.deep||{})[t.id])el.remove()},4000)}
         const b=[...$('chips').children].find(x=>x.textContent===t.label);if(b)b.setAttribute('aria-pressed','false')}
     }finally{pendingDeep.delete(key)}
   }
@@ -786,7 +804,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(n.osm){const m=(n.wikipedia||'').match(/^(\w+):(.+)$/);if(m)s=await summary(m[1],m[2])}
     else s=await summary(n.lang,n.title);
     }
-    const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},url:s&&s.url,wiki:s&&s.text};
+    const prev=cur.name?{name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,deep:cur.deep||{},noAI:!!cur.noAI}:null;
+    const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,address:cur.address,takenAt:cur.takenAt,fromGallery:cur.fromGallery,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},prev,url:s&&s.url,wiki:s&&s.text};
     const plain=()=>{const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
       return{...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
     if(cur.noAI||!cfg.key){openCard(plain());return}
@@ -807,6 +826,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       await streamCard(parts,base,null);
     }catch(e){openCard(plain());status(errText(e)+' Te enseño Wikipedia.',true)}
   }
+
+  // swap back to the previous identification (and forth again)
+  $('btn-prev').onclick=()=>{
+    if(!cur||!cur.prev)return;const p=cur.prev;
+    const now={name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,deep:cur.deep||{},noAI:!!cur.noAI};
+    openCard({...cur,...p,deep:{...(p.deep||{})},prev:now});window.scrollTo({top:0,behavior:'smooth'});
+  };
 
   // "Copiar lugar": name, local name and address, ready to paste anywhere
   $('btn-copyplace').onclick=()=>{
@@ -876,7 +902,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const item={t:card.t,name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
       pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);
-    if(i>=0){item.deep={...(h[i].deep||{}),...item.deep};item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else h.unshift(item);
+    if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
+    if(i>=0){if(update)item.deep={...(h[i].deep||{}),...item.deep};item.prev=card.prev||h[i].prev||null;item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else{item.prev=card.prev||null;h.unshift(item)}
     store.set('history',h.slice(0,500));
     if(card.file&&!card.photoSaved){card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
     const geoPos=item.pos||card.cityPos;
