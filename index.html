@@ -169,8 +169,10 @@ p{margin:0}
 .cityrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .cityrow span{font-family:var(--serif);font-weight:600;font-size:19px}
 .cityrow button{border:0;background:transparent;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 0}
-.mapbox{position:relative;margin:0 -20px}
-#map{height:62vh;min-height:320px;overflow:hidden;background:var(--surface)}
+.mapbox{position:relative;isolation:isolate;margin:0}
+#map{height:44vh;min-height:280px;overflow:hidden;background:var(--surface);border-radius:14px;border:1px solid var(--line)}
+.mapbox.full #map{border-radius:0;border:0}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) grayscale(.85) brightness(.82) contrast(.9)}
 .mapfull{position:absolute;right:16px;top:12px;z-index:500;border:1px solid rgba(255,255,255,.16);border-radius:999px;background:rgba(13,13,12,.6);color:var(--ink);padding:7px 13px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .mapbox.full{position:fixed;inset:0;z-index:800;background:var(--bg);margin:0}
 .mapbox.full #map{height:100%}
@@ -414,7 +416,7 @@ body.has-nav .toast{bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
   const views=['home','prep','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -1015,7 +1017,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function coordTxt(p){if(!p)return'';const la=p.lat,lo=p.lon;return`${Math.abs(la).toFixed(4)}°${la>=0?'N':'S'} ${Math.abs(lo).toFixed(4)}°${lo>=0?'E':'O'}`}
   function setMeta(c){const el=$('r-meta');el.innerHTML='';metaParts(c).forEach(x=>{const sp=document.createElement('span');sp.textContent=x;sp.style.whiteSpace='nowrap';el.appendChild(sp)});el.hidden=!el.childNodes.length}
-  function metaParts(c){const parts=[];const p=c.pos||c.cityPos;if(p)parts.push(coordTxt(p));if(c.city)parts.push(c.city.toUpperCase());
+  function metaParts(c){const parts=[];if(c.city)parts.push(c.city.toUpperCase());
     const w=c.takenAt||c.t||Date.now();if(w){const d=new Date(w);parts.push(d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}return parts}
   function homeMeta(){const d=new Date();const day=d.toLocaleDateString('es-ES',{weekday:'short',day:'2-digit',month:'short'}).replace(/[.,]/g,'').toUpperCase();
     const t=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});const h=store.get('history',[]);const city=h[0]&&h[0].city;
@@ -1052,7 +1054,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   // full-screen map
   $('btn-mapfull').onclick=()=>{const b=$('mapbox');const full=!b.classList.contains('full');b.classList.toggle('full',full);
-    $('btn-mapfull').textContent=full?'Cerrar':'Pantalla completa';setTimeout(()=>map&&map.invalidateSize(),60)};
+    $('btn-mapfull').textContent=full?'Cerrar':'Pantalla completa';if(map){full?map.dragging.enable():map.dragging.disable()}setTimeout(()=>map&&map.invalidateSize(),60)};
   // export: just the places (time, name, address), grouped by day; share sheet → Notes, WhatsApp, Copy…
   function exportPlaces(items,title,byDay){
     const sorted=items.slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));
@@ -1085,8 +1087,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function drawMap(items,keepView){
     const pts=items.filter(x=>x.pos);
     if(!window.L){$('map').innerHTML='<p class="empty" style="padding:16px">El mapa necesita conexión.</p>';return}
-    if(!map){map=L.map('map',{zoomControl:false,attributionControl:true});
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19,subdomains:'abcd',attribution:'© OpenStreetMap © CARTO'}).addTo(map);layer=L.layerGroup().addTo(map)}
+    if(!map){map=L.map('map',{zoomControl:false,attributionControl:true,dragging:false,tap:false});
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);layer=L.layerGroup().addTo(map)}
     layer.clearLayers();
     pts.forEach(x=>{
       const html=document.createElement('div');html.className='pin';const im=document.createElement('img');im.alt='';html.appendChild(im);
