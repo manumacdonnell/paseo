@@ -126,9 +126,9 @@ p{margin:0}
 .src a{color:inherit}
 .ask{border-top:1px solid var(--line);padding-top:18px;display:flex;flex-direction:column;gap:12px}
 .help{font-size:14px;color:var(--muted);font-weight:400;line-height:1.6}
-.ask-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ask-row button,.ask-row a{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:transparent;border-radius:999px;padding:11px 14px;font-weight:500;font-size:14px}
-.ask-row a:first-child{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ask-row{display:flex;gap:26px;align-items:center}
+.ask-row button,.ask-row a{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:6px 0!important;border:0!important;background:transparent!important;color:var(--ink)!important;font-size:16px!important;font-weight:500;text-align:center;text-decoration:none;color:var(--ink);border:1px solid var(--line);background:transparent;border-radius:999px;padding:11px 14px;font-weight:500;font-size:14px}
+
 .ask textarea{width:100%;min-height:120px;border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--surface);color:var(--ink);font-family:var(--mono);font-size:12px}
 
 /* Profundizar — accordion */
@@ -275,6 +275,16 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 .askcopy{margin-top:0;align-self:flex-start}
 .ask .help{min-height:3em}
 .copyplace.copied{background-color:transparent!important}
+
+.ask{gap:6px}
+.ask-row svg{width:15px;height:15px;color:var(--muted)}
+.ask-row #ask-copy{margin-left:auto;color:var(--muted)!important;font-size:15px!important}
+.ask .help{min-height:0;font-size:13px;color:var(--faint)}
+.ask-row .copied,.ask-row .copied svg{color:var(--live)!important}
+
+.ask-row #ask-copy.copied,.ask-row #ask-copy.copied svg{color:var(--live)!important}
+.ask-row .copied .ext{display:none}
+.tools{display:none}.tools:has(>:not([hidden])){display:flex}
 </style>
 </head>
 <body>
@@ -348,12 +358,13 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
         <span class="src" id="r-src" hidden></span>
       </div>
       <div class="ask" id="ask-panel" hidden>
-        <p class="help">Copio el sitio, la dirección y lo que ya sabes. Luego pega en el chat y escribe tu pregunta.</p>
+        <p class="label">Seguir en</p>
         <div class="ask-row">
-          <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener">Copiar y abrir ChatGPT</a>
-          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener">Copiar y abrir Claude</a>
+          <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="lab">ChatGPT</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="lab">Claude</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+          <button id="ask-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="lab">Copiar</span></button>
         </div>
-        <button class="copyplace askcopy" id="ask-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="lab">Solo copiar el texto</span></button>
+        <p class="help">Te copio el contexto: solo pega.</p>
         <textarea id="ask-text" readonly hidden></textarea>
       </div>
     </article>
@@ -361,20 +372,20 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
       <p class="deeper-title">Profundizar</p>
       <div class="acc" id="acc"></div>
     </div>
-    <button class="deleteentry" id="btn-delete" hidden>Borrar esta entrada</button>
+    <button class="deleteentry" id="btn-delete" hidden>Borrar entrada</button>
   </section>
 
   <!-- NOT THIS -->
   <section class="alts" id="v-alts" hidden>
     <h2 id="alts-title">¿Qué estás mirando?</h2>
     <form class="typed" id="alts-form">
-      <label for="alts-input" class="help">Dime qué es o en qué te fijas. Puede ser el nombre del cartel o algo como “el hombre de la trompeta”.</label>
+      <label for="alts-input" class="help">Escribe qué es, o en qué te fijas.</label>
       <div class="typed-row">
-        <input id="alts-input" autocomplete="off" placeholder="p. ej. Café Bristol · las flores del balcón">
+        <input id="alts-input" autocomplete="off" placeholder="p. ej. Café Bristol, la estatua">
         <button type="submit">Ir</button>
       </div>
     </form>
-    <p class="help" id="alts-help" style="margin-top:8px">¿O es alguno de estos?</p>
+    <p class="help" id="alts-help" style="margin-top:8px">O elige uno cercano</p>
     <ul id="alts-list"></ul>
     <button class="plain" id="alts-none">Ninguno de estos</button>
   </section>
@@ -386,7 +397,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
     <div class="cityrow"><span id="city-name"></span><button id="btn-export-city">Exportar</button></div>
     <div class="mapbox" id="mapbox">
       <div id="map"></div>
-      <button class="mapfull" id="btn-mapfull">Pantalla completa</button>
+      <button class="mapfull" id="btn-mapfull">Ampliar</button>
     </div>
     <div id="days"></div>
   </section>
@@ -425,7 +436,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button></div>
   <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
-  <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsada la foto para guardarla. Toca para volver.</p></div>
+  <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsado para guardar · Toca para cerrar</p></div>
   <button class="navback" id="navback" hidden aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
   <div class="toast" id="toast" hidden><span id="toast-text"></span><button id="toast-undo">Deshacer</button></div>
 </div>
@@ -455,7 +466,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
   const views=['home','prep','loading','result','alts','mymap','settings'];
   let cur=null; // the card on screen
   let view='home';
-  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Pantalla completa'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -789,7 +800,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev)$('btn-prev').textContent=`↩ Volver a «${c.prev.name}»`;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=!!opt.partial;$('ask-panel').hidden=true;$('ask-text').hidden=true;
+    $('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev)$('btn-prev').textContent=`↩ Volver a «${c.prev.name}»`;$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     setMeta(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
@@ -954,14 +965,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function askMsg(t){$('ask-panel').querySelector('.help').textContent=t}
   function showAskText(txt){const ta=$('ask-text');ta.value=txt;ta.hidden=false;ta.focus();ta.select();askMsg('No pude copiarlo solo: mantén pulsado el texto y cópialo.')}
   // a quick green "Copiado" that fades back to the original label
-  function flashCopied(btn,lab,orig){
+  function flashCopied(btn,lab,orig,done){
     clearTimeout(btn._t1);clearTimeout(btn._t2);
     lab.classList.add('swap');
-    btn._t1=setTimeout(()=>{lab.textContent='Copiado ✓';btn.classList.add('copied');lab.classList.remove('swap');
+    btn._t1=setTimeout(()=>{lab.textContent=done||'Copiado ✓';btn.classList.add('copied');lab.classList.remove('swap');
       btn._t2=setTimeout(()=>{lab.classList.add('swap');btn._t1=setTimeout(()=>{lab.textContent=orig;btn.classList.remove('copied');lab.classList.remove('swap')},160)},1300)},90);
   }
   ['ask-chatgpt','ask-claude','ask-copy'].forEach(id=>{const b=$(id);if(b.querySelector('.lab')){b._orig=b.querySelector('.lab').textContent;return}const sp=document.createElement('span');sp.className='lab';sp.textContent=b.textContent;b.textContent='';b.appendChild(sp);b._orig=sp.textContent});
-  const askFlash=id=>flashCopied($(id),$(id).querySelector('.lab'),$(id)._orig);
+  const askFlash=id=>flashCopied($(id),$(id).querySelector('.lab'),$(id)._orig,id==='ask-copy'?'Copiado ✓':$(id)._orig+' ✓');
   $('ask-chatgpt').onclick=()=>{if(copyAsk())askFlash('ask-chatgpt')}; // the link itself opens the chat
   $('ask-claude').onclick=()=>{if(copyAsk())askFlash('ask-claude')};
   $('ask-copy').onclick=()=>{if(copyAsk())askFlash('ask-copy')};
@@ -1104,7 +1115,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   // full-screen map
   $('btn-mapfull').onclick=()=>{const b=$('mapbox');const full=!b.classList.contains('full');b.classList.toggle('full',full);
-    $('btn-mapfull').textContent=full?'Cerrar':'Pantalla completa';if(map){full?map.dragging.enable():map.dragging.disable()}setTimeout(()=>map&&map.invalidateSize(),60)};
+    $('btn-mapfull').textContent=full?'Cerrar':'Ampliar';if(map){full?map.dragging.enable():map.dragging.disable()}setTimeout(()=>map&&map.invalidateSize(),60)};
   // export: just the places (time, name, address), grouped by day; share sheet → Notes, WhatsApp, Copy…
   function exportPlaces(items,title,byDay){
     const sorted=items.slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));
