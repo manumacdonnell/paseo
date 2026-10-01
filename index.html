@@ -346,6 +346,14 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 
 .home-pending{margin-top:auto;display:flex;align-items:center;gap:10px;color:var(--muted);font-size:14px}
 .home-pending:not([hidden])+.quick{margin-top:0}
+
+/* prep: one clear action */
+.prep-more{align-self:center}
+#prep-go{margin-top:6px}
+/* look again */
+.retry{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:12px 18px;font-size:15px;font-weight:600;margin:4px 0 6px}
+.retry svg{width:17px;height:17px}
+.retry[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -393,9 +401,9 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
   <!-- LOADING -->
   <section class="prep" id="v-prep" hidden>
     <img id="prep-img" alt="La foto que has elegido">
-    <label for="prep-hint" class="help">¿En qué me fijo? (opcional)</label>
-    <input id="prep-hint" autocomplete="off" placeholder="p. ej. el hombre de la trompeta">
-    <button class="big small" id="prep-go"><b>Buscar</b></button>
+    <input id="prep-hint" autocomplete="off" placeholder="En qué me fijo, p. ej. la estatua" aria-label="Pista opcional" hidden>
+    <button class="big small" id="prep-go"><b>Averiguar qué es</b></button>
+    <button class="plain prep-more" id="prep-addhint">+ Añadir una pista (opcional)</button>
   </section>
 
   <section class="loading" id="v-loading" hidden>
@@ -456,6 +464,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
   <!-- NOT THIS -->
   <section class="alts" id="v-alts" hidden>
     <h2 id="alts-title">¿Qué estás mirando?</h2>
+    <button class="retry" id="alts-retry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg><span>Vuelve a mirar la foto</span></button>
     <form class="typed" id="alts-form">
       <label for="alts-input" class="help">Escribe qué es, o en qué te fijas.</label>
       <div class="typed-row">
@@ -785,7 +794,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('file').onchange=e=>{const f=e.target.files&&e.target.files[0];if(f)processPhoto(f,false)};
   let prepFile=null,prepURL=null;
   $('file-upload').onchange=e=>{const f=e.target.files&&e.target.files[0];if(!f)return;
-    prepFile=f;if(prepURL)URL.revokeObjectURL(prepURL);prepURL=URL.createObjectURL(f);$('prep-img').src=prepURL;$('prep-hint').value='';show('prep')};
+    prepFile=f;if(prepURL)URL.revokeObjectURL(prepURL);prepURL=URL.createObjectURL(f);$('prep-img').src=prepURL;$('prep-hint').value='';$('prep-hint').hidden=true;$('prep-addhint').hidden=false;show('prep')};
+  $('prep-addhint').onclick=()=>{$('prep-addhint').hidden=true;$('prep-hint').hidden=false;$('prep-hint').focus()};
   $('prep-go').onclick=()=>{const f=prepFile;if(!f)return;prepFile=null;processPhoto(f,true,$('prep-hint').value.trim())};
   $('prep-hint').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('prep-go').click()}});
   let photosPending=0;
@@ -890,12 +900,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
     const isThing=/thing/i.test(o.SOURCE||'')||/^(food|drink|object|art|nature|animal|person|activity)$/i.test((o.CATEGORY||'').trim());
     if(isThing)sure=true;
+    let srcTag=isThing?'thing':((o.SOURCE||'').trim().toLowerCase().split(/\s/)[0]||'');
     if(!isThing&&ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
       const want={cafe:['cafe','coffee'],restaurant:['restaurant','fast_food'],bar:['bar','pub'],pub:['pub','bar'],bakery:['bakery','pastry','confectionery'],
         hotel:['hotel','hostel','guest_house'],church:['place_of_worship','church'],museum:['museum'],gallery:['gallery','arts_centre'],theatre:['theatre'],
         monument:['monument','memorial'],statue:['statue','artwork','memorial'],memorial:['memorial','monument'],fountain:['fountain']}[(o.CATEGORY||'').trim().toLowerCase()];
       const match=want&&ctx.osm.find(x=>want.includes(x.raw)&&x.dist<=Math.max(50,(ctx.pos&&ctx.pos.acc||0)+20));
-      if(match){name=match.title;sure=match.dist<=25}
+      if(match){name=match.title;sure=match.dist<=25;srcTag='near'}
     }
     if(!name||/^(sin nombre|unknown|desconocido|n\/a)$/i.test(name.trim()))name=await nameFallback(parts,o,ctx);
     if(!(o.WHAT||'').trim()){   // the short text never came: ask for just that, once
@@ -904,7 +915,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         if(out&&out.what)o.WHAT=out.what;if(out&&out.cool&&!o.COOL)o.COOL=out.cool;
       }catch(e){}
     }
-    const card={...base,name,local:o.LOCAL,sure,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
+    const card={...base,name,local:o.LOCAL,sure,src:srcTag,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
     if(here()){openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
     saveDiscovery(false,card);if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
@@ -930,7 +941,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function openCard(c,fromHistory){
     const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
-    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory;stopVoice();paintCard(c);
+    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory||!!c.fromGallery;stopVoice();paintCard(c);
     if(!fromHistory){saveDiscovery();prefetchDeep(cur)}
   }
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
@@ -1056,13 +1067,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('btn-notthis').onclick=()=>showAlts(false);
   async function showAlts(fromLimit,msg){
     show('alts');if(msg)status(msg,true);$('alts-list').innerHTML='<li class="help">Mirando alrededor…</li>';
-    $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿Qué es, entonces?';
+    $('alts-title').textContent=fromLimit?'¿Qué estás mirando?':'¿Qué es, entonces?';$('alts-retry').hidden=!!fromLimit||!cur.img||!cfg.key||!!cur.noAI;
     if(!cur.pos){cur.near=cur.near||[];cur.osm=cur.osm||[]}
     else if(!cur.near||!cur.osm){const p=await places(cur.pos);cur.near=cur.near||p.wiki;cur.osm=cur.osm||p.osm}
     const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
     const same=n=>cur.name&&(norm(n.title).includes(norm(cur.name))||norm(cur.name).includes(norm(n.title))||(cur.local&&norm(n.title).includes(norm(cur.local))));
     const wiki=cur.near.filter(n=>n.dist<=100&&!same(n));
-    const osm=cur.osm.filter(n=>!same(n)&&!wiki.some(w=>norm(w.title)===norm(n.title)));
+    const osm=cur.osm.filter(n=>n.dist<=300&&!same(n)&&!wiki.some(w=>norm(w.title)===norm(n.title)));
     let list=[...osm,...wiki].sort((a,b)=>a.dist-b.dist);
     if(list.length<2)list=[...list,...cur.near.filter(n=>n.dist>100&&n.dist<=200&&!same(n))];
     // hide articles that only exist in another language when there are enough options in yours
@@ -1074,6 +1085,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const a=document.createElement('span');a.textContent=n.title+(n.kind?` · ${n.kind}`:'');const d=document.createElement('span');d.className='d';d.textContent=n.dist+' m';
       b.append(a,d);b.onclick=()=>choose(n);li.appendChild(b);ul.appendChild(li)});
   }
+  $('alts-retry').onclick=()=>choose({title:'',dist:0,typed:true,retry:true});
   $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
   async function choose(n){
@@ -1094,7 +1106,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         const near=(cur.osm||[]).slice(0,15).map(x=>`${x.title} [${x.kind}] (${x.dist} m)`).join('; ');
         const wikis=(cur.near||[]).slice(0,10).map(x=>`${x.title} (${x.dist} m)`).join('; ');
         const where=cur.pos?`Foto tomada en lat ${cur.pos.lat.toFixed(5)}, lon ${cur.pos.lon.toFixed(5)}${cur.city?` (${cur.city})`:''}.`+(near?`\nSitios cerca (OpenStreetMap): ${near}.`:'')+(wikis?`\nLugares con artículo de Wikipedia cerca: ${wikis}.`:''):(cur.city?`En ${cur.city}.`:'Ubicación desconocida.');
-        parts.push({text:`Antes identificaste mal o te fijaste en otra cosa${cur.name?` (dijiste "${cur.name}")`:''}. La persona te aclara: "${n.title}".\n\nPuede ser:\n- un nombre propio (de un sitio, local, obra…): entonces es eso, úsalo como NAME tal cual;\n- o una indicación de en qué se fija dentro de la foto (una persona tocando un instrumento, unas flores, un cuadro, un detalle…): entonces busca ESO en la foto y cuéntale qué es en el contexto de este lugar concreto (si es una tradición o costumbre local, por qué ocurre aquí, qué significa). En ese caso NAME es un título corto y concreto de lo que es (no inventes nombres de personas ni identifiques a nadie por su cara).\n\n${where}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
+        if(n.retry)parts.push({text:`Antes dijiste que era "${cur.name}" y NO es correcto. Vuelve a mirar la foto con calma, como si fuera la primera vez: lee cualquier texto visible (carteles, placas, logos), fíjate en los detalles y en qué es lo protagonista, y usa la lista de sitios cercanos solo si encaja con lo que se ve. Da una respuesta DISTINTA de "${cur.name}". Si no estás seguro, pon SURE no.\n\n${where}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
+        else parts.push({text:`Antes identificaste mal o te fijaste en otra cosa${cur.name?` (dijiste "${cur.name}")`:''}. La persona te aclara: "${n.title}".\n\nPuede ser:\n- un nombre propio (de un sitio, local, obra…): entonces es eso, úsalo como NAME tal cual;\n- o una indicación de en qué se fija dentro de la foto (una persona tocando un instrumento, unas flores, un cuadro, un detalle…): entonces busca ESO en la foto y cuéntale qué es en el contexto de este lugar concreto (si es una tradición o costumbre local, por qué ocurre aquí, qué significa). En ese caso NAME es un título corto y concreto de lo que es (no inventes nombres de personas ni identifiques a nadie por su cara).\n\n${where}\n\nLo va a leer parado en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`});
         await streamCard(parts,base,null);
       }catch(e){show('result');status(errText(e),true)}
       return;
@@ -1185,7 +1198,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function saveDiscovery(update,card){
     card=card||cur;if(!card||!card.name)return;
     const h=store.get('history',[]);const isNew=!card.t;if(isNew)card.t=Date.now();
-    const item={t:card.t,kind:card.kind||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
+    const item={t:card.t,kind:card.kind||'',src:card.src||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
       pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);
     if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
@@ -1252,7 +1265,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function coordTxt(p){if(!p)return'';const la=p.lat,lo=p.lon;return`${Math.abs(la).toFixed(4)}°${la>=0?'N':'S'} ${Math.abs(lo).toFixed(4)}°${lo>=0?'E':'O'}`}
   function setMeta(c){const el=$('r-meta');el.innerHTML='';metaParts(c).forEach(x=>{const sp=document.createElement('span');sp.textContent=x;sp.style.whiteSpace='nowrap';el.appendChild(sp)});el.hidden=!el.childNodes.length}
   function metaParts(c){const parts=[];if(c.city)parts.push(c.city.toUpperCase());
-    const w=c.takenAt||c.t||Date.now();if(w){const d=new Date(w);parts.push(d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}return parts}
+    const SRC={sign:'leído en el cartel',list:'por la ubicación',near:'por la ubicación',knowledge:'reconocido en la foto',generic:'sin confirmar'};
+    const w=c.takenAt||c.t||Date.now();if(w){const d=new Date(w);parts.push(d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}if(SRC[c.src])parts.push(SRC[c.src]);return parts}
   function homeMeta(){const d=new Date();const day=d.toLocaleDateString('es-ES',{weekday:'short',day:'2-digit',month:'short'}).replace(/[.,]/g,'').toUpperCase();
     const t=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});const h=store.get('history',[]);const city=h[0]&&h[0].city;
     return [day,t,city?city.toUpperCase():''].filter(Boolean).join('  ·  ')}
