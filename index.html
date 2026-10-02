@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="manu-go">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png?v=2">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -390,6 +390,11 @@ button.dayhead[aria-expanded="true"] .chev{transform:rotate(90deg)}
 .daychev .chev{width:16px;height:16px;transition:transform .25s ease}
 .daytop.isopen .daychev .chev{transform:rotate(90deg)}
 .dayexport{padding:16px 0!important;flex:none}
+
+html,body{overscroll-behavior:none}
+.transfer{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:18px;margin-top:6px}
+.transfer .row{display:flex;gap:10px;flex-wrap:wrap}
+.transfer button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:11px 16px;font-size:15px}
 </style>
 </head>
 <body>
@@ -555,6 +560,15 @@ button.dayhead[aria-expanded="true"] .chev{transform:rotate(90deg)}
     <div class="row">
       <button class="primary" id="s-save">Guardar</button>
       <button id="s-clear">Borrar mapa e historial</button>
+    </div>
+    <div class="transfer">
+      <p class="label">Pasar tus descubrimientos</p>
+      <p class="help">Para llevarlos de Safari a la app (o a otro móvil): exporta el archivo en uno y ábrelo en el otro.</p>
+      <div class="row">
+        <button id="s-export">Exportar archivo</button>
+        <button id="s-import">Importar archivo</button>
+      </div>
+      <input type="file" id="s-import-file" accept=".json,application/json" hidden>
     </div>
     <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
     <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
@@ -1466,6 +1480,28 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
 
   // ---------- settings ----------
+  // ---------- move discoveries between Safari and the installed app ----------
+  $('s-export').onclick=async()=>{
+    const h=store.get('history',[]);if(!h.length){status('Todavía no hay descubrimientos para exportar.');return}
+    status('Preparando el archivo…');const photos={};
+    for(const x of h){if(!x.hasPhoto)continue;const b=await getPhoto(x.t);if(!b)continue;try{photos[x.t]=await resize(b,900,'dataurl')}catch(e){}}
+    const blob=new Blob([JSON.stringify({app:'manu-go',v:1,history:h,photos})],{type:'application/json'});
+    const name=`manu-go-${new Date().toISOString().slice(0,10)}.json`;const file=new File([blob],name,{type:'application/json'});
+    try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});status('Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.');return}}catch(e){if(e.name==='AbortError'){status('');return}}
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();status('Archivo descargado.');
+  };
+  $('s-import').onclick=()=>$('s-import-file').click();
+  $('s-import-file').onchange=async e=>{
+    const f=e.target.files[0];e.target.value='';if(!f)return;
+    try{
+      const data=JSON.parse(await f.text());if(!data||!Array.isArray(data.history))throw new Error('formato');
+      const h=store.get('history',[]);const have=new Set(h.map(x=>x.t));let n=0;
+      for(const x of data.history){if(have.has(x.t))continue;h.push(x);n++;
+        const u=data.photos&&data.photos[x.t];if(u){const b=await (await fetch(u)).blob();await putPhoto(x.t,b)}}
+      h.sort((a,b)=>b.t-a.t);store.set('history',h.slice(0,500));
+      status(n?`Importados ${n} ${n===1?'descubrimiento':'descubrimientos'}.`:'Ya los tenías todos.');
+    }catch(err){status('Ese archivo no parece de manu-go.',true)}
+  };
   function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
   $('s-save').onclick=()=>{
     cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
