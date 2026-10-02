@@ -486,6 +486,23 @@ body,.app{transition:background-color .3s ease,color .3s ease}
 #v-result .card.swap #r-what,#v-result .card.swap #r-cool,#v-result .card.swap #r-name{animation:fadein .35s ease both}
 
 .acc-head .chev{transition:transform .18s ease!important}
+
+/* questions view */
+.q-hist{flex:none;border:0;background:transparent;color:var(--muted);width:30px;height:36px;display:grid;place-items:center;margin-left:-8px}
+.q-hist svg{width:19px;height:19px}
+.ask-view{display:flex;flex-direction:column;gap:0;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 90px)}
+.ask-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.qa{padding:18px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.qa:last-child{border-bottom:0}
+.qa-q{font-size:14px;color:var(--muted)}
+.qa-a{font-size:17px;line-height:1.55;color:var(--ink)}
+.qa-more{display:flex;align-items:center;gap:18px;padding:4px 0 10px}
+.qa-more .lab0{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.qa-more a{display:inline-flex;align-items:center;gap:5px;color:var(--ink);text-decoration:none;font-size:15px;transition:color .35s ease}
+.qa-more svg{width:14px;height:14px;color:var(--muted)}
+.qa-more .copied,.qa-more .copied svg{color:var(--live)}
+.qa-bar{position:fixed;left:90px;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:690;background:var(--bg)!important;height:54px}
+#v-ask .empty{color:var(--muted);padding:18px 0}
 </style>
 </head>
 <body>
@@ -505,16 +522,8 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </div>
     <p class="home-pending" id="home-pending" hidden><span class="spin"></span>Averiguando qué es tu foto…</p>
     <div class="quick" id="quick">
-      <div class="q-answer" id="q-answer" hidden>
-        <p class="q-q" id="q-q"></p>
-        <p class="q-text" id="q-text"></p>
-        <div class="q-tools">
-          <a id="q-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="lab">Seguir en ChatGPT</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
-          <a id="q-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="lab">Claude</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
-          <button id="q-close">Cerrar</button>
-        </div>
-      </div>
       <form class="q-form" id="q-form" autocomplete="off">
+        <button type="button" class="q-hist" id="q-hist" hidden aria-label="Preguntas anteriores"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></button>
         <input id="q-input" enterkeyhint="send" placeholder="Pregunta algo sobre donde estás…" aria-label="Pregunta rápida">
         <button type="submit" id="q-send" aria-label="Preguntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </form>
@@ -560,7 +569,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
           <button class="backprev" id="btn-prev" hidden></button>
           <div class="confirm" id="r-confirm" hidden><span>¿Es esto?</span><button id="btn-yes">Sí, es esto</button><button class="no" id="btn-no">No</button></div>
           <div class="placetools"><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
-          <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a><button class="copyplace" id="btn-lang" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>English</span></button></div>
+          <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a><button class="copyplace" id="btn-lang" hidden style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>English</span></button></div>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -593,6 +602,21 @@ body,.app{transition:background-color .3s ease,color .3s ease}
         <textarea id="ask-text" readonly hidden></textarea>
       </div>
     <button class="deleteentry" id="btn-delete" hidden>Borrar entrada</button>
+  </section>
+
+  <!-- QUESTIONS -->
+  <section class="ask-view" id="v-ask" hidden>
+    <div class="ask-top"><h2>Preguntas</h2><button class="plain" id="qa-clear" hidden>Borrar</button></div>
+    <div class="qa-list" id="qa-list"></div>
+    <div class="qa-more" id="qa-more" hidden>
+      <span class="lab0">Seguir en</span>
+      <a id="q-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="lab">ChatGPT</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+      <a id="q-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="lab">Claude</span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+    </div>
+    <form class="q-form qa-bar" id="qa-form" autocomplete="off">
+      <input id="qa-input" enterkeyhint="send" placeholder="Pregunta otra cosa…" aria-label="Pregunta">
+      <button type="submit" aria-label="Preguntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+    </form>
   </section>
 
   <!-- NOT THIS -->
@@ -637,7 +661,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     <div class="sgroup">
       <p class="sh">Idioma</p>
       <div class="seg" id="s-lang-seg" role="group" aria-label="Idioma">
-        <button data-v="es">Español</button><button data-v="en">English</button>
+        <button data-v="es">Español</button><button data-v="en">Inglés</button>
       </div>
       <select id="s-lang" hidden><option value="es">Español</option><option value="en">Inglés</option></select>
     </div>
@@ -717,7 +741,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
   ];
 
   // ---------- views ----------
-  const views=['home','prep','loading','result','alts','mymap','settings'];
+  const views=['home','prep','loading','result','alts','mymap','settings','ask'];
   let cur=null; // the card on screen
   let view='home';
   function show(v){status('');view=v;const fabOn=['result','alts','mymap'].includes(v);$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v!=='result')stopVoice();if(v==='home')renderHome();window.scrollTo(0,0);if(typeof updateMinibar==='function')updateMinibar()}
@@ -1114,7 +1138,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
 
   // ---------- interface language: the whole UI switches between Spanish and English ----------
-  const EN_UI={"Ajustes": "Settings", "Ampliar": "Expand", "Apariencia": "Appearance", "Averiguando qué es tu foto…": "Working out your photo…", "Averiguar qué es": "Find out what it is", "+ Añadir una pista (opcional)": "+ Add a hint (optional)", "Borrar": "Delete", "Borrar entrada": "Delete entry", "Borrar todos mis descubrimientos": "Delete all my discoveries", "Cerrar": "Close", "Clave de Gemini": "Gemini key", "Copia la clave y pégala arriba.": "Copy the key and paste it above.", "Copiar": "Copy", "Copiar nombre": "Copy name", "Cómo llegar": "Directions", "Deshacer": "Undo", "Déjalo así. Si Google lo retira, la app busca otro sola.": "Leave it. If Google retires it, the app finds another one.", "En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.": "On the free plan, Google may use what you send (photos included) to improve its products. Avoid photos with faces or private data.", "En qué me fijo, p. ej. la estatua": "What to look at, e.g. the statue", "Entra en": "Go to", "Escribe qué es, o en qué te fijas.": "Type what it is, or what you're looking at.", "Exportar": "Export", "Guardar clave": "Save key", "Guardada ✓": "Saved ✓", "Haz una foto y te digo qué es": "Take a photo and I'll tell you what it is", "Idioma": "Language", "Importar": "Import", "Ir": "Go", "Mantén pulsado para guardar · Toca para cerrar": "Hold to save · Tap to close", "Mi mapa": "My map", "Mirando…": "Looking…", "Modelo de IA": "AI model", "Más ajustes": "More settings", "Ninguno de estos": "None of these", "Noche": "Night", "Día": "Day", "O elige uno cercano": "Or pick one nearby", "Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.": "To move them to another phone or from Safari to the app: export here and open the file with “Import” on the other.", "Pega tu clave aquí": "Paste your key here", "Pregunta algo sobre donde estás…": "Ask something about where you are…", "Probablemente…": "Probably…", "Profundizar": "Go deeper", "Qué es": "What it is", "Recientes": "Recent", "Se borran todos los lugares y sus fotos de la app. No se puede deshacer.": "This deletes every place and its photos from the app. It can’t be undone.", "Se guarda solo en este móvil.": "Saved only on this phone.", "Seguir en": "Continue in", "Seguir en ChatGPT": "Continue in ChatGPT", "Subir foto": "Upload photo", "Sí, borrar todo": "Yes, delete everything", "Sí, es esto": "Yes, that's it", "Te copio el contexto: solo pega.": "The context is copied: just paste.", "Tus descubrimientos": "Your discoveries", "Un dato curioso": "A curious fact", "Volver": "Back", "Vuelve a mirar la foto": "Look at the photo again", "con tu cuenta de Google → Claves de API.": "with your Google account → API keys.", "¿Cómo consigo una gratis?": "How do I get one for free?", "¿Es esto?": "Is this it?", "¿No es esto?": "Not this?", "¿Qué estás mirando?": "What are you looking at?", "¿Qué es, entonces?": "What is it, then?", "“Crear clave de API”. Sin tarjeta: así es gratis.": "“Create API key”. No card: that keeps it free.", "Algo por descubrir": "Something to discover", "Algo no salió bien. Prueba otra vez.": "Something went wrong. Try again.", "Averiguando qué es…": "Working out what it is…", "Mirando alrededor…": "Looking around…", "Leyendo dónde se sacó la foto…": "Reading where the photo was taken…", "Volviendo a mirar la foto…": "Looking at the photo again…", "Seguimos…": "Carrying on…", "Clave guardada. Se guarda solo en este móvil.": "Key saved. Stored only on this phone.", "Sin clave no funciona la foto.": "Without a key the photo won't work.", "Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.": "Google needs a short pause: the free plan has a per-minute limit. Try again in a minute.", "Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.": "Google's free requests are used up for today. Try again later.", "Google va lento ahora mismo. Prueba otra vez en un minuto.": "Google is slow right now. Try again in a minute.", "No pude conectar con Google. Prueba otra vez en un momento.": "Couldn't reach Google. Try again in a moment.", "La clave de Gemini no funciona. Revísala en Ajustes.": "The Gemini key doesn't work. Check it in Settings.", "Sin conexión. Revisa los datos móviles.": "No connection. Check your mobile data.", "Todavía no hay descubrimientos para exportar.": "No discoveries to export yet.", "Preparando el archivo…": "Preparing the file…", "Archivo descargado.": "File downloaded.", "Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.": "Done. Save it to Files and open it with “Import” in the app.", "Ya los tenías todos.": "You already had them all.", "Ese archivo no parece de manu-go.": "That file doesn't look like a manu-go file.", "Descubrimientos borrados.": "Discoveries deleted.", "Desliza a la izquierda para borrar": "Swipe left to delete", "Recién añadidos": "Recently added", "Por día": "By day", "1 lugar": "1 place", "Abrir": "Open", "Historia": "History", "Fíjate en": "Look closer", "Cine y cultura": "Film & culture", "Chimento": "Gossip", "Toca “Ajustes” para poner tu clave gratuita de Gemini.": "Open Settings to add your free Gemini key.", "Primero pega tu clave gratuita de Gemini.": "First paste your free Gemini key.", "Todavía no hay descubrimientos.": "No discoveries yet.", "El mapa necesita conexión.": "The map needs a connection.", "No encuentro otros sitios conocidos cerca.": "I can't find other known places nearby.", "Guardado ✓": "Saved ✓", "No": "No", "Exportar este día": "Export this day", "Mantén pulsada la foto y elige “Guardar en Fotos”.": "Hold the photo and choose “Save to Photos”.", "No pude copiarlo.": "Couldn't copy it.", "No pude copiarlo solo: mantén pulsado el texto y cópialo.": "Couldn't copy it: hold the text and copy it.", "Ver en Wikipedia": "See on Wikipedia", "Subir una foto que ya tienes": "Upload a photo you already have", "Ver la foto": "See the photo", "Tu foto": "Your photo", "Tu foto (toca para verla entera)": "Your photo (tap to see it whole)", "Guardar la foto en tu iPhone": "Save the photo to your iPhone", "Pista opcional": "Optional hint", "Pregunta rápida": "Quick question", "Preguntar": "Ask", "La foto que has elegido": "The photo you chose", "¿Qué estoy mirando? Sacar una foto": "What am I looking at? Take a photo", "Modelo": "Model", "Idioma de las respuestas": "Language"};
+  const EN_UI={"Ajustes": "Settings", "Ampliar": "Expand", "Apariencia": "Appearance", "Averiguando qué es tu foto…": "Working out your photo…", "Averiguar qué es": "Find out what it is", "+ Añadir una pista (opcional)": "+ Add a hint (optional)", "Borrar": "Delete", "Borrar entrada": "Delete entry", "Borrar todos mis descubrimientos": "Delete all my discoveries", "Cerrar": "Close", "Clave de Gemini": "Gemini key", "Copia la clave y pégala arriba.": "Copy the key and paste it above.", "Copiar": "Copy", "Copiar nombre": "Copy name", "Cómo llegar": "Directions", "Deshacer": "Undo", "Déjalo así. Si Google lo retira, la app busca otro sola.": "Leave it. If Google retires it, the app finds another one.", "En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.": "On the free plan, Google may use what you send (photos included) to improve its products. Avoid photos with faces or private data.", "En qué me fijo, p. ej. la estatua": "What to look at, e.g. the statue", "Entra en": "Go to", "Escribe qué es, o en qué te fijas.": "Type what it is, or what you're looking at.", "Exportar": "Export", "Guardar clave": "Save key", "Guardada ✓": "Saved ✓", "Haz una foto y te digo qué es": "Take a photo and I'll tell you what it is", "Idioma": "Language", "Importar": "Import", "Ir": "Go", "Español": "Spanish", "Inglés": "English", "Preguntas": "Questions", "Pregunta otra cosa…": "Ask something else…", "Pregunta lo que quieras sobre donde estás.": "Ask anything about where you are.", "Preguntas anteriores": "Previous questions", "Pregunta": "Question", "Mantén pulsado para guardar · Toca para cerrar": "Hold to save · Tap to close", "Mi mapa": "My map", "Mirando…": "Looking…", "Modelo de IA": "AI model", "Más ajustes": "More settings", "Ninguno de estos": "None of these", "Noche": "Night", "Día": "Day", "O elige uno cercano": "Or pick one nearby", "Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.": "To move them to another phone or from Safari to the app: export here and open the file with “Import” on the other.", "Pega tu clave aquí": "Paste your key here", "Pregunta algo sobre donde estás…": "Ask something about where you are…", "Probablemente…": "Probably…", "Profundizar": "Go deeper", "Qué es": "What it is", "Recientes": "Recent", "Se borran todos los lugares y sus fotos de la app. No se puede deshacer.": "This deletes every place and its photos from the app. It can’t be undone.", "Se guarda solo en este móvil.": "Saved only on this phone.", "Seguir en": "Continue in", "Seguir en ChatGPT": "Continue in ChatGPT", "Subir foto": "Upload photo", "Sí, borrar todo": "Yes, delete everything", "Sí, es esto": "Yes, that's it", "Te copio el contexto: solo pega.": "The context is copied: just paste.", "Tus descubrimientos": "Your discoveries", "Un dato curioso": "A curious fact", "Volver": "Back", "Vuelve a mirar la foto": "Look at the photo again", "con tu cuenta de Google → Claves de API.": "with your Google account → API keys.", "¿Cómo consigo una gratis?": "How do I get one for free?", "¿Es esto?": "Is this it?", "¿No es esto?": "Not this?", "¿Qué estás mirando?": "What are you looking at?", "¿Qué es, entonces?": "What is it, then?", "“Crear clave de API”. Sin tarjeta: así es gratis.": "“Create API key”. No card: that keeps it free.", "Algo por descubrir": "Something to discover", "Algo no salió bien. Prueba otra vez.": "Something went wrong. Try again.", "Averiguando qué es…": "Working out what it is…", "Mirando alrededor…": "Looking around…", "Leyendo dónde se sacó la foto…": "Reading where the photo was taken…", "Volviendo a mirar la foto…": "Looking at the photo again…", "Seguimos…": "Carrying on…", "Clave guardada. Se guarda solo en este móvil.": "Key saved. Stored only on this phone.", "Sin clave no funciona la foto.": "Without a key the photo won't work.", "Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.": "Google needs a short pause: the free plan has a per-minute limit. Try again in a minute.", "Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.": "Google's free requests are used up for today. Try again later.", "Google va lento ahora mismo. Prueba otra vez en un minuto.": "Google is slow right now. Try again in a minute.", "No pude conectar con Google. Prueba otra vez en un momento.": "Couldn't reach Google. Try again in a moment.", "La clave de Gemini no funciona. Revísala en Ajustes.": "The Gemini key doesn't work. Check it in Settings.", "Sin conexión. Revisa los datos móviles.": "No connection. Check your mobile data.", "Todavía no hay descubrimientos para exportar.": "No discoveries to export yet.", "Preparando el archivo…": "Preparing the file…", "Archivo descargado.": "File downloaded.", "Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.": "Done. Save it to Files and open it with “Import” in the app.", "Ya los tenías todos.": "You already had them all.", "Ese archivo no parece de manu-go.": "That file doesn't look like a manu-go file.", "Descubrimientos borrados.": "Discoveries deleted.", "Desliza a la izquierda para borrar": "Swipe left to delete", "Recién añadidos": "Recently added", "Por día": "By day", "1 lugar": "1 place", "Abrir": "Open", "Historia": "History", "Fíjate en": "Look closer", "Cine y cultura": "Film & culture", "Chimento": "Gossip", "Toca “Ajustes” para poner tu clave gratuita de Gemini.": "Open Settings to add your free Gemini key.", "Primero pega tu clave gratuita de Gemini.": "First paste your free Gemini key.", "Todavía no hay descubrimientos.": "No discoveries yet.", "El mapa necesita conexión.": "The map needs a connection.", "No encuentro otros sitios conocidos cerca.": "I can't find other known places nearby.", "Guardado ✓": "Saved ✓", "No": "No", "Exportar este día": "Export this day", "Mantén pulsada la foto y elige “Guardar en Fotos”.": "Hold the photo and choose “Save to Photos”.", "No pude copiarlo.": "Couldn't copy it.", "No pude copiarlo solo: mantén pulsado el texto y cópialo.": "Couldn't copy it: hold the text and copy it.", "Ver en Wikipedia": "See on Wikipedia", "Subir una foto que ya tienes": "Upload a photo you already have", "Ver la foto": "See the photo", "Tu foto": "Your photo", "Tu foto (toca para verla entera)": "Your photo (tap to see it whole)", "Guardar la foto en tu iPhone": "Save the photo to your iPhone", "Pista opcional": "Optional hint", "Pregunta rápida": "Quick question", "Preguntar": "Ask", "La foto que has elegido": "The photo you chose", "¿Qué estoy mirando? Sacar una foto": "What am I looking at? Take a photo", "Modelo": "Model", "Idioma de las respuestas": "Language"};
   const EN_PAT=[["^Pregunta algo sobre (.+)\u2026$", "Ask something about $1\u2026"], ["^Volver a \u00ab(.+)\u00bb$", "Back to \u201c$1\u201d"], ["^(\\d+) lugares$", "$1 places"], ["^Importados (\\d+) descubrimientos?\\.$", "Imported $1 discoveries."], ["^Buscando (.+)\u2026$", "Looking up $1\u2026"], ["^Borrado \u00b7 $", "Deleted \u00b7 "], ["^p\\. ej\\. (.+)$", "e.g. $1"]].map(([a,b])=>[new RegExp(a),b]);
   function t_(es){if(cfg.lang!=='en')return es;if(EN_UI[es])return EN_UI[es];for(const[re,to]of EN_PAT){if(re.test(es))return es.replace(re,to)}return es}
   const ATTRS=['placeholder','aria-label','alt'];
@@ -1122,12 +1146,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(n.nodeType===3){const raw=n._es!=null?n._es:n.nodeValue;const k=raw.trim();if(!k)return;
       if(n._es==null&&cfg.lang!=='en')return;const out=t_(k);if(out===k&&cfg.lang==='en'&&n._es==null)return;
       if(n._es==null)n._es=raw;const nv=cfg.lang==='en'?raw.replace(k,out):n._es;if(n.nodeValue!==nv){n._skip=true;n.nodeValue=nv}return}
-    if(n.nodeType!==1||n.closest&&n.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang,.seg,script,style'))return;
+    if(n.nodeType!==1||n.closest&&n.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.qa-q,.qa-a,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang,script,style'))return;
     ATTRS.forEach(a=>{if(!n.hasAttribute||!n.hasAttribute(a))return;const k='_es_'+a;const raw=n[k]!=null?n[k]:n.getAttribute(a);if(n[k]==null){if(cfg.lang!=='en')return;n[k]=raw}n.setAttribute(a,cfg.lang==='en'?t_(raw):raw)});
     n.childNodes.forEach(trNode);
   }
   function applyUI(){document.documentElement.lang=cfg.lang;trNode(document.body)}
-  new MutationObserver(ms=>{if(cfg.lang!=='en')return;ms.forEach(m=>{if(m.type==='characterData'){const n=m.target;if(n._skip){n._skip=false;return}n._es=null;trNode(n)}else m.addedNodes.forEach(n=>{if(n.nodeType===3){n._es=null;const p=n.parentElement;if(p&&!p.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang,.seg'))trNode(n)}else trNode(n)})})})
+  new MutationObserver(ms=>{if(cfg.lang!=='en')return;ms.forEach(m=>{if(m.type==='characterData'){const n=m.target;if(n._skip){n._skip=false;return}n._es=null;trNode(n)}else m.addedNodes.forEach(n=>{if(n.nodeType===3){n._es=null;const p=n.parentElement;if(p&&!p.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.qa-q,.qa-a,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang'))trNode(n)}else trNode(n)})})})
     .observe(document.body,{childList:true,subtree:true,characterData:true});
   function setLang(L){
     if(cfg.lang===L)return;cfg.lang=L;store.set('lang',L);$('s-lang').value=L;segSet('s-lang-seg',L);applyUI();langBtn();
@@ -1172,7 +1196,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img);
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;$('btn-lang').hidden=!!c.noAI||!cfg.key;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
+    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     metaWhenReady(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
@@ -1284,25 +1308,43 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function quickPos(){return new Promise(res=>{if(!('geolocation' in navigator))return res(lastKnown);let done=false;const t=setTimeout(()=>{done=true;res(lastKnown)},3500);
     navigator.geolocation.getCurrentPosition(p=>{if(done)return;clearTimeout(t);lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};res(lastKnown)},()=>{if(done)return;clearTimeout(t);res(lastKnown)},{enableHighAccuracy:false,timeout:3500,maximumAge:60000})})}
   function quickCity(){const h=store.get('history',[]);return(h[0]&&h[0].city)||''}
-  let quickRun=0,quickLast=null;
-  $('q-form').onsubmit=async e=>{
-    e.preventDefault();const q=$('q-input').value.trim();if(!q)return;
+  // ---------- questions: a small thread you can come back to; each answer knows where you are ----------
+  let quickRun=0;
+  const qaAll=()=>store.get('qa',[]);
+  function qaItem(x){const d=document.createElement('div');d.className='qa';const q=document.createElement('p');q.className='qa-q';q.textContent=x.q;
+    const a=document.createElement('p');a.className='qa-a';a.textContent=x.a||'';d.append(q,a);return d}
+  function openAsk(focus){
+    show('ask');const box=$('qa-list');box.innerHTML='';const all=qaAll();
+    if(!all.length)box.innerHTML='<p class="empty">Pregunta lo que quieras sobre donde estás.</p>';
+    all.forEach(x=>box.appendChild(qaItem(x)));
+    $('qa-clear').hidden=!all.length;$('qa-more').hidden=!all.length;
+    requestAnimationFrame(()=>window.scrollTo(0,document.body.scrollHeight));
+    if(focus)$('qa-input').focus();
+  }
+  async function askQuestion(q){
     if(!cfg.key){status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');return}
-    const run=++quickRun;$('q-input').value='';$('q-input').blur();
-    $('q-q').textContent=q;$('q-text').innerHTML='<span class="skel"><i></i><i></i><i></i></span>';$('q-text').classList.remove('typing');$('q-answer').hidden=false;
-    $('q-answer').querySelector('.q-tools').hidden=true;
-    const pos=await quickPos();const city=quickCity();
+    const run=++quickRun;if(view!=='ask')openAsk();
+    const empty=$('qa-list').querySelector('.empty');if(empty)empty.remove();
+    const item={q,a:'',t:Date.now(),city:quickCity()};const el=qaItem(item);const a=el.querySelector('.qa-a');a.innerHTML='<span class="skel"><i></i><i></i><i></i></span>';
+    $('qa-list').appendChild(el);$('qa-more').hidden=true;requestAnimationFrame(()=>el.scrollIntoView({behavior:'smooth',block:'end'}));
+    const prev=qaAll().slice(-3);
+    const pos=await quickPos();const city=item.city;
     const where=pos?`Está en lat ${pos.lat.toFixed(4)}, lon ${pos.lon.toFixed(4)}${city?` (${city})`:''}.`:(city?`Está en ${city}.`:'');
-    const prompt=`Alguien está paseando y le surge una pregunta. ${where} Si la pregunta habla de "aquí", "esta ciudad", "este barrio" o similar, se refiere a ese lugar.\n\nPregunta: "${q}"\n\nResponde en 3 o 4 frases cortas (máximo 70 palabras), directo a lo que pregunta, para leer caminando. Sin introducciones ni despedidas, sin markdown, sin listas.\n${RULES()}`;
+    const ctx=prev.length?`\nLo último que preguntó (por si esta pregunta sigue el hilo):\n${prev.map(x=>`- ${x.q} → ${x.a}`).join('\n')}\n`:'';
+    const prompt=`Alguien está paseando y le surge una pregunta. ${where} Si habla de "aquí", "esta ciudad", "este barrio" o similar, se refiere a ese lugar.${ctx}\nPregunta: "${q}"\n\nResponde en 3 o 4 frases cortas (máximo 70 palabras), directo a lo que pregunta, para leer caminando. Sin introducciones ni despedidas, sin markdown, sin listas.\n${RULES()}`;
+    a.textContent='';
     try{
-      const txt=await gemini([{text:prompt}],{fast:true,stream:true,onText:t=>{if(run!==quickRun)return;$('q-text').textContent=t;$('q-text').classList.add('typing')}});
-      if(run!==quickRun)return;
-      $('q-text').textContent=txt.trim();$('q-text').classList.remove('typing');$('q-answer').querySelector('.q-tools').hidden=false;
-      quickLast={q,a:txt.trim(),where:pos?`${city?city+', ':''}${pos.lat.toFixed(4)}, ${pos.lon.toFixed(4)}`:city};
-    }catch(err){if(run!==quickRun)return;$('q-text').textContent=errText(err);$('q-text').classList.remove('typing')}
-  };
-  $('q-close').onclick=()=>{quickRun++;$('q-answer').hidden=true;quickLast=null};
-  function quickCopy(){if(!quickLast)return false;const t=`Estoy paseando${quickLast.where?` por ${quickLast.where}`:''}.\nMe pregunté: ${quickLast.q}\nMe dijeron: ${quickLast.a}\n\nQuiero saber más: `;
+      const txt=await gemini([{text:prompt}],{fast:true,stream:true,onText:t=>{if(run!==quickRun)return;typeTo(a,t)}});
+      if(run!==quickRun)return;item.a=txt.trim();typeEnd(a,item.a);
+      const all=qaAll();all.push(item);store.set('qa',all.slice(-60));
+      $('qa-clear').hidden=false;$('qa-more').hidden=false;$('q-hist').hidden=false;
+    }catch(err){if(run!==quickRun)return;typeStop(a);a.textContent=errText(err)}
+  }
+  $('q-form').onsubmit=e=>{e.preventDefault();const q=$('q-input').value.trim();if(!q)return;$('q-input').value='';$('q-input').blur();askQuestion(q)};
+  $('qa-form').onsubmit=e=>{e.preventDefault();const q=$('qa-input').value.trim();if(!q)return;$('qa-input').value='';$('qa-input').blur();askQuestion(q)};
+  $('q-hist').onclick=()=>openAsk();
+  $('qa-clear').onclick=()=>{store.set('qa',[]);openAsk();$('q-hist').hidden=true};
+  function quickCopy(){const all=qaAll();const x=all[all.length-1];if(!x)return false;const t=`Estoy paseando${x.city?` por ${x.city}`:''}.\nMe pregunté: ${x.q}\nMe dijeron: ${x.a}\n\nQuiero saber más: `;
     try{navigator.clipboard.writeText(t);return true}catch(e){return false}}
   $('q-chatgpt').onclick=()=>{if(quickCopy())flashCopied($('q-chatgpt'))};
   $('q-claude').onclick=()=>{if(quickCopy())flashCopied($('q-claude'))};
@@ -1549,7 +1591,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function tickClock(){if(view==='home')$('homemeta').textContent=homeMeta();clearTimeout(tickClock.t);tickClock.t=setTimeout(tickClock,60000-Date.now()%60000+50)}
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)tickClock()});
   function renderHome(){
-    tickClock();quickPlaceholder();
+    tickClock();quickPlaceholder();$('q-hist').hidden=!qaAll().length;
     // the home screen is just the camera and a question; your discoveries live in Mi mapa
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');ul.innerHTML='';
