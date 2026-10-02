@@ -396,6 +396,17 @@ html.lock,html.lock body{overscroll-behavior:none}
 .transfer{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:18px;margin-top:6px}
 .transfer .row{display:flex;gap:10px;flex-wrap:wrap}
 .transfer button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:11px 16px;font-size:15px}
+
+/* calm arrival: name fades up, text writes itself, the rest follows */
+#r-name.appear{animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.later{opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .45s ease,transform .45s cubic-bezier(.2,.7,.2,1)}
+.later.on{opacity:1;transform:none;pointer-events:auto}
+#r-cool-wrap:not([hidden]){animation:fadein .4s ease both}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){#r-name.appear,#r-cool-wrap{animation:none}.later{transition:none}}
+
+#r-meta.fade{animation:fadein .45s ease both}
 </style>
 </head>
 <body>
@@ -640,7 +651,9 @@ html.lock,html.lock body{overscroll-behavior:none}
   }
   // city (for grouping the map) and street address (for "Preguntar más") in one lookup
   let geoChain=Promise.resolve();
-  function placeInfo(pos){const run=()=>placeInfoNow(pos);const p=geoChain.then(run,run);geoChain=p.then(()=>wait(1100),()=>wait(1100));return p}
+  const placeCache=new Map();
+  function placeInfo(pos){const key=pos.lat.toFixed(4)+','+pos.lon.toFixed(4);if(placeCache.has(key))return placeCache.get(key);const pr=placeInfoRaw(pos);placeCache.set(key,pr);pr.then(r=>{if(!r||(!r.city&&!r.address))placeCache.delete(key)});return pr}
+  function placeInfoRaw(pos){const run=()=>placeInfoNow(pos);const p=geoChain.then(run,run);geoChain=p.then(()=>wait(1100),()=>wait(1100));return p}
   async function placeInfoNow(pos){
     try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${pos.lat}&lon=${pos.lon}&accept-language=${cfg.lang}`);
       if(!r.ok)return{};const a=(await r.json()).address||{};
@@ -879,6 +892,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     }catch(e){}
     return KIND_ES[(o.CATEGORY||'').trim().toLowerCase()]||'Algo por descubrir';
   }
+  function cityNear(p){const R=6371,rad=x=>x*Math.PI/180;const km=(a,b)=>2*R*Math.asin(Math.sqrt(Math.sin(rad(b.lat-a.lat)/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(rad(b.lon-a.lon)/2)**2));
+    const x=store.get('history',[]).find(y=>y.city&&y.pos&&km(p,y.pos)<12);return x?x.city:''}
   async function processPhotoNow(f,fromGallery,hint){
     status('');show('loading');$('loading-text').textContent='Mirando…';$('loading-scan').textContent='';clearInterval(scanPlaces.t);backTo=null;
     let img=null,pos=null,near=[],osm=[],note='';
@@ -892,6 +907,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
         pos=await posPromise;
       }
+      if(pos&&!cityNear(pos))placeInfo(pos);   // start finding the city now, so it is ready with the title
       if(pos){$('loading-text').textContent='Mirando alrededor…';const p=await placesPromise;near=p.wiki;osm=p.osm;scanPlaces(osm,near)}
       $('loading-text').textContent='Averiguando qué es…';
       const where=pos?(pos.fromPhoto?'La foto se sacó en':'Foto tomada en'):'';
@@ -899,9 +915,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
       const prompt=`Alguien ve algo que le da curiosidad y saca esta foto. Tu trabajo: decir qué es LO QUE SE VE en la foto.${hint?`\n\nIMPORTANTE: la persona te dice en qué se fija: "${hint}". Si es un nombre propio, es eso. Si es una indicación (una persona, un objeto, un detalle), céntrate en ESO dentro de la foto y en el contexto de este lugar.`:''}\n\nPaso 1: mira la foto y decide qué es lo PROTAGONISTA (lo que está en foco o en primer plano, lo que ocupa el centro): fachada o edificio, monumento, estatua, placa, detalle arquitectónico, interior de un local (café, bar, tienda, iglesia…), calle o plaza, objeto, obra de arte, plantas o flores, o una persona o actividad (un músico tocando, un mercado, una ceremonia, una procesión). Si el protagonista es una persona, actividad u objeto, habla de ESO en el contexto de este lugar (qué es, si es una tradición o costumbre de aquí, por qué ocurre en este sitio), no del edificio del fondo. Nunca identifiques ni des nombres de personas desconocidas por su cara.\nPaso 2: SOLO si lo protagonista es un sitio (edificio, local, monumento, calle, plaza…), busca su NOMBRE PROPIO; el objetivo es dar el nombre exacto, nunca una descripción genérica. Si lo protagonista es una cosa (comida, bebida, objeto, obra, planta, persona o actividad), NAME es lo que es (p. ej. "Tarta de zanahoria"), SOURCE thing, y NO uses el nombre del local donde está aunque lo veas en la lista o en un cartel. Para sitios, en este orden:\n  a) Texto visible en la foto: rótulos, logos, tazas, vasos, servilletas, menús, pizarras, escaparates, placas. Si lo lees, ese es el nombre (SOURCE sign).\n  b) Las listas de abajo: el sitio más cercano cuyo tipo coincide con lo que ves. El GPS dentro de un local puede fallar 30–50 m, así que un sitio del tipo correcto a menos de ~50 m casi seguro es este (SOURCE list). Nunca elijas un palacio o monumento solo porque está cerca si la foto muestra otra cosa.\n  c) Si lo reconoces con seguridad por lo que se ve y dónde está (SOURCE knowledge).\n  d) Solo si nada funciona: nombre genérico, SOURCE generic, SURE no.\nSi sabes con certeza en qué edificio histórico o calle está un local, puedes mencionarlo.\n\n${ctx}\n\nLo va a leer parado en la calle en 15 segundos.\n${RULES()}\n${CARD_FORMAT()}`;
-      const base={img,file:f,pos,near,osm,deep:{},fromGallery,takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
+      const base={img,file:f,pos,near,osm,deep:{},fromGallery,city:pos?cityNear(pos):'',takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});
-      if(note&&view==='result')status(note);
     }catch(err){
       if(view!=='loading'&&view!=='result')return;
       if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};showAlts(true,errText(err)+' Mientras, elige lo que estás mirando y te enseño Wikipedia.');return}
@@ -940,13 +955,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       if(!here())return;
       const {o,done}=parseCard(txt);
       if(!shown){if(!(o.NAME&&(done.NAME||o.NAME.length>40)))return;
-        shown=true;cur={...base};paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true})}
+        shown=true;cur={...base};typeStop($('r-what'));typeStop($('r-cool'));$('r-what').textContent='';$('r-cool').textContent='';paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true});$('r-name').classList.remove('appear');void $('r-name').offsetWidth;$('r-name').classList.add('appear')}
       $('r-name').textContent=o.NAME||'';
       const loc=o.LOCAL&&o.LOCAL.toLowerCase()!==(o.NAME||'').toLowerCase()?o.LOCAL:'';$('r-local').textContent=loc;$('r-local').hidden=!loc;
       $('r-unsure').hidden=!(o.SURE&&/^no/i.test(o.SURE));
-      $('r-what').textContent=o.WHAT||'';$('r-cool').textContent=o.COOL||'';
-      $('r-what').classList.toggle('typing',!!o.WHAT&&!done.WHAT||(!o.WHAT&&!!o.SURE));
-      $('r-cool').classList.toggle('typing',!!o.COOL);
+      if(o.WHAT)typeTo($('r-what'),o.WHAT);
+      if(o.COOL&&$('r-what').textContent.length>=(o.WHAT||'').length-1){$('r-cool-wrap').hidden=false;typeTo($('r-cool'),o.COOL)}
     };
     const txt=await retryOnReturn(()=>gemini(parts,{fast:true,stream:true,onText,onStatus:t=>{if(t&&!shown&&here())$('loading-text').textContent=t}}),()=>{shown=false;if(here())$('loading-text').textContent='Seguimos…'});
     const {o}=parseCard(txt);
@@ -969,10 +983,31 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       }catch(e){}
     }
     const card={...base,name,local:o.LOCAL,sure,src:srcTag,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
-    if(here()){openCard(card);return}
+    if(here()){card._typed=shown;openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
     saveDiscovery(false,card);if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
   }
+
+  // ---------- text that writes itself, at a steady pace, like a chat answer ----------
+  function typeTo(el,target,onDone){
+    target=target||'';el._target=target;if(onDone)el._done=onDone;
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=target;el._shown=target.length;finishType(el);return}
+    const cur=el.textContent;if(!target.startsWith(cur)){let i=0;while(i<cur.length&&cur[i]===target[i])i++;el.textContent=cur.slice(0,i)}
+    if(el._raf)return;
+    el.classList.add('typing');
+    const step=()=>{const shown=el.textContent.length,t=el._target;
+      if(shown>=t.length){el._raf=null;if(el._streamDone)finishType(el);return}
+      const behind=t.length-shown;const n=Math.max(1,Math.ceil(behind/28));
+      el.textContent=t.slice(0,shown+n);el._raf=requestAnimationFrame(step)};
+    el._raf=requestAnimationFrame(step);
+  }
+  function finishType(el){el.classList.remove('typing');const d=el._done;el._done=null;if(d)d()}
+  function typeStop(el){if(el._raf)cancelAnimationFrame(el._raf);el._raf=null;el._target='';el._done=null;el._streamDone=false;el.classList.remove('typing')}
+  function typeEnd(el,text){el._streamDone=true;typeTo(el,text);if(!el._raf&&el.textContent.length>=(el._target||'').length)finishType(el)}
+  const LATER=['btn-notthis','placetools','btn-deeper','ask-panel','btn-delete'];
+  function laterEls(){return LATER.map(id=>id==='placetools'?document.querySelector('.placetools'):$(id)).filter(Boolean)}
+  function holdLater(){laterEls().forEach(e=>{e.classList.add('later');e.classList.remove('on')})}
+  function releaseLater(){laterEls().forEach((e,i)=>setTimeout(()=>e.classList.add('on'),i*90))}
 
   // ---------- card ----------
   function paintCard(c,opt={}){
@@ -982,14 +1017,21 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('r-name').textContent=c.name||(opt.partial?'…':'Algo por descubrir');
     const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
-    $('r-what').textContent=c.what||'';$('r-what').classList.toggle('typing',!!opt.partial);
-    $('r-cool').textContent=c.cool||'';$('r-cool').classList.remove('typing');$('r-cool-wrap').hidden=!opt.partial&&!c.cool;
+    if(opt.partial){$('r-cool-wrap').hidden=true;holdLater()}
+    else if(c._typed){   // finish writing what is still arriving, then the rest of the card fades in
+      holdLater();const cw=$('r-cool-wrap');
+      typeEnd($('r-what'),c.what||'');$('r-what')._done=()=>{if(c.cool){cw.hidden=false;$('r-cool')._done=releaseLater;typeEnd($('r-cool'),c.cool)}else{cw.hidden=true;releaseLater()}};
+      if(!$('r-what')._raf&&!$('r-what').classList.contains('typing')){const d=$('r-what')._done;$('r-what')._done=null;d&&d()}
+    }else{
+      typeStop($('r-what'));typeStop($('r-cool'));laterEls().forEach(e=>e.classList.remove('later','on'));
+      $('r-what').textContent=c.what||'';$('r-cool').textContent=c.cool||'';$('r-cool-wrap').hidden=!c.cool;
+    }
     $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Ver en Wikipedia</a>`;
     $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
-    setMeta(c);
+    metaWhenReady(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
   }
@@ -1342,6 +1384,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     cur=null;openCard({...x,img,near:null,osm:null},true);
   }
   function coordTxt(p){if(!p)return'';const la=p.lat,lo=p.lon;return`${Math.abs(la).toFixed(4)}°${la>=0?'N':'S'} ${Math.abs(lo).toFixed(4)}°${lo>=0?'E':'O'}`}
+  function metaWhenReady(c){
+    const el=$('r-meta');
+    if(!el.hidden&&el._for===(c.t||c.img)&&(!c.city||el.textContent.includes(c.city.toUpperCase())))return;   // already showing for this card
+    clearTimeout(el._t);el._for=c.t||c.img;
+    if(c.city||!c.pos){setMeta(c);return}
+    el.hidden=true;el.innerHTML='';
+    const show=()=>{if(cur!==c&&cur&&cur.t!==c.t)return;setMeta(c);el.classList.remove('fade');void el.offsetWidth;el.classList.add('fade')};
+    el._t=setTimeout(show,2500);
+    placeInfo(c.pos).then(r=>{if(r&&r.city&&!c.city)c.city=r.city;clearTimeout(el._t);show()});
+  }
   function setMeta(c){const el=$('r-meta');el.innerHTML='';metaParts(c).forEach(x=>{const sp=document.createElement('span');sp.textContent=x;sp.style.whiteSpace='nowrap';el.appendChild(sp)});el.hidden=!el.childNodes.length}
   function metaParts(c){const parts=[];if(c.city)parts.push(c.city.toUpperCase());
     const SRC={sign:'leído en el cartel',list:'por la ubicación',near:'por la ubicación',knowledge:'reconocido en la foto',generic:'sin confirmar'};
