@@ -464,6 +464,10 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
 .cityrow{align-items:center;margin-top:-6px}
 .cityrow span{font-family:var(--mono)!important;font-size:11px!important;font-weight:500!important;letter-spacing:.12em!important;text-transform:uppercase;color:var(--muted)}
 .cityrow button{font-size:13px!important}
+
+.iconbtn{border:0;background:transparent;color:var(--muted);width:40px;height:40px;margin-right:-10px;display:grid;place-items:center;border-radius:50%}
+.iconbtn svg{width:22px;height:22px}
+.iconbtn:active{background:var(--surface)}
 </style>
 </head>
 <body>
@@ -471,7 +475,7 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
   <div class="top">
     <h1>manu-go</h1>
     <button class="pill" id="btn-back" hidden>← Volver</button>
-    <button class="pill" id="btn-settings">Ajustes</button>
+    <button class="iconbtn" id="btn-settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
   </div>
   <p class="status" id="status"></p>
 
@@ -1585,7 +1589,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const h=document.createElement('p');h.className='day sect';h.textContent='Recién añadidos';box.appendChild(h);
       const ul=document.createElement('ul');ul.className='rows';
       added.forEach(x=>{const r=row(x,()=>openFromHistory(x,'mymap'),true);
-        if(x.takenAt&&dayKey(x.takenAt)!==dayKey(x.t)){const w=r.querySelector('.when');if(w)w.textContent='foto del '+new Date(x.takenAt).toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.','')}
+        if(x.takenAt&&dayKey(x.takenAt)!==dayKey(x.t)){const w=r.querySelector('.when');if(w)w.textContent=new Date(x.takenAt).toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.','')}
         ul.appendChild(r)});
       box.appendChild(ul);
       const d=document.createElement('p');d.className='day sect';d.textContent='Por día';box.appendChild(d);
