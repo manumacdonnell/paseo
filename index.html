@@ -456,6 +456,14 @@ html[data-theme="light"] .leaflet-popup-content-wrapper,html[data-theme="light"]
 .more[open]>summary::after{transform:rotate(45deg)}
 .more .sgroup:last-child{border-bottom:0}
 .more .sgroup{padding:16px 0}
+
+/* map pins: a hairline, not a frame */
+.pin{border:1.5px solid rgba(255,255,255,.9)!important;box-shadow:0 2px 8px rgba(0,0,0,.35)!important}
+html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.18)!important}
+/* city line: quiet metadata, not a second title */
+.cityrow{align-items:center;margin-top:-6px}
+.cityrow span{font-family:var(--mono)!important;font-size:11px!important;font-weight:500!important;letter-spacing:.12em!important;text-transform:uppercase;color:var(--muted)}
+.cityrow button{font-size:13px!important}
 </style>
 </head>
 <body>
@@ -1505,7 +1513,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
     drawMap(byCity[mapCity]||[],keepView);drawDays(byCity[mapCity]||[]);
     const n=(byCity[mapCity]||[]).length;$('city-name').textContent=`${mapCity} · ${n} ${n===1?'lugar':'lugares'}`;
-    $('btn-export-city').textContent=`Exportar ${mapCity}`;
+    $('btn-export-city').textContent='Exportar';
     $('btn-export-city').onclick=()=>exportPlaces(byCity[mapCity]||[],mapCity,true);
   }
   // full-screen map
