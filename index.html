@@ -482,6 +482,10 @@ html[data-theme="light"] #btn-theme .i-sun{display:none}
 #btn-theme svg{width:21px;height:21px}
 html{transition:none}
 body,.app{transition:background-color .3s ease,color .3s ease}
+
+#v-result .card.swap #r-what,#v-result .card.swap #r-cool,#v-result .card.swap #r-name{animation:fadein .35s ease both}
+
+.acc-head .chev{transition:transform .18s ease!important}
 </style>
 </head>
 <body>
@@ -556,7 +560,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
           <button class="backprev" id="btn-prev" hidden></button>
           <div class="confirm" id="r-confirm" hidden><span>¿Es esto?</span><button id="btn-yes">Sí, es esto</button><button class="no" id="btn-no">No</button></div>
           <div class="placetools"><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span id="copyplace-label">Copiar nombre</span></button>
-          <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a></div>
+          <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a><button class="copyplace" id="btn-lang" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>English</span></button></div>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -631,9 +635,9 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </div>
 
     <div class="sgroup">
-      <p class="sh">Idioma de las respuestas</p>
+      <p class="sh">Idioma</p>
       <div class="seg" id="s-lang-seg" role="group" aria-label="Idioma">
-        <button data-v="es">Español</button><button data-v="en">Inglés</button>
+        <button data-v="es">Español</button><button data-v="en">English</button>
       </div>
       <select id="s-lang" hidden><option value="es">Español</option><option value="en">Inglés</option></select>
     </div>
@@ -919,7 +923,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
-  const RULES=()=>`Hoy es ${new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
+  const RULES=()=>`Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
 NAME: si es un sitio, su nombre propio exacto (genérico solo si SOURCE es generic); si es una cosa (SOURCE thing), lo que es, concreto y bien dicho (p. ej. "Tarta de zanahoria", "Pierogi ruskie"), NUNCA el nombre del local donde está
@@ -1055,7 +1059,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const {o,done}=parseCard(txt);
       if(!shown){if(!(o.NAME&&(done.NAME||o.NAME.length>40)))return;
         shown=true;cur={...base};typeStop($('r-what'));typeStop($('r-cool'));$('r-what').textContent='';$('r-cool').textContent='';paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true});$('r-name').classList.remove('appear');void $('r-name').offsetWidth;$('r-name').classList.add('appear')}
-      $('r-name').textContent=o.NAME||'';
+      $('r-name').textContent=o.NAME||'';if(cur)cur.name=o.NAME;
       const loc=o.LOCAL&&o.LOCAL.toLowerCase()!==(o.NAME||'').toLowerCase()?o.LOCAL:'';$('r-local').textContent=loc;$('r-local').hidden=!loc;
       $('r-unsure').hidden=!(o.SURE&&/^no/i.test(o.SURE));
       if(o.WHAT)typeTo($('r-what'),o.WHAT);
@@ -1081,7 +1085,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         if(out&&out.what)o.WHAT=out.what;if(out&&out.cool&&!o.COOL)o.COOL=out.cool;
       }catch(e){}
     }
-    const card={...base,name,local:o.LOCAL,sure,src:srcTag,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
+    const card={...base,lang:cfg.lang,tr:{},name,local:o.LOCAL,sure,src:srcTag,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||''};
     if(here()){card._typed=shown;openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
     saveDiscovery(false,card);if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
@@ -1103,33 +1107,72 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function finishType(el){el.classList.remove('typing');const d=el._done;el._done=null;if(d)d()}
   function typeStop(el){if(el._raf)cancelAnimationFrame(el._raf);el._raf=null;el._target='';el._done=null;el._streamDone=false;el.classList.remove('typing')}
   function typeEnd(el,text){el._streamDone=true;typeTo(el,text);if(!el._raf&&el.textContent.length>=(el._target||'').length)finishType(el)}
-  const LATER=['btn-notthis','placetools','btn-deeper','ask-panel','btn-delete'];
+  const LATER=['btn-deeper','ask-panel','btn-delete'];
   function laterEls(){return LATER.map(id=>id==='placetools'?document.querySelector('.placetools'):$(id)).filter(Boolean)}
   function holdLater(){laterEls().forEach(e=>{e.classList.add('later');e.classList.remove('on')})}
   function releaseLater(){laterEls().forEach((e,i)=>setTimeout(()=>e.classList.add('on'),i*90))}
 
+
+  // ---------- interface language: the whole UI switches between Spanish and English ----------
+  const EN_UI={"Ajustes": "Settings", "Ampliar": "Expand", "Apariencia": "Appearance", "Averiguando qué es tu foto…": "Working out your photo…", "Averiguar qué es": "Find out what it is", "+ Añadir una pista (opcional)": "+ Add a hint (optional)", "Borrar": "Delete", "Borrar entrada": "Delete entry", "Borrar todos mis descubrimientos": "Delete all my discoveries", "Cerrar": "Close", "Clave de Gemini": "Gemini key", "Copia la clave y pégala arriba.": "Copy the key and paste it above.", "Copiar": "Copy", "Copiar nombre": "Copy name", "Cómo llegar": "Directions", "Deshacer": "Undo", "Déjalo así. Si Google lo retira, la app busca otro sola.": "Leave it. If Google retires it, the app finds another one.", "En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.": "On the free plan, Google may use what you send (photos included) to improve its products. Avoid photos with faces or private data.", "En qué me fijo, p. ej. la estatua": "What to look at, e.g. the statue", "Entra en": "Go to", "Escribe qué es, o en qué te fijas.": "Type what it is, or what you're looking at.", "Exportar": "Export", "Guardar clave": "Save key", "Guardada ✓": "Saved ✓", "Haz una foto y te digo qué es": "Take a photo and I'll tell you what it is", "Idioma": "Language", "Importar": "Import", "Ir": "Go", "Mantén pulsado para guardar · Toca para cerrar": "Hold to save · Tap to close", "Mi mapa": "My map", "Mirando…": "Looking…", "Modelo de IA": "AI model", "Más ajustes": "More settings", "Ninguno de estos": "None of these", "Noche": "Night", "Día": "Day", "O elige uno cercano": "Or pick one nearby", "Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.": "To move them to another phone or from Safari to the app: export here and open the file with “Import” on the other.", "Pega tu clave aquí": "Paste your key here", "Pregunta algo sobre donde estás…": "Ask something about where you are…", "Probablemente…": "Probably…", "Profundizar": "Go deeper", "Qué es": "What it is", "Recientes": "Recent", "Se borran todos los lugares y sus fotos de la app. No se puede deshacer.": "This deletes every place and its photos from the app. It can’t be undone.", "Se guarda solo en este móvil.": "Saved only on this phone.", "Seguir en": "Continue in", "Seguir en ChatGPT": "Continue in ChatGPT", "Subir foto": "Upload photo", "Sí, borrar todo": "Yes, delete everything", "Sí, es esto": "Yes, that's it", "Te copio el contexto: solo pega.": "The context is copied: just paste.", "Tus descubrimientos": "Your discoveries", "Un dato curioso": "A curious fact", "Volver": "Back", "Vuelve a mirar la foto": "Look at the photo again", "con tu cuenta de Google → Claves de API.": "with your Google account → API keys.", "¿Cómo consigo una gratis?": "How do I get one for free?", "¿Es esto?": "Is this it?", "¿No es esto?": "Not this?", "¿Qué estás mirando?": "What are you looking at?", "¿Qué es, entonces?": "What is it, then?", "“Crear clave de API”. Sin tarjeta: así es gratis.": "“Create API key”. No card: that keeps it free.", "Algo por descubrir": "Something to discover", "Algo no salió bien. Prueba otra vez.": "Something went wrong. Try again.", "Averiguando qué es…": "Working out what it is…", "Mirando alrededor…": "Looking around…", "Leyendo dónde se sacó la foto…": "Reading where the photo was taken…", "Volviendo a mirar la foto…": "Looking at the photo again…", "Seguimos…": "Carrying on…", "Clave guardada. Se guarda solo en este móvil.": "Key saved. Stored only on this phone.", "Sin clave no funciona la foto.": "Without a key the photo won't work.", "Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.": "Google needs a short pause: the free plan has a per-minute limit. Try again in a minute.", "Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.": "Google's free requests are used up for today. Try again later.", "Google va lento ahora mismo. Prueba otra vez en un minuto.": "Google is slow right now. Try again in a minute.", "No pude conectar con Google. Prueba otra vez en un momento.": "Couldn't reach Google. Try again in a moment.", "La clave de Gemini no funciona. Revísala en Ajustes.": "The Gemini key doesn't work. Check it in Settings.", "Sin conexión. Revisa los datos móviles.": "No connection. Check your mobile data.", "Todavía no hay descubrimientos para exportar.": "No discoveries to export yet.", "Preparando el archivo…": "Preparing the file…", "Archivo descargado.": "File downloaded.", "Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.": "Done. Save it to Files and open it with “Import” in the app.", "Ya los tenías todos.": "You already had them all.", "Ese archivo no parece de manu-go.": "That file doesn't look like a manu-go file.", "Descubrimientos borrados.": "Discoveries deleted.", "Desliza a la izquierda para borrar": "Swipe left to delete", "Recién añadidos": "Recently added", "Por día": "By day", "1 lugar": "1 place", "Abrir": "Open", "Historia": "History", "Fíjate en": "Look closer", "Cine y cultura": "Film & culture", "Chimento": "Gossip", "Toca “Ajustes” para poner tu clave gratuita de Gemini.": "Open Settings to add your free Gemini key.", "Primero pega tu clave gratuita de Gemini.": "First paste your free Gemini key.", "Todavía no hay descubrimientos.": "No discoveries yet.", "El mapa necesita conexión.": "The map needs a connection.", "No encuentro otros sitios conocidos cerca.": "I can't find other known places nearby.", "Guardado ✓": "Saved ✓", "No": "No", "Exportar este día": "Export this day", "Mantén pulsada la foto y elige “Guardar en Fotos”.": "Hold the photo and choose “Save to Photos”.", "No pude copiarlo.": "Couldn't copy it.", "No pude copiarlo solo: mantén pulsado el texto y cópialo.": "Couldn't copy it: hold the text and copy it.", "Ver en Wikipedia": "See on Wikipedia", "Subir una foto que ya tienes": "Upload a photo you already have", "Ver la foto": "See the photo", "Tu foto": "Your photo", "Tu foto (toca para verla entera)": "Your photo (tap to see it whole)", "Guardar la foto en tu iPhone": "Save the photo to your iPhone", "Pista opcional": "Optional hint", "Pregunta rápida": "Quick question", "Preguntar": "Ask", "La foto que has elegido": "The photo you chose", "¿Qué estoy mirando? Sacar una foto": "What am I looking at? Take a photo", "Modelo": "Model", "Idioma de las respuestas": "Language"};
+  const EN_PAT=[["^Pregunta algo sobre (.+)\u2026$", "Ask something about $1\u2026"], ["^Volver a \u00ab(.+)\u00bb$", "Back to \u201c$1\u201d"], ["^(\\d+) lugares$", "$1 places"], ["^Importados (\\d+) descubrimientos?\\.$", "Imported $1 discoveries."], ["^Buscando (.+)\u2026$", "Looking up $1\u2026"], ["^Borrado \u00b7 $", "Deleted \u00b7 "], ["^p\\. ej\\. (.+)$", "e.g. $1"]].map(([a,b])=>[new RegExp(a),b]);
+  function t_(es){if(cfg.lang!=='en')return es;if(EN_UI[es])return EN_UI[es];for(const[re,to]of EN_PAT){if(re.test(es))return es.replace(re,to)}return es}
+  const ATTRS=['placeholder','aria-label','alt'];
+  function trNode(n){
+    if(n.nodeType===3){const raw=n._es!=null?n._es:n.nodeValue;const k=raw.trim();if(!k)return;
+      if(n._es==null&&cfg.lang!=='en')return;const out=t_(k);if(out===k&&cfg.lang==='en'&&n._es==null)return;
+      if(n._es==null)n._es=raw;const nv=cfg.lang==='en'?raw.replace(k,out):n._es;if(n.nodeValue!==nv){n._skip=true;n.nodeValue=nv}return}
+    if(n.nodeType!==1||n.closest&&n.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang,.seg,script,style'))return;
+    ATTRS.forEach(a=>{if(!n.hasAttribute||!n.hasAttribute(a))return;const k='_es_'+a;const raw=n[k]!=null?n[k]:n.getAttribute(a);if(n[k]==null){if(cfg.lang!=='en')return;n[k]=raw}n.setAttribute(a,cfg.lang==='en'?t_(raw):raw)});
+    n.childNodes.forEach(trNode);
+  }
+  function applyUI(){document.documentElement.lang=cfg.lang;trNode(document.body)}
+  new MutationObserver(ms=>{if(cfg.lang!=='en')return;ms.forEach(m=>{if(m.type==='characterData'){const n=m.target;if(n._skip){n._skip=false;return}n._es=null;trNode(n)}else m.addedNodes.forEach(n=>{if(n.nodeType===3){n._es=null;const p=n.parentElement;if(p&&!p.closest('#r-what,#r-cool,#r-name,#r-local,.acc-body,.q-text,.q-q,.rows .nm,#days .nm,.leaflet-container,#alts-list,#btn-lang,.seg'))trNode(n)}else trNode(n)})})})
+    .observe(document.body,{childList:true,subtree:true,characterData:true});
+  function setLang(L){
+    if(cfg.lang===L)return;cfg.lang=L;store.set('lang',L);$('s-lang').value=L;segSet('s-lang-seg',L);applyUI();langBtn();
+    if(view==='result'&&cur){paintCard(cur)}else if(view==='home')renderHome();else if(view==='mymap')openMyMap(true);
+  }
+  function langBtn(){const b=$('btn-lang');if(!b)return;b.querySelector('span').textContent=cfg.lang==='en'?'Español':'English';b.querySelector('span')._es=null}
+
   // ---------- card ----------
+  // a card keeps the language it was written in; other languages are translated once and kept
+  function LV(c){const L=cfg.lang,b=c.lang||'es';if(L===b||c.noAI)return{name:c.name,what:c.what,cool:c.cool,ok:true};const t=(c.tr||{})[L];
+    return t?{name:t.name||c.name,what:t.what||c.what,cool:t.cool||c.cool,ok:true}:{name:c.name,what:c.what,cool:c.cool,ok:false}}
+  function deepView(c){const L=cfg.lang,b=c.lang||'es';if(L===b)return c.deep||{};return((c.tr||{})[L]||{}).deep||{}}
+  function deepStore(c){const L=cfg.lang,b=c.lang||'es';if(L===b){c.deep=c.deep||{};return c.deep}c.tr=c.tr||{};c.tr[L]=c.tr[L]||{};c.tr[L].deep=c.tr[L].deep||{};return c.tr[L].deep}
+  const translating=new Map();
+  async function translateCard(c){
+    const L=cfg.lang,key=(c.t||'')+'|'+L;if(translating.has(key))return translating.get(key);
+    const job=(async()=>{const d=c.deep||{};
+      const out=await gemini([{text:`Traduce al ${L==='en'?'inglés':'español de España'} este contenido de una guía de paseo. Mantén el tono, natural y directo. "name": tradúcelo solo si es un nombre común (p. ej. una comida); si es un nombre propio de un sitio, déjalo igual. Devuelve JSON con la misma forma.\n${JSON.stringify({name:c.name,what:c.what||'',cool:c.cool||'',deep:d})}`}]);
+      c.tr=c.tr||{};c.tr[L]={...(c.tr[L]||{}),name:out.name||c.name,what:out.what||c.what,cool:out.cool||c.cool,deep:{...(out.deep||{}),...((c.tr[L]||{}).deep||{})}};
+      saveDiscovery(true,c);return c.tr[L]})();
+    translating.set(key,job);job.finally(()=>translating.delete(key));return job;
+  }
   function paintCard(c,opt={}){
+    const V=LV(c);
+    if(!opt.partial&&!V.ok){translateCard(c).then(()=>{if(cur===c&&view==='result'){paintCard(c);const a=document.querySelector('#v-result .card');a.classList.remove('swap');void a.offsetWidth;a.classList.add('swap')}}).catch(()=>{})}
     $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
     $('r-unsure').hidden=c.sure!==false;
     $('r-confirm').hidden=!!opt.partial||!!c.noAI||!!c.confirmed||!(c.prev||c.sure===false);
-    $('r-name').textContent=c.name||(opt.partial?'…':'Algo por descubrir');
-    const loc=c.local&&c.local.toLowerCase()!==(c.name||'').toLowerCase()?c.local:'';
+    $('r-name').textContent=V.name||(opt.partial?'…':t_('Algo por descubrir'));
+    const loc=c.local&&c.local.toLowerCase()!==(V.name||'').toLowerCase()?c.local:'';
     $('r-local').textContent=loc;$('r-local').hidden=!loc;
     if(opt.partial){$('r-cool-wrap').hidden=true;holdLater()}
     else if(c._typed){   // finish writing what is still arriving, then the rest of the card fades in
       holdLater();const cw=$('r-cool-wrap');
-      typeEnd($('r-what'),c.what||'');$('r-what')._done=()=>{if(c.cool){cw.hidden=false;$('r-cool')._done=releaseLater;typeEnd($('r-cool'),c.cool)}else{cw.hidden=true;releaseLater()}};
+      typeEnd($('r-what'),V.what||'');$('r-what')._done=()=>{if(V.cool){cw.hidden=false;$('r-cool')._done=releaseLater;typeEnd($('r-cool'),V.cool)}else{cw.hidden=true;releaseLater()}};
       if(!$('r-what')._raf&&!$('r-what').classList.contains('typing')){const d=$('r-what')._done;$('r-what')._done=null;d&&d()}
     }else{
       typeStop($('r-what'));typeStop($('r-cool'));laterEls().forEach(e=>e.classList.remove('later','on'));
-      $('r-what').textContent=c.what||'';$('r-cool').textContent=c.cool||'';$('r-cool-wrap').hidden=!c.cool;
+      $('r-what').textContent=V.what||'';$('r-cool').textContent=V.cool||'';$('r-cool-wrap').hidden=!V.cool;
     }
     $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Ver en Wikipedia</a>`;
-    $('btn-notthis').hidden=!(c.pos||c.img)||!!opt.partial;
+    $('btn-notthis').hidden=!(c.pos||c.img);
     $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
-    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=!!opt.partial;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
+    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;$('btn-lang').hidden=!!c.noAI||!cfg.key;$('btn-prev').hidden=!c.prev||!!opt.partial;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     metaWhenReady(c);
     if(!opt.partial)renderAccordion(c);
     if(view!=='result')show('result');
@@ -1142,7 +1185,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
   const pendingDeep=new Map(); // "card time|name|topic" → answer on its way
   const chev='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
-  const keyOf=(c,t)=>c.t+'|'+c.name+'|'+t.id;
+  const keyOf=(c,t)=>c.t+'|'+c.name+'|'+t.id+'|'+cfg.lang;
   // smooth open/close for anything that folds (Profundizar, days): height + fade, nothing jumps
   function slide(el,open){
     clearTimeout(el._slideT);const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1150,13 +1193,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(open){
       el.hidden=false;el.dataset.closing='';const h=el.scrollHeight;
       el.style.overflow='hidden';el.style.height='0px';el.style.opacity='0';void el.offsetHeight;
-      el.style.transition='height .28s cubic-bezier(.2,.7,.2,1), opacity .22s ease';el.style.height=h+'px';el.style.opacity='1';
-      el._slideT=setTimeout(()=>{el.style.height='';el.style.overflow='';el.style.transition=''},300);
+      el.style.transition='height .24s cubic-bezier(.2,.7,.2,1), opacity .2s ease';el.style.height=h+'px';el.style.opacity='1';
+      el._slideT=setTimeout(()=>{el.style.height='';el.style.overflow='';el.style.transition=''},260);
     }else{
       if(el.hidden)return;el.dataset.closing='1';
-      el.style.overflow='hidden';el.style.height=el.scrollHeight+'px';void el.offsetHeight;
-      el.style.transition='height .24s cubic-bezier(.2,.7,.2,1), opacity .18s ease';el.style.height='0px';el.style.opacity='0';
-      el._slideT=setTimeout(()=>{el.hidden=true;el.dataset.closing='';el.style.height='';el.style.overflow='';el.style.opacity='';el.style.transition=''},260);
+      el.style.overflow='hidden';el.style.height=el.offsetHeight+'px';void el.offsetHeight;
+      el.style.transition='height .18s cubic-bezier(.4,0,.2,1), padding .18s cubic-bezier(.4,0,.2,1), opacity .1s linear';
+      el.style.height='0px';el.style.paddingTop='0px';el.style.paddingBottom='0px';el.style.opacity='0';
+      el._slideT=setTimeout(()=>{el.hidden=true;el.dataset.closing='';el.style.height='';el.style.overflow='';el.style.opacity='';el.style.transition='';el.style.paddingTop='';el.style.paddingBottom=''},190);
     }
   }
   const isOpen=el=>!el.hidden&&!el.dataset.closing;
@@ -1166,7 +1210,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const item=document.createElement('div');item.className='acc-item';item.id='acc-'+t.id;
       const head=document.createElement('button');head.className='acc-head';head.setAttribute('aria-expanded','false');
       head.innerHTML=`<span class="t"><span class="lb"></span><span class="pv" hidden></span></span>${chev}`;head.querySelector('.lb').textContent=t.label;
-      setPreview(head,(c.deep||{})[t.id]);
+      setPreview(head,deepView(c)[t.id]);
       const body=document.createElement('div');body.className='acc-body';body.hidden=true;
       head.onclick=()=>toggleTopic(t,item);
       // one-handed: a tap anywhere on the open text closes it; if its title ran off the top, bring it back into view
@@ -1188,13 +1232,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(isOpen(body)){slide(body,false);head.setAttribute('aria-expanded','false');return}
     head.setAttribute('aria-expanded','true');
     const card=cur;
-    if((card.deep||{})[t.id]){fillBody(body,card.deep[t.id]);slide(body,true);return}
+    const dv=deepView(card);if(dv[t.id]){fillBody(body,dv[t.id]);slide(body,true);return}
     waiting(body);slide(body,true);
     if(!pendingDeep.has(keyOf(card,t)))askTopic(t,card);
   }
   const ABOUT=card=>`La persona ya lo tiene delante: no describas lo que se ve en la foto (salvo en "Fíjate en", para señalar un detalle concreto que se le puede escapar). DE QUÉ HABLAR: el tema es \"${card.name}\", o sea LO QUE fotografió. Si es un edificio, monumento, local o lugar, habla de ese sitio. Si es otra cosa (una comida o bebida, un objeto, una obra, una planta o animal, una costumbre, una actividad), habla de ESO: su origen, su historia y su relación con esta ciudad o este país. No hables de la calle, el barrio ni el edificio donde está salvo que tengan una relación directa y concreta con eso.`;
   async function askTopic(t,card,given){
-    const key=keyOf(card,t);
+    const key=keyOf(card,t);const dst=deepStore(card);
     const parts=[];
     if(t.usePhoto&&card.img)parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
@@ -1205,14 +1249,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     pendingDeep.set(key,job);
     try{
       const out=await job;const points=(out.points||[]).filter(Boolean);
-      card.deep[t.id]=points;saveDiscovery(true,card);           // saved even if you left this card
+      dst[t.id]=points;saveDiscovery(true,card);           // saved even if you left this card
       const it=here();
-      if(it){cur.deep[t.id]=points;const head=it.querySelector('.acc-head');setPreview(head,points);
+      if(it){if(cur!==card)deepStore(cur)[t.id]=points;const head=it.querySelector('.acc-head');setPreview(head,points);
         const body=it.querySelector('.acc-body');if(!body.hidden)fillBody(body,points)}
     }catch(e){
       if(given){retry=true;return}   // the all-in-one call missed this one: ask for it alone if it's open (or on the next tap)
       const it=here();if(it){const body=it.querySelector('.acc-body');if(!body.hidden){body.innerHTML='';const p=document.createElement('p');p.className='wait';p.textContent=errText(e);body.appendChild(p);
-        setTimeout(()=>{if(!(cur.deep||{})[t.id]){slide(body,false);it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
+        setTimeout(()=>{if(!deepView(cur)[t.id]){slide(body,false);it.querySelector('.acc-head').setAttribute('aria-expanded','false')}},5000)}}
     }finally{pendingDeep.delete(key)}
     if(retry){const it=here();if(it&&!it.querySelector('.acc-body').hidden)askTopic(t,card)}
   }
@@ -1220,7 +1264,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // everything in one go: as soon as a new card is ready, one call fetches all four sections in the background
   function prefetchDeep(card){
     if(!card||card.noAI||!cfg.key)return;
-    const todo=TOPICS.filter(t=>!(card.deep||{})[t.id]&&!pendingDeep.has(keyOf(card,t)));if(!todo.length)return;
+    const todo=TOPICS.filter(t=>!deepView(card)[t.id]&&!pendingDeep.has(keyOf(card,t)));if(!todo.length)return;
     card.deep=card.deep||{};
     const parts=[];if(card.img&&todo.some(t=>t.usePhoto))parts.push({inline_data:{mime_type:'image/jpeg',data:card.img.split(',')[1]}});
     const where=card.pos?` (en lat ${card.pos.lat.toFixed(4)}, lon ${card.pos.lon.toFixed(4)})`:'';
@@ -1262,7 +1306,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     try{navigator.clipboard.writeText(t);return true}catch(e){return false}}
   $('q-chatgpt').onclick=()=>{if(quickCopy())flashCopied($('q-chatgpt'))};
   $('q-claude').onclick=()=>{if(quickCopy())flashCopied($('q-claude'))};
-  function quickPlaceholder(){const c=quickCity();$('q-input').placeholder=c?`Pregunta algo sobre ${c}…`:'Pregunta algo sobre donde estás…'}
+  function quickPlaceholder(){const c=quickCity();const es=c?`Pregunta algo sobre ${c}…`:'Pregunta algo sobre donde estás…';const q=$('q-input');q._es_placeholder=es;q.placeholder=t_(es)}
 
   // ---------- save photo to the phone ----------
   // Browsers can't write to the photo library directly; the share sheet offers "Save Image" in one tap.
@@ -1305,6 +1349,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('btn-no').onclick=()=>$('btn-notthis').click();
   function bindConfirm(){const y=$('btn-yes'),n=$('btn-no');if(y&&!y.onclick)y.onclick=yesHandler;if(n)n.onclick=()=>$('btn-notthis').click()}
   const yesHandler=$('btn-yes').onclick;
+  $('btn-lang').onclick=()=>setLang(cfg.lang==='en'?'es':'en');
   $('alts-retry').onclick=()=>choose({title:'',dist:0,typed:true,retry:true});
   $('alts-form').onsubmit=e=>{e.preventDefault();const v=$('alts-input').value.trim();if(!v)return;$('alts-input').value='';choose({title:v,dist:0,osm:true,typed:true})};
   $('alts-none').onclick=()=>{if(cur&&cur.name)show('result');else show('home')};
@@ -1318,7 +1363,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const prev=cur.name?{name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,deep:cur.deep||{},noAI:!!cur.noAI}:null;
     const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,address:cur.address,takenAt:cur.takenAt,fromGallery:cur.fromGallery,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},prev,url:s&&s.url,wiki:s&&s.text};
     const plain=()=>{const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
-      return{...base,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
+      return{...base,lang:cfg.lang,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
     if(cur.noAI||!cfg.key){openCard(plain());return}
     if(n.typed){
       try{
@@ -1418,11 +1463,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function saveDiscovery(update,card){
     card=card||cur;if(!card||!card.name)return;
     const h=store.get('history',[]);const isNew=!card.t;if(isNew)card.t=Date.now();
-    const item={t:card.t,confirmed:!!card.confirmed,kind:card.kind||'',src:card.src||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
+    const item={t:card.t,lang:card.lang||'es',tr:card.tr||{},confirmed:!!card.confirmed,kind:card.kind||'',src:card.src||'',name:card.name,local:card.local||'',sure:card.sure,what:card.what,cool:card.cool,url:card.url||null,wiki:card.wiki||null,
       pos:card.pos?{lat:card.pos.lat,lon:card.pos.lon}:null,city:card.city||'',address:card.address||'',fromGallery:!!card.fromGallery,takenAt:card.takenAt||null,deep:card.deep||{},noAI:!!card.noAI,hasPhoto:!!(card.file||card.hasPhoto)};
     const i=h.findIndex(x=>x.t===item.t);
     if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
-    if(i>=0){if(update)item.deep={...(h[i].deep||{}),...item.deep};item.prev=card.prev||h[i].prev||null;item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else{item.prev=card.prev||null;h.unshift(item)}
+    if(i>=0){if(update){item.deep={...(h[i].deep||{}),...item.deep};const ot=h[i].tr||{};Object.keys(ot).forEach(L=>{item.tr[L]={...ot[L],...(item.tr[L]||{}),deep:{...(ot[L].deep||{}),...((item.tr[L]||{}).deep||{})}}})}item.prev=card.prev||h[i].prev||null;item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else{item.prev=card.prev||null;h.unshift(item)}
     store.set('history',h.slice(0,500));
     if(card.file&&!card.photoSaved){card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
     const geoPos=item.pos||card.cityPos;
@@ -1434,7 +1479,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const bg=document.createElement('div');bg.className='del-bg';bg.textContent='Borrar';li.appendChild(bg);
     const im=document.createElement('img');im.className='th';im.alt='';
     if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
-    const n=document.createElement('span');n.className='nm';n.textContent=x.name;
+    const n=document.createElement('span');n.className='nm';n.textContent=LV(x).name||x.name;
     const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
     b.append(im,n,w);li.appendChild(b);
     // swipe left to delete
@@ -1496,9 +1541,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function setMeta(c){const el=$('r-meta');el.innerHTML='';metaParts(c).forEach(x=>{const sp=document.createElement('span');sp.textContent=x;sp.style.whiteSpace='nowrap';el.appendChild(sp)});el.hidden=!el.childNodes.length}
   function metaParts(c){const parts=[];if(c.city)parts.push(c.city.toUpperCase());
     const SRC={sign:'leído en el cartel',list:'por la ubicación',near:'por la ubicación',knowledge:'reconocido en la foto',generic:'sin confirmar'};
-    const w=c.takenAt||c.t||Date.now();if(w){const d=new Date(w);parts.push(d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}))}return parts}
-  function homeMeta(){const d=new Date();const day=d.toLocaleDateString('es-ES',{weekday:'short',day:'2-digit',month:'short'}).replace(/[.,]/g,'').toUpperCase();
-    const t=d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});const h=store.get('history',[]);const city=h[0]&&h[0].city;
+    const w=c.takenAt||c.t||Date.now();if(w){const d=new Date(w);parts.push(d.toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}))}return parts}
+  function homeMeta(){const d=new Date();const day=d.toLocaleDateString(LOCALE(),{weekday:'short',day:'2-digit',month:'short'}).replace(/[.,]/g,'').toUpperCase();
+    const t=d.toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'});const h=store.get('history',[]);const city=h[0]&&h[0].city;
     return [day,t,city?city.toUpperCase():''].filter(Boolean).join('  ·  ')}
   // keep the home clock in step with the real one
   function tickClock(){if(view==='home')$('homemeta').textContent=homeMeta();clearTimeout(tickClock.t);tickClock.t=setTimeout(tickClock,60000-Date.now()%60000+50)}
@@ -1660,7 +1705,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('s-save').onclick=()=>{cfg.key=$('s-key').value.trim();store.set('key',cfg.key);const b=$('s-save');b.textContent=cfg.key?'Guardada ✓':'Guardar clave';b.classList.toggle('ok',!!cfg.key);
     $('s-key-state').textContent=cfg.key?'Clave guardada. Se guarda solo en este móvil.':'Sin clave no funciona la foto.';setTimeout(()=>{b.textContent='Guardar clave';b.classList.remove('ok')},1600)};
   $('s-key').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-save').click();$('s-key').blur()}});
-  $('s-lang-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.lang=v;store.set('lang',v);$('s-lang').value=v;segSet('s-lang-seg',v)};
+  $('s-lang-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(v)setLang(v)};
   $('s-model').addEventListener('change',()=>{cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;store.set('model',cfg.model)});
   function setTheme(v){store.set('theme',v);document.documentElement.dataset.theme=v;segSet('s-theme',v);
     const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=v==='light'?'#F3F1EB':'#0D0D0C'}
@@ -1669,6 +1714,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
   $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();show('home');status('Descubrimientos borrados.')};
 
+  applyUI();langBtn();
   if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
   // one-off tidy-up: drop old entries that have no photo (from before photos were saved)
