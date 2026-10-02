@@ -468,6 +468,11 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
 .iconbtn{border:0;background:transparent;color:var(--muted);width:40px;height:40px;margin-right:-10px;display:grid;place-items:center;border-radius:50%}
 .iconbtn svg{width:22px;height:22px}
 .iconbtn:active{background:var(--surface)}
+
+/* the shutter is the hero */
+.big .shutter{width:118px!important;height:118px!important;border-width:2.5px!important}
+.big .shutter::after{width:98px!important;height:98px!important}
+.dock{padding-top:8px}
 </style>
 </head>
 <body>
@@ -475,7 +480,7 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
   <div class="top">
     <h1>manu-go</h1>
     <button class="pill" id="btn-back" hidden>← Volver</button>
-    <button class="iconbtn" id="btn-settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+    <button class="iconbtn" id="btn-settings" aria-label="Ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
   <p class="status" id="status"></p>
 
@@ -503,7 +508,7 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
     </div>
     <p class="homemeta" id="homemeta"></p>
     <div class="dock">
-      <button class="dockside" id="btn-upload" aria-label="Subir una foto de la galería"><i class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8.5 8.5"/></svg></i><span>Galería</span></button>
+      <button class="dockside" id="btn-upload" aria-label="Subir una foto que ya tienes"><i class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13v4.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2H11"/><circle cx="8.5" cy="10" r="1.5"/><path d="M20.5 16l-4.5-4.5-8 8"/><path d="M18 9V2.5M15.2 5.2 18 2.5l2.8 2.7"/></svg></i><span>Subir foto</span></button>
       <button class="big" id="btn-photo" aria-label="¿Qué estoy mirando? Sacar una foto"><span class="shutter" aria-hidden="true"></span></button>
       <button class="dockside" id="btn-mymap" hidden aria-label="Mi mapa"><i class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg><b class="badge" id="mymap-count"></b></i><span>Mi mapa</span></button>
     </div>
