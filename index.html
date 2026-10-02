@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>manu-go</title>
-<meta name="theme-color" content="#0D0D0C">
+<script>(function(){var t='dark';try{t=JSON.parse(localStorage.getItem('pc_theme'))||'dark'}catch(e){}document.documentElement.dataset.theme=t;
+document.write('<meta name="theme-color" content="'+(t==='light'?'#F3F1EB':'#0D0D0C')+'"><meta name="apple-mobile-web-app-status-bar-style" content="'+(t==='light'?'default':'black-translucent')+'">')})()</script>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="manu-go">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="cab8fa0e-4535-4047-8c2a-d1bcaa869d19.png">
@@ -407,6 +407,44 @@ html.lock,html.lock body{overscroll-behavior:none}
 @media (prefers-reduced-motion:reduce){#r-name.appear,#r-cool-wrap{animation:none}.later{transition:none}}
 
 #r-meta.fade{animation:fadein .45s ease both}
+
+/* settings: clear sections, everything saves itself */
+.settings{gap:0}
+.settings h2{margin-bottom:8px}
+.sgroup{display:flex;flex-direction:column;gap:10px;padding:20px 0;border-bottom:1px solid var(--line)}
+.sh{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.seg{display:inline-flex;align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;color:var(--muted);border-radius:999px;padding:9px 18px;font-size:15px;font-weight:500;transition:background-color .2s ease,color .2s ease}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.keyrow{display:flex;gap:10px;align-items:center}
+.keyrow input{flex:1;min-width:0}
+.keyrow button{flex:none;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:10px 14px;font-size:14px;transition:color .3s ease}
+.keyrow button.ok{color:var(--live)}
+.how summary{cursor:pointer;color:var(--muted);font-size:14px;list-style:none;padding:4px 0}
+.how summary::-webkit-details-marker{display:none}
+.how summary::after{content:" ›";}
+.how[open] summary::after{content:" ⌄"}
+.how ol{margin-top:8px}
+.adv{padding:18px 0 4px}
+.advl{margin-top:10px}
+.transfer{border-top:0;margin-top:0;padding-top:20px}
+.transfer button,.danger{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:11px 16px;font-size:15px}
+.danger{align-self:flex-start;color:var(--danger);border-color:var(--line)}
+#s-clear-yes{display:inline;padding:0 0 0 6px;color:var(--danger);font-weight:600}
+.note.small{font-size:12px;color:var(--faint);padding-top:18px}
+
+/* ---- day theme: washi paper, sumi ink ---- */
+html[data-theme="light"]{--bg:#F3F1EB;--surface:#E9E6DE;--raise:#E1DDD3;--line:#D4CFC4;--ink:#171614;--muted:#66625B;--faint:#9A958C;--danger:#A6442F;--live:#2E9D5B;color-scheme:light}
+html[data-theme="light"] .minibar{background:rgba(243,241,235,.86)}
+html[data-theme="light"] .navback{background:rgba(233,230,222,.9);box-shadow:0 8px 24px rgba(0,0,0,.12)}
+html[data-theme="light"] .fab{box-shadow:0 8px 24px rgba(0,0,0,.18)}
+html[data-theme="light"] .mapfull{background:rgba(243,241,235,.75);border-color:rgba(0,0,0,.12)}
+html[data-theme="light"] .toast{box-shadow:0 10px 30px rgba(0,0,0,.15)}
+html[data-theme="light"] .leaflet-tile-pane{filter:grayscale(.7) contrast(.95) brightness(1.02)}
+html[data-theme="light"] .pin{box-shadow:0 4px 14px rgba(0,0,0,.2)}
+html[data-theme="light"] .rows .del-bg{color:#fff}
+html[data-theme="light"] .leaflet-control-attribution{background:rgba(243,241,235,.75)!important}
+html[data-theme="light"] .leaflet-popup-content-wrapper,html[data-theme="light"] .leaflet-popup-tip{box-shadow:0 8px 24px rgba(0,0,0,.15)}
 </style>
 </head>
 <body>
@@ -547,43 +585,64 @@ html.lock,html.lock body{overscroll-behavior:none}
   <!-- SETTINGS -->
   <section class="settings" id="v-settings" hidden>
     <h2>Ajustes</h2>
-    <div id="setup-steps">
-      <p class="help" style="margin-bottom:8px">Necesitas una clave gratuita de Google Gemini. Se hace una vez:</p>
-      <ol>
-        <li>Entra en <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> con tu cuenta de Google → Dashboard → Claves de API.</li>
-        <li>“Crear clave de API”. Sin tarjeta: así es gratis.</li>
-        <li>Copia la clave y pégala aquí.</li>
-      </ol>
+
+    <div class="sgroup">
+      <p class="sh">Apariencia</p>
+      <div class="seg" id="s-theme" role="group" aria-label="Apariencia">
+        <button data-v="dark">Noche</button><button data-v="light">Día</button>
+      </div>
     </div>
-    <label>Clave de Gemini
-      <input id="s-key" type="password" autocomplete="off" placeholder="Pega tu clave">
-      <span class="help">Se guarda solo en este móvil.</span>
-    </label>
-    <label>Idioma de las respuestas
-      <select id="s-lang">
-        <option value="es">Español</option>
-        <option value="en">Inglés</option>
-      </select>
-    </label>
-    <label>Modelo
-      <input id="s-model" autocomplete="off">
-      <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
-    </label>
-    <div class="row">
-      <button class="primary" id="s-save">Guardar</button>
-      <button id="s-clear">Borrar mapa e historial</button>
+
+    <div class="sgroup">
+      <p class="sh">Clave de Gemini</p>
+      <div class="keyrow">
+        <input id="s-key" type="password" autocomplete="off" placeholder="Pega tu clave aquí" aria-label="Clave de Gemini">
+        <button id="s-save">Guardar clave</button>
+      </div>
+      <p class="help" id="s-key-state">Se guarda solo en este móvil.</p>
+      <details class="how" id="setup-steps">
+        <summary>¿Cómo consigo una gratis?</summary>
+        <ol>
+          <li>Entra en <a href="https://aistudio.google.com" target="_blank" rel="noopener">aistudio.google.com</a> con tu cuenta de Google → Claves de API.</li>
+          <li>“Crear clave de API”. Sin tarjeta: así es gratis.</li>
+          <li>Copia la clave y pégala arriba.</li>
+        </ol>
+      </details>
     </div>
-    <div class="transfer">
-      <p class="label">Pasar tus descubrimientos</p>
-      <p class="help">Para llevarlos de Safari a la app (o a otro móvil): exporta el archivo en uno y ábrelo en el otro.</p>
+
+    <div class="sgroup">
+      <p class="sh">Idioma de las respuestas</p>
+      <div class="seg" id="s-lang-seg" role="group" aria-label="Idioma">
+        <button data-v="es">Español</button><button data-v="en">Inglés</button>
+      </div>
+      <select id="s-lang" hidden><option value="es">Español</option><option value="en">Inglés</option></select>
+    </div>
+
+    <div class="sgroup transfer">
+      <p class="sh">Tus descubrimientos</p>
+      <p class="help">Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.</p>
       <div class="row">
-        <button id="s-export">Exportar archivo</button>
-        <button id="s-import">Importar archivo</button>
+        <button id="s-export">Exportar</button>
+        <button id="s-import">Importar</button>
       </div>
       <input type="file" id="s-import-file" accept=".json,application/json" hidden>
     </div>
-    <p class="note" id="s-clear-confirm" hidden>¿Seguro? Se borran todos tus descubrimientos y sus fotos de la app. <button class="plain" id="s-clear-yes" style="display:inline;padding:0">Sí, borrar</button></p>
-    <p class="note">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
+
+    <div class="sgroup">
+      <p class="sh">Borrar</p>
+      <button class="danger" id="s-clear">Borrar todos mis descubrimientos</button>
+      <p class="note" id="s-clear-confirm" hidden>Se borran todos los lugares y sus fotos de la app. No se puede deshacer. <button class="plain" id="s-clear-yes">Sí, borrar todo</button></p>
+    </div>
+
+    <details class="how adv">
+      <summary>Avanzado</summary>
+      <label class="advl">Modelo de IA
+        <input id="s-model" autocomplete="off">
+        <span class="help">Déjalo así. Si Google lo retira, la app busca otro sola.</span>
+      </label>
+    </details>
+
+    <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button></div>
   <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
@@ -1555,14 +1614,18 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       status(n?`Importados ${n} ${n===1?'descubrimiento':'descubrimientos'}.`:'Ya los tenías todos.');
     }catch(err){status('Ese archivo no parece de manu-go.',true)}
   };
-  function openSettings(){$('s-key').value=cfg.key;$('s-lang').value=cfg.lang;$('s-model').value=cfg.model;$('setup-steps').hidden=!!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
-  $('s-save').onclick=()=>{
-    cfg.key=$('s-key').value.trim();cfg.lang=$('s-lang').value;cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;
-    store.set('key',cfg.key);store.set('lang',cfg.lang);store.set('model',cfg.model);
-    show('home');status(cfg.key?'Guardado. Listo.':'Guardado. Sin clave no funciona la foto.');
-  };
+  function segSet(id,v){$(id).querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+  function openSettings(){$('s-key').value=cfg.key;$('s-model').value=cfg.model;segSet('s-theme',store.get('theme','dark'));segSet('s-lang-seg',cfg.lang);
+    $('s-key-state').textContent=cfg.key?'Clave guardada. Se guarda solo en este móvil.':'Sin clave no funciona la foto.';$('setup-steps').open=!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
+  $('s-save').onclick=()=>{cfg.key=$('s-key').value.trim();store.set('key',cfg.key);const b=$('s-save');b.textContent=cfg.key?'Guardada ✓':'Guardar clave';b.classList.toggle('ok',!!cfg.key);
+    $('s-key-state').textContent=cfg.key?'Clave guardada. Se guarda solo en este móvil.':'Sin clave no funciona la foto.';setTimeout(()=>{b.textContent='Guardar clave';b.classList.remove('ok')},1600)};
+  $('s-key').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-save').click();$('s-key').blur()}});
+  $('s-lang-seg').onclick=e=>{const v=e.target.dataset&&e.target.dataset.v;if(!v)return;cfg.lang=v;store.set('lang',v);$('s-lang').value=v;segSet('s-lang-seg',v)};
+  $('s-model').addEventListener('change',()=>{cfg.model=$('s-model').value.trim()||DEFAULT_MODEL;store.set('model',cfg.model)});
+  $('s-theme').onclick=e=>{const v=e.target.dataset&&e.target.dataset.v;if(!v)return;store.set('theme',v);document.documentElement.dataset.theme=v;segSet('s-theme',v);
+    const m=document.querySelector('meta[name="theme-color"]');if(m)m.content=v==='light'?'#F3F1EB':'#0D0D0C'};
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
-  $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();status('Mapa e historial borrados.');show('home')};
+  $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();show('home');status('Descubrimientos borrados.')};
 
   if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
