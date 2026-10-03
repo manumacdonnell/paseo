@@ -897,7 +897,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.11 · 02:30</p>
+    <p class="note small ver" translate="no">manu-go · v 3.12 · 01:50</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="ndock" id="ndock" role="region" aria-label="Narración"><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span class="eq"><i></i><i></i><i></i></span><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
@@ -2063,9 +2063,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const TONES={dark:{bg:'#0D0D0C',ink:'#ECEAE4',mut:'#8C8A84',fnt:'#3A3936',tile:'#1A1A18'},light:{bg:'#FAF9F6',ink:'#141413',mut:'#6F6C65',fnt:'#D9D5CC',tile:'#ECE9E2'}};
   async function drawDay(layout,D,tone,fmt){
     try{await document.fonts.load('400 24px "JetBrains Mono"')}catch(e){}
-    const F=FORMATS[fmt]||FORMATS.story;POSTER.W=F[0];POSTER.H=F[1];
+    const F=FORMATS[fmt]||FORMATS.story;POSTER.W=F[0];POSTER.H=F[1];POSTER.big=fmt==='story'||!FORMATS[fmt];
     const {W,H}=POSTER,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
-    const P=TONES[tone]||TONES.dark;g.fillStyle=P.bg;g.fillRect(0,0,W,H);g.textBaseline='alphabetic';
+    const P=TONES[tone]||TONES.dark;g.fillStyle=P.bg;g.fillRect(0,0,W,H);
+    // Instagram stories cover the top (profile bar) and bottom (reply field): keep everything inside the safe zone
+    if(POSTER.big){const T=150,B=190;POSTER.H=H-T-B;g.translate(0,T)}g.textBaseline='alphabetic';
     const bm=await dayAssets(D.items);if(layout==='text')posterText(g,D,bm,P);else if(layout==='map'&&D.items.filter(x=>x.pos).length>=1)posterMap(g,D,bm,P);else posterCatalog(g,D,bm,P);
     return await new Promise(r=>cv.toBlob(r,'image/png'))}
   // every place by name, in up to 3 columns, as large as the space allows
@@ -2086,17 +2088,19 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // CATÁLOGO — the city and the date set big, every photo slotted between the words like letters; the numbered list underneath
   function posterCatalog(g,D,bm,P){
     const {W,H,M}=POSTER,n=D.items.length,maxW=W-2*M;
-    g.fillStyle=P.mut;g.font=`400 ${H>1500?25:22}px ${SANS}`;g.fillText([`${D.C.places} ${t_(D.C.places===1?'lugar':'lugares')}`,D.C.time,D.C.dist].filter(Boolean).join('   ·   '),M,M+18);
-    const top=M+(H>1500?84:66);
+    g.fillStyle=P.mut;g.font=`400 ${POSTER.big?25:22}px ${SANS}`;g.fillText([D.C.meta,`${D.C.places} ${t_(D.C.places===1?'lugar':'lugares')}`,D.C.time,D.C.dist].filter(Boolean).join('   ·   '),M,M+18);
+    const top=M+(POSTER.big?84:66);
     const listMax=Math.min(H*0.32,Math.max(130,n*9+50));const list=drawList(g,D,P,M,0,maxW,listMax,true);
-    const availH=H-M-46-list.h-(H>1500?64:44)-top;
-    const words=[...D.C.city.toLocaleLowerCase(LOCALE()).split(/\s+/),...D.C.meta.replace(/,/g,'').replace(/\s+[–-]\s+/g,'\u2009–\u2009').replace(/(\d)–(\d)/g,'$1–$2').split(/ +/)].filter(Boolean);
+    const availH=H-M-46-list.h-(POSTER.big?64:44)-top;
+    const words=[];D.C.city.toLocaleLowerCase(LOCALE()).split(/\s+/).filter(Boolean).forEach(w=>{const k=Math.max(1,Math.min(n>=8?3:2,Math.floor(w.length/3),n));
+      if(k<2||w.length<6){words.push({w});return}const L=[...w],cut=[];for(let q=1;q<k;q++)cut.push(Math.round(q*L.length/k));let a=0;cut.concat(L.length).forEach((b,q)=>{words.push({w:L.slice(a,b).join(''),mid:q>0});a=b})});
     const K=words.length,T=n+K,seq=[];const at=new Map(words.map((w,j)=>[Math.round(j*T/K),w]));let pi=0;
-    for(let k=0;k<T;k++){if(at.has(k))seq.push({w:at.get(k)});else if(pi<n){seq.push({i:pi});pi++}}
+    for(let k=0;k<T;k++){if(at.has(k))seq.push(at.get(k));else if(pi<n){seq.push({i:pi});pi++}}
     while(pi<n){seq.push({i:pi});pi++}
+    {let nxt=null;for(let q=seq.length-1;q>=0;q--){if(seq[q].w!==undefined)nxt=seq[q];else seq[q].tight=!!(nxt&&nxt.mid)}}   // photos inside a split word sit tight, like letters
     const lay=fs=>{const ch=fs*0.72,pw=ch*1.5,gap=fs*0.14,sp=fs*0.24,nf=Math.max(13,Math.round(fs*0.12)),lab=nf*1.7,lh=ch+lab+fs*0.12;g.font=`600 ${fs}px ${SANS}`;
       const lines=[];let line=[],lw=0;
-      for(const t of seq){const w=t.w!==undefined?g.measureText(t.w).width:pw;if(w>maxW)return null;const s=line.length?((t.w!==undefined&&line[line.length-1].t.w!==undefined)?sp:gap*(t.w!==undefined||line[line.length-1].t.w!==undefined?2:1)):0;
+      for(const t of seq){const w=t.w!==undefined?g.measureText(t.w).width:pw;if(w>maxW)return null;const pv=line[line.length-1];const s=line.length?((t.w!==undefined&&pv.t.w!==undefined)?(t.mid?0:sp):(t.mid||t.tight||pv.t.tight)?gap:gap*2):0;
         if(line.length&&lw+s+w>maxW){lines.push({items:line,w:lw});line=[];lw=0}const s2=line.length?s:0;line.push({t,x:lw+s2,w});lw+=s2+w}
       if(line.length)lines.push({items:line,w:lw});return{lines,ch,pw,nf,lab,lh,fs}};
     let fs=280,L=lay(fs);while((!L||L.lines.length*L.lh-L.fs*0.12>availH)&&fs>18){fs-=2;L=lay(fs)}
@@ -2111,9 +2115,9 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // MAPA — the map is made of your photos: each one sits where you took it, the walk runs underneath
   function posterMap(g,D,bm,P){
-    const {W,H,M}=POSTER;const hy=head(g,D,P,H>1500?124:104);
+    const {W,H,M}=POSTER;const hy=head(g,D,P,POSTER.big?124:104);
     const pts=D.items.map((x,i)=>[x,i]).filter(([x])=>x.pos);const n=pts.length,np=pts.filter(([x])=>bm[x.t]).length;
-    const top=hy+(H>1500?70:48),bot=H-M-70,L=M,R=W-M;const A=(R-L)*(bot-top);
+    const top=hy+(POSTER.big?70:48),bot=H-M-70,L=M,R=W-M;const A=(R-L)*(bot-top);
     let w=Math.max(60,Math.min(W*0.36,Math.sqrt(A*(np>12?0.34:0.24)/Math.max(1,np)*1.5)));
     const k=Math.cos(pts[0][0].pos.lat*Math.PI/180);const xs=pts.map(([x])=>x.pos.lon*k),ys=pts.map(([x])=>-x.pos.lat);
     const mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);const sw=Math.max(mxx-mnx,1e-6),sh=Math.max(mxy-mny,1e-6);
@@ -2142,7 +2146,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     // a hairline from each photo back to its spot when it had to move aside
     g.strokeStyle=P.mut;g.lineWidth=1.2;B.forEach(b=>{const tx=Math.min(Math.max(b.ax,b.x),b.x+w),ty=Math.min(Math.max(b.ay,b.y),b.y+h);if(Math.hypot(tx-b.ax,ty-b.ay)<3)return;g.beginPath();g.moveTo(b.ax,b.ay);g.lineTo(tx,ty);g.stroke()});
     const r=n>40?3.5:5;XY.forEach(([x,y])=>{g.fillStyle=P.ink;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()});
-    const nf=Math.round(Math.max(13,Math.min(H>1500?22:20,w*0.1)));
+    const nf=Math.round(Math.max(13,Math.min(POSTER.big?22:20,w*0.1)));
     // places without a photo keep their number next to the dot
     g.font=`400 ${nf}px ${MONO}`;g.fillStyle=P.mut;pts.forEach(([x,i],j)=>{if(bm[x.t])return;const [px,py]=XY[j];const right=px<W-M-60;g.textAlign=right?'left':'right';g.fillText(String(i+1),px+(right?r+6:-r-6),py-r-2)});g.textAlign='left';
     B.slice().sort((a,b)=>a.y-b.y).forEach(b=>{const [x,i]=pts[b.j];cover(g,bm[x.t],b.x,b.y,w,h);
@@ -2154,7 +2158,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // TEXTO — every place set as one flowing paragraph, a tiny photo before each name, like a poem of the day
   function posterText(g,D,bm,P){
-    const {W,H,M}=POSTER;const hy=head(g,D,P,H>1500?124:104,true);const top=hy+(H>1500?70:50),maxH=H-M-70-top,maxW=W-2*M;
+    const {W,H,M}=POSTER;const hy=head(g,D,P,POSTER.big?124:104,true);const top=hy+(POSTER.big?70:50),maxH=H-M-70-top,maxW=W-2*M;
     const toks=[];D.items.forEach((x,i)=>{const words=LV(x).name.split(/\s+/);toks.push({lead:true,i,img:bm[x.t]?x.t:null,w:words[0]});words.slice(1).forEach(w=>toks.push({w}))});
     const lay=fs=>{const sz=fs*0.86,sp=fs*0.26,gap=fs*0.62,lines=[];let line=[],lw=0;g.font=`600 ${fs}px ${SANS}`;const nf=Math.max(13,fs*0.3);
       toks.forEach((t,k)=>{let tw=g.measureText(t.w).width;let pre=0;if(t.lead){g.font=`400 ${nf}px ${MONO}`;pre=g.measureText(String(t.i+1)).width+fs*0.12+(t.img?sz+fs*0.16:0);g.font=`600 ${fs}px ${SANS}`}
