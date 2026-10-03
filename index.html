@@ -14,7 +14,7 @@ document.write('<meta name="theme-color" content="'+(t==='light'?'#F3F1EB':'#0D0
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@500;600;700&family=Caveat:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Shippori+Mincho:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 /* manu-go — sumi ink ground, washi text, one vermilion seal (朱). Mincho for names, quiet gothic for reading, mono for metadata. */
@@ -1329,7 +1329,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
 
   // ---------- interface language: the whole UI switches between Spanish and English ----------
-  const EN_UI={"Ajustes": "Settings", "Ampliar": "Expand", "Apariencia": "Appearance", "Averiguando qué es tu foto…": "Working out your photo…", "Averiguar qué es": "Find out what it is", "+ Añadir una pista (opcional)": "+ Add a hint (optional)", "Borrar": "Delete", "Borrar entrada": "Delete entry", "Borrar todos mis descubrimientos": "Delete all my discoveries", "Cerrar": "Close", "Clave de Gemini": "Gemini key", "Copia la clave y pégala arriba.": "Copy the key and paste it above.", "Copiar": "Copy", "Copiar nombre": "Copy name", "Copiado": "Copied", "Compartir": "Share", "Compartir imagen": "Share image", "Tu día": "Your day", "Fotos": "Photos", "Mapa": "Map", "Lista": "List", "salida": "start", "caminando": "walking", "recorridos": "covered", "un día con manu-go": "a day with manu-go", "Tu día, contado": "Your day, told", "Cómo llegar": "Directions", "Deshacer": "Undo", "Déjalo así. Si Google lo retira, la app busca otro sola.": "Leave it. If Google retires it, the app finds another one.", "En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.": "On the free plan, Google may use what you send (photos included) to improve its products. Avoid photos with faces or private data.", "En qué me fijo, p. ej. la estatua": "What to look at, e.g. the statue", "Entra en": "Go to", "Escribe qué es, o en qué te fijas.": "Type what it is, or what you're looking at.", "Exportar": "Export", "Guardar clave": "Save key", "Guardada ✓": "Saved ✓", "Haz una foto y te digo qué es": "Take a photo and I'll tell you what it is", "Idioma": "Language", "Importar": "Import", "Ir": "Go", "Sí": "Yes", "Seguir en ChatGPT": "Continue in ChatGPT", "Español": "Spanish", "Inglés": "English", "Preguntas": "Questions", "¿Qué te preguntas?": "What are you wondering?", "¿Qué se come típico aquí?": "What is the typical food here?", "¿Qué pasó en este barrio?": "What happened in this neighbourhood?", "¿Qué no me puedo perder cerca?": "What shouldn't I miss nearby?", "1 pregunta": "1 question", "Pregunta otra cosa…": "Ask something else…", "Pregunta lo que quieras sobre donde estás.": "Ask anything about where you are.", "Preguntas anteriores": "Previous questions", "Pregunta": "Question", "Mantén pulsado para guardar · Toca para cerrar": "Hold to save · Tap to close", "Mi mapa": "My map", "Mirando…": "Looking…", "Modelo de IA": "AI model", "Más ajustes": "More settings", "Ninguno de estos": "None of these", "Noche": "Night", "Día": "Day", "O elige uno cercano": "Or pick one nearby", "Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.": "To move them to another phone or from Safari to the app: export here and open the file with “Import” on the other.", "Pega tu clave aquí": "Paste your key here", "Pregunta algo sobre donde estás…": "Ask something about where you are…", "Probablemente…": "Probably…", "Profundizar": "Go deeper", "Qué es": "What it is", "Recientes": "Recent", "Se borran todos los lugares y sus fotos de la app. No se puede deshacer.": "This deletes every place and its photos from the app. It can’t be undone.", "Se guarda solo en este móvil.": "Saved only on this phone.", "Seguir en": "Continue in", "Seguir en ChatGPT": "Continue in ChatGPT", "Subir foto": "Upload photo", "Sí, borrar todo": "Yes, delete everything", "Sí, es esto": "Yes, that's it", "Te copio el contexto: solo pega.": "The context is copied: just paste.", "Tus descubrimientos": "Your discoveries", "Un dato curioso": "A curious fact", "Volver": "Back", "Vuelve a mirar la foto": "Look at the photo again", "con tu cuenta de Google → Claves de API.": "with your Google account → API keys.", "¿Cómo consigo una gratis?": "How do I get one for free?", "¿Es esto?": "Is this it?", "¿No es esto?": "Not this?", "¿Qué estás mirando?": "What are you looking at?", "Miremos más de cerca": "Let's look closer", "Dame una pista: qué es, o qué te llamó la atención.": "Give me a hint: what it is, or what caught your eye.", "Resumen del día": "Summary of the day", "“Crear clave de API”. Sin tarjeta: así es gratis.": "“Create API key”. No card: that keeps it free.", "Algo por descubrir": "Something to discover", "Algo no salió bien. Prueba otra vez.": "Something went wrong. Try again.", "Averiguando qué es…": "Working out what it is…", "Mirando alrededor…": "Looking around…", "Leyendo dónde se sacó la foto…": "Reading where the photo was taken…", "Volviendo a mirar la foto…": "Looking at the photo again…", "Seguimos…": "Carrying on…", "Clave guardada. Se guarda solo en este móvil.": "Key saved. Stored only on this phone.", "Sin clave no funciona la foto.": "Without a key the photo won't work.", "Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.": "Google needs a short pause: the free plan has a per-minute limit. Try again in a minute.", "Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.": "Google's free requests are used up for today. Try again later.", "Google va lento ahora mismo. Prueba otra vez en un minuto.": "Google is slow right now. Try again in a minute.", "No pude conectar con Google. Prueba otra vez en un momento.": "Couldn't reach Google. Try again in a moment.", "La clave de Gemini no funciona. Revísala en Ajustes.": "The Gemini key doesn't work. Check it in Settings.", "Sin conexión. Revisa los datos móviles.": "No connection. Check your mobile data.", "Todavía no hay descubrimientos para exportar.": "No discoveries to export yet.", "Preparando el archivo…": "Preparing the file…", "Archivo descargado.": "File downloaded.", "Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.": "Done. Save it to Files and open it with “Import” in the app.", "Ya los tenías todos.": "You already had them all.", "Ese archivo no parece de manu-go.": "That file doesn't look like a manu-go file.", "Descubrimientos borrados.": "Discoveries deleted.", "Desliza a la izquierda para borrar": "Swipe left to delete", "Recién añadidos": "Recently added", "Por día": "By day", "1 lugar": "1 place", "Abrir": "Open", "Historia": "History", "Fíjate en": "Look closer", "Cine y cultura": "Film & culture", "Lo que se cuenta": "What people say", "Toca “Ajustes” para poner tu clave gratuita de Gemini.": "Open Settings to add your free Gemini key.", "Primero pega tu clave gratuita de Gemini.": "First paste your free Gemini key.", "Todavía no hay descubrimientos.": "No discoveries yet.", "El mapa necesita conexión.": "The map needs a connection.", "No encuentro otros sitios conocidos cerca.": "I can't find other known places nearby.", "Guardado ✓": "Saved ✓", "No": "No", "Exportar este día": "Export this day", "Mantén pulsada la foto y elige “Guardar en Fotos”.": "Hold the photo and choose “Save to Photos”.", "No pude copiarlo.": "Couldn't copy it.", "No pude copiarlo solo: mantén pulsado el texto y cópialo.": "Couldn't copy it: hold the text and copy it.", "Ver en Wikipedia": "See on Wikipedia", "Subir una foto que ya tienes": "Upload a photo you already have", "Ver la foto": "See the photo", "Tu foto": "Your photo", "Tu foto (toca para verla entera)": "Your photo (tap to see it whole)", "Guardar la foto en tu iPhone": "Save the photo to your iPhone", "Pista opcional": "Optional hint", "Pregunta rápida": "Quick question", "Preguntar": "Ask", "La foto que has elegido": "The photo you chose", "¿Qué estoy mirando? Sacar una foto": "What am I looking at? Take a photo", "Modelo": "Model", "Idioma de las respuestas": "Language", "Escuchar": "Listen", "Parar": "Stop", "Escuchando": "Listening", "Atrás 5 segundos": "Back 5 seconds", "Sin conexión: guardé la foto y la miro en cuanto vuelva la señal.": "No connection: I saved the photo and will look at it as soon as you have signal.", "1 foto esperando conexión": "1 photo waiting for a connection", "Mirando la foto que guardaste…": "Looking at the photo you saved…", "Mirando las fotos que guardaste…": "Looking at the photos you saved…", "Tu paseo": "Your walk", "Tu paseo, narrado": "Your walk, narrated", "lugares": "places", "No pude escribir tu paseo.": "Couldn't write your walk.", "Probar otra vez": "Try again", "No pude resumir el día. Toca para probar otra vez.": "Couldn't sum up the day. Tap to try again.", "Voz para escuchar": "Listening voice", "Al aparecer un resultado": "When a result appears", "Solo leer": "Just read", "Narrar": "Narrate", "Voz": "Voice", "Sonido de la voz": "Voice sound", "Voz del sistema": "System voice", "La del iPhone": "The iPhone’s own", "En español": "In Spanish", "En inglés": "In English", "España": "Spain", "México": "Mexico", "Colombia": "Colombia", "EE. UU.": "US", "Reino Unido": "UK", "Irlanda": "Ireland", "Sudáfrica": "South Africa", "Canadá": "Canada", "Sin créditos de ElevenLabs: suena la voz del iPhone.": "No ElevenLabs credits left: using the iPhone voice.", "Gratis y sin límite. Para que suene mejor, baja una voz «Mejorada» o «Premium» en Ajustes del iPhone → Accesibilidad → Leer y hablar → Voces.": "Free and unlimited. For a better sound, download an “Enhanced” or “Premium” voice in iPhone Settings → Accessibility → Read & Speak → Voices.", "Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.": "Sounds better, but uses ElevenLabs credits. Each audio is saved so it isn’t paid twice, and if credits run out the iPhone voice plays.", "Seguir escuchando": "Resume", "Pausar": "Pause", "Preparando…": "Preparing…", "Guardar": "Save", "Voz para escuchar (opcional)": "Voice to listen (optional)", "Clave de ElevenLabs": "ElevenLabs key", "ID de la voz": "Voice ID", "Con esto aparece «Escuchar» en cada tarjeta. Cada audio se guarda para no gastar dos veces.": "This adds “Listen” to every card. Each audio is saved so it isn't paid for twice.", "La clave de ElevenLabs no funciona. Revísala en Ajustes.": "The ElevenLabs key doesn't work. Check it in Settings.", "Se acabaron los créditos de este mes en ElevenLabs.": "This month's ElevenLabs credits are used up.", "ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).": "ElevenLabs only allows library voices on a paid plan (from $6/month).", "No encuentro esa voz. Revisa el ID en Ajustes.": "I can't find that voice. Check the ID in Settings.", "ElevenLabs va saturado. Prueba otra vez en un momento.": "ElevenLabs is busy. Try again in a moment.", "No pude generar el audio. Prueba otra vez.": "Couldn't make the audio. Try again."};
+  const EN_UI={"Ajustes": "Settings", "Ampliar": "Expand", "Apariencia": "Appearance", "Averiguando qué es tu foto…": "Working out your photo…", "Averiguar qué es": "Find out what it is", "+ Añadir una pista (opcional)": "+ Add a hint (optional)", "Borrar": "Delete", "Borrar entrada": "Delete entry", "Borrar todos mis descubrimientos": "Delete all my discoveries", "Cerrar": "Close", "Clave de Gemini": "Gemini key", "Copia la clave y pégala arriba.": "Copy the key and paste it above.", "Copiar": "Copy", "Copiar nombre": "Copy name", "Copiado": "Copied", "Compartir": "Share", "Compartir imagen": "Share image", "Tu día": "Your day", "Mosaico": "Mosaic", "Portada": "Cover", "Cuadrícula": "Grid", "lugar": "place", "salida": "start", "caminando": "walking", "recorridos": "covered", "un día con manu-go": "a day with manu-go", "Tu día, contado": "Your day, told", "Cómo llegar": "Directions", "Deshacer": "Undo", "Déjalo así. Si Google lo retira, la app busca otro sola.": "Leave it. If Google retires it, the app finds another one.", "En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.": "On the free plan, Google may use what you send (photos included) to improve its products. Avoid photos with faces or private data.", "En qué me fijo, p. ej. la estatua": "What to look at, e.g. the statue", "Entra en": "Go to", "Escribe qué es, o en qué te fijas.": "Type what it is, or what you're looking at.", "Exportar": "Export", "Guardar clave": "Save key", "Guardada ✓": "Saved ✓", "Haz una foto y te digo qué es": "Take a photo and I'll tell you what it is", "Idioma": "Language", "Importar": "Import", "Ir": "Go", "Sí": "Yes", "Seguir en ChatGPT": "Continue in ChatGPT", "Español": "Spanish", "Inglés": "English", "Preguntas": "Questions", "¿Qué te preguntas?": "What are you wondering?", "¿Qué se come típico aquí?": "What is the typical food here?", "¿Qué pasó en este barrio?": "What happened in this neighbourhood?", "¿Qué no me puedo perder cerca?": "What shouldn't I miss nearby?", "1 pregunta": "1 question", "Pregunta otra cosa…": "Ask something else…", "Pregunta lo que quieras sobre donde estás.": "Ask anything about where you are.", "Preguntas anteriores": "Previous questions", "Pregunta": "Question", "Mantén pulsado para guardar · Toca para cerrar": "Hold to save · Tap to close", "Mi mapa": "My map", "Mirando…": "Looking…", "Modelo de IA": "AI model", "Más ajustes": "More settings", "Ninguno de estos": "None of these", "Noche": "Night", "Día": "Day", "O elige uno cercano": "Or pick one nearby", "Para pasarlos a otro móvil o de Safari a la app: exporta aquí y abre el archivo con «Importar» en el otro.": "To move them to another phone or from Safari to the app: export here and open the file with “Import” on the other.", "Pega tu clave aquí": "Paste your key here", "Pregunta algo sobre donde estás…": "Ask something about where you are…", "Probablemente…": "Probably…", "Profundizar": "Go deeper", "Qué es": "What it is", "Recientes": "Recent", "Se borran todos los lugares y sus fotos de la app. No se puede deshacer.": "This deletes every place and its photos from the app. It can’t be undone.", "Se guarda solo en este móvil.": "Saved only on this phone.", "Seguir en": "Continue in", "Seguir en ChatGPT": "Continue in ChatGPT", "Subir foto": "Upload photo", "Sí, borrar todo": "Yes, delete everything", "Sí, es esto": "Yes, that's it", "Te copio el contexto: solo pega.": "The context is copied: just paste.", "Tus descubrimientos": "Your discoveries", "Un dato curioso": "A curious fact", "Volver": "Back", "Vuelve a mirar la foto": "Look at the photo again", "con tu cuenta de Google → Claves de API.": "with your Google account → API keys.", "¿Cómo consigo una gratis?": "How do I get one for free?", "¿Es esto?": "Is this it?", "¿No es esto?": "Not this?", "¿Qué estás mirando?": "What are you looking at?", "Miremos más de cerca": "Let's look closer", "Dame una pista: qué es, o qué te llamó la atención.": "Give me a hint: what it is, or what caught your eye.", "Resumen del día": "Summary of the day", "“Crear clave de API”. Sin tarjeta: así es gratis.": "“Create API key”. No card: that keeps it free.", "Algo por descubrir": "Something to discover", "Algo no salió bien. Prueba otra vez.": "Something went wrong. Try again.", "Averiguando qué es…": "Working out what it is…", "Mirando alrededor…": "Looking around…", "Leyendo dónde se sacó la foto…": "Reading where the photo was taken…", "Volviendo a mirar la foto…": "Looking at the photo again…", "Seguimos…": "Carrying on…", "Clave guardada. Se guarda solo en este móvil.": "Key saved. Stored only on this phone.", "Sin clave no funciona la foto.": "Without a key the photo won't work.", "Google pide una pausa corta: el plan gratis tiene un límite por minuto. Prueba otra vez en un minuto.": "Google needs a short pause: the free plan has a per-minute limit. Try again in a minute.", "Por hoy se acabaron las consultas gratis de Google. Vuelve a probar en un rato.": "Google's free requests are used up for today. Try again later.", "Google va lento ahora mismo. Prueba otra vez en un minuto.": "Google is slow right now. Try again in a minute.", "No pude conectar con Google. Prueba otra vez en un momento.": "Couldn't reach Google. Try again in a moment.", "La clave de Gemini no funciona. Revísala en Ajustes.": "The Gemini key doesn't work. Check it in Settings.", "Sin conexión. Revisa los datos móviles.": "No connection. Check your mobile data.", "Todavía no hay descubrimientos para exportar.": "No discoveries to export yet.", "Preparando el archivo…": "Preparing the file…", "Archivo descargado.": "File downloaded.", "Listo. Guárdalo en Archivos y ábrelo desde «Importar archivo» en la app.": "Done. Save it to Files and open it with “Import” in the app.", "Ya los tenías todos.": "You already had them all.", "Ese archivo no parece de manu-go.": "That file doesn't look like a manu-go file.", "Descubrimientos borrados.": "Discoveries deleted.", "Desliza a la izquierda para borrar": "Swipe left to delete", "Recién añadidos": "Recently added", "Por día": "By day", "1 lugar": "1 place", "Abrir": "Open", "Historia": "History", "Fíjate en": "Look closer", "Cine y cultura": "Film & culture", "Lo que se cuenta": "What people say", "Toca “Ajustes” para poner tu clave gratuita de Gemini.": "Open Settings to add your free Gemini key.", "Primero pega tu clave gratuita de Gemini.": "First paste your free Gemini key.", "Todavía no hay descubrimientos.": "No discoveries yet.", "El mapa necesita conexión.": "The map needs a connection.", "No encuentro otros sitios conocidos cerca.": "I can't find other known places nearby.", "Guardado ✓": "Saved ✓", "No": "No", "Exportar este día": "Export this day", "Mantén pulsada la foto y elige “Guardar en Fotos”.": "Hold the photo and choose “Save to Photos”.", "No pude copiarlo.": "Couldn't copy it.", "No pude copiarlo solo: mantén pulsado el texto y cópialo.": "Couldn't copy it: hold the text and copy it.", "Ver en Wikipedia": "See on Wikipedia", "Subir una foto que ya tienes": "Upload a photo you already have", "Ver la foto": "See the photo", "Tu foto": "Your photo", "Tu foto (toca para verla entera)": "Your photo (tap to see it whole)", "Guardar la foto en tu iPhone": "Save the photo to your iPhone", "Pista opcional": "Optional hint", "Pregunta rápida": "Quick question", "Preguntar": "Ask", "La foto que has elegido": "The photo you chose", "¿Qué estoy mirando? Sacar una foto": "What am I looking at? Take a photo", "Modelo": "Model", "Idioma de las respuestas": "Language", "Escuchar": "Listen", "Parar": "Stop", "Escuchando": "Listening", "Atrás 5 segundos": "Back 5 seconds", "Sin conexión: guardé la foto y la miro en cuanto vuelva la señal.": "No connection: I saved the photo and will look at it as soon as you have signal.", "1 foto esperando conexión": "1 photo waiting for a connection", "Mirando la foto que guardaste…": "Looking at the photo you saved…", "Mirando las fotos que guardaste…": "Looking at the photos you saved…", "Tu paseo": "Your walk", "Tu paseo, narrado": "Your walk, narrated", "lugares": "places", "No pude escribir tu paseo.": "Couldn't write your walk.", "Probar otra vez": "Try again", "No pude resumir el día. Toca para probar otra vez.": "Couldn't sum up the day. Tap to try again.", "Voz para escuchar": "Listening voice", "Al aparecer un resultado": "When a result appears", "Solo leer": "Just read", "Narrar": "Narrate", "Voz": "Voice", "Sonido de la voz": "Voice sound", "Voz del sistema": "System voice", "La del iPhone": "The iPhone’s own", "En español": "In Spanish", "En inglés": "In English", "España": "Spain", "México": "Mexico", "Colombia": "Colombia", "EE. UU.": "US", "Reino Unido": "UK", "Irlanda": "Ireland", "Sudáfrica": "South Africa", "Canadá": "Canada", "Sin créditos de ElevenLabs: suena la voz del iPhone.": "No ElevenLabs credits left: using the iPhone voice.", "Gratis y sin límite. Para que suene mejor, baja una voz «Mejorada» o «Premium» en Ajustes del iPhone → Accesibilidad → Leer y hablar → Voces.": "Free and unlimited. For a better sound, download an “Enhanced” or “Premium” voice in iPhone Settings → Accessibility → Read & Speak → Voices.", "Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.": "Sounds better, but uses ElevenLabs credits. Each audio is saved so it isn’t paid twice, and if credits run out the iPhone voice plays.", "Seguir escuchando": "Resume", "Pausar": "Pause", "Preparando…": "Preparing…", "Guardar": "Save", "Voz para escuchar (opcional)": "Voice to listen (optional)", "Clave de ElevenLabs": "ElevenLabs key", "ID de la voz": "Voice ID", "Con esto aparece «Escuchar» en cada tarjeta. Cada audio se guarda para no gastar dos veces.": "This adds “Listen” to every card. Each audio is saved so it isn't paid for twice.", "La clave de ElevenLabs no funciona. Revísala en Ajustes.": "The ElevenLabs key doesn't work. Check it in Settings.", "Se acabaron los créditos de este mes en ElevenLabs.": "This month's ElevenLabs credits are used up.", "ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).": "ElevenLabs only allows library voices on a paid plan (from $6/month).", "No encuentro esa voz. Revisa el ID en Ajustes.": "I can't find that voice. Check the ID in Settings.", "ElevenLabs va saturado. Prueba otra vez en un momento.": "ElevenLabs is busy. Try again in a moment.", "No pude generar el audio. Prueba otra vez.": "Couldn't make the audio. Try again."};
   const EN_PAT=[["^(\\d+) fotos esperando conexión$", "$1 photos waiting for a connection"], ["^Pregunta algo sobre (.+)\u2026$", "Ask something about $1\u2026"], ["^Volver a \u00ab(.+)\u00bb$", "Back to \u201c$1\u201d"], ["^(\\d+) lugares$", "$1 places"], ["^Importados (\\d+) descubrimientos?\\.$", "Imported $1 discoveries."], ["^Buscando (.+)\u2026$", "Looking up $1\u2026"], ["^(\\d+) preguntas$", "$1 questions"], ["^\u00bfC\u00f3mo surgi\u00f3 (.+)\\?$", "How did $1 begin?"], ["^Borrado \u00b7 $", "Deleted \u00b7 "], ["^p\\. ej\\. (.+)$", "e.g. $1"]].map(([a,b])=>[new RegExp(a),b]);
   function t_(es){if(cfg.lang!=='en')return es;if(EN_UI[es])return EN_UI[es];for(const[re,to]of EN_PAT){if(re.test(es))return es.replace(re,to)}return es}
   const ATTRS=['placeholder','aria-label','alt'];
@@ -1963,153 +1963,114 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     });
   }
 
-  // ---------- "Tu día": three shareable pictures of the day, made on the phone ----------
+  // ---------- "Tu día": three quiet moodboards of the day, made on the phone ----------
   let storyRun=0;
-  const DAY_LAYOUTS=[['film','Fotos'],['map','Mapa'],['list','Lista']];
+  const DAY_LAYOUTS=[['mosaic','Mosaico'],['cover','Portada'],['grid','Cuadrícula']];
   async function openStory(k,list,label){
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
-    const id=`${mapCity}|${k}`,sig=items.map(x=>x.t).join(','),run=++storyRun;
-    show('story');const box=$('story');
+    const run=++storyRun;show('story');const box=$('story');
     const city=mapCity&&mapCity!=='Sin ubicación'?mapCity:'';
     const span=Math.max(0,Math.round(((items[items.length-1].takenAt||items[items.length-1].t)-(items[0].takenAt||items[0].t))/60000));
-    const dur=span>=60?`${Math.floor(span/60)} h ${String(span%60).padStart(2,'0')} min`:`${span} min`;
+    const dur=span>=60?`${Math.floor(span/60)} h ${String(span%60).padStart(2,'0')}`:`${span} min`;
     box.innerHTML=`<p class="st-eyebrow"></p><div class="seg st-seg" role="group"></div><div class="st-poster"><img alt=""></div><div class="st-actions"><button class="storybtn st-share"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span></span></button></div>`;
     box.querySelector('.st-eyebrow').textContent=[city,label].filter(Boolean).join(' · ');
     box.querySelector('.st-share span').textContent=t_('Compartir imagen');
     const seg=box.querySelector('.st-seg');DAY_LAYOUTS.forEach(([v,l])=>{const b=document.createElement('button');b.dataset.v=v;b.textContent=t_(l);seg.appendChild(b)});
     const pimg=box.querySelector('.st-poster img'),pbox=box.querySelector('.st-poster');
-    const cache={};let layout=store.get('dayLayout','film');let title=((store.get('daystory',{})[id]||{}).sig===sig&&(store.get('daystory',{})[id]||{}).lang===cfg.lang)?store.get('daystory',{})[id].title:'';
-    const D={items,city,label,dur,title};
-    const paint=async()=>{seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===layout));
-      const key=layout+'|'+(D.title||'');pbox.classList.remove('in');
-      try{if(!cache[key])cache[key]=drawDay(layout,D);const b=await cache[key];if(run!==storyRun||key!==layout+'|'+(D.title||''))return;
+    const cache={};let layout=store.get('dayLayout2','mosaic');if(!DAY_LAYOUTS.some(([v])=>v===layout))layout='mosaic';
+    const D={items,city,label,dur};
+    const paint=async()=>{seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===layout));const key=layout;pbox.classList.remove('in');
+      try{if(!cache[key])cache[key]=drawDay(layout,D);const b=await cache[key];if(run!==storyRun||key!==layout)return;
         if(pimg._u)URL.revokeObjectURL(pimg._u);pimg._u=URL.createObjectURL(b);pimg.src=pimg._u;pimg.onload=()=>pbox.classList.add('in');pbox._blob=b}catch(e){console.warn(e)}};
-    seg.onclick=e=>{const b=e.target.closest('button');if(!b)return;layout=b.dataset.v;store.set('dayLayout',layout);paint()};
+    seg.onclick=e=>{const b=e.target.closest('button');if(!b)return;layout=b.dataset.v;store.set('dayLayout2',layout);paint()};
     paint();
-    box.querySelector('.st-share').onclick=async()=>{const blob=pbox._blob;if(!blob)return;const f=new File([blob],`manu-go-${(city||'dia').toLowerCase().replace(/\s+/g,'-')}-${layout}.png`,{type:'image/png'});
+    box.querySelector('.st-share').onclick=async()=>{const blob=pbox._blob;if(!blob)return;const f=new File([blob],`manu-go-${(city||'dia').toLowerCase().replace(/\s+/g,'-')}.png`,{type:'image/png'});
       try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e.name==='AbortError')return}
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=f.name;document.body.appendChild(a);a.click();a.remove()};
     pimg.onclick=()=>{if(!pimg.src)return;$('viewer-img').src=pimg.src;$('viewer').hidden=false};
-    // a short title for the day, once; the pictures repaint when it arrives
-    if(!title&&cfg.key){try{const t=await dayTitle(items,city);if(t&&run===storyRun){D.title=t;const all=store.get('daystory',{});all[id]={sig,lang:cfg.lang,title:t};store.set('daystory',all);if(view==='story')paint()}}catch(e){}}
   }
-  async function dayTitle(items,city){
-    const lines=items.map(x=>`- ${LV(x).name}: ${(LV(x).what||'').slice(0,140)}`).join('\n');
-    const out=await gemini([{text:`Alguien pasó el día caminando por ${city||'una ciudad'} y fotografió esto:\n${lines}\n\nDale a su día un título de 2 a 5 palabras, como el de una película o un episodio: evocador, concreto, con algo de esta ciudad o de lo que vio. Sin dos puntos, sin comillas, sin emojis, sin el nombre de la app. Escribe en ${LANG()}. Devuelve JSON: {"title": "..."}`}],{fast:true});
-    return out&&out.title?String(out.title).replace(/^["«“]|["»”.]$/g,'').trim():''}
 
   // drawing helpers
-  const POSTER={W:1080,H:1920,M:84};
+  const POSTER={W:1080,H:1920,M:72};
   async function dayAssets(items){const bm={};for(const x of items){if(!x.hasPhoto)continue;try{const b=await getPhoto(x.t);if(b)bm[x.t]=await createImageBitmap(b)}catch(e){}}return bm}
-  function rng(seed){let s=seed%2147483647;if(s<=0)s+=2147483646;return()=>(s=s*16807%2147483647)/2147483647}
   function cover(g,bm,x,y,w,h){const r=Math.max(w/bm.width,h/bm.height),dw=bm.width*r,dh=bm.height*r;g.save();g.beginPath();g.rect(x,y,w,h);g.clip();g.drawImage(bm,x+(w-dw)/2,y+(h-dh)/2,dw,dh);g.restore()}
-  function grain(g,W,H,amt,seed){const n=document.createElement('canvas');n.width=n.height=256;const c=n.getContext('2d'),d=c.createImageData(256,256),R=rng(seed||7);
-    for(let i=0;i<d.data.length;i+=4){const v=R()*255;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=amt}c.putImageData(d,0,0);g.save();g.globalCompositeOperation='overlay';g.fillStyle=g.createPattern(n,'repeat');g.fillRect(0,0,W,H);g.restore()}
-  function roughLine(g,pts,R,w,passes){for(let p=0;p<passes;p++){g.lineWidth=w*(p?0.6:1);g.globalAlpha=p?0.45:0.95;g.beginPath();pts.forEach((q,i)=>{const j=()=>(R()-.5)*(p?6:3);if(!i){g.moveTo(q[0]+j(),q[1]+j());return}
-      const a=pts[i-1],mx=(a[0]+q[0])/2+(R()-.5)*26,my=(a[1]+q[1])/2+(R()-.5)*26;g.quadraticCurveTo(mx,my,q[0]+j(),q[1]+j())});g.stroke()}g.globalAlpha=1}
-  function roughCircle(g,x,y,r,R,w,ry){g.lineWidth=w;g.beginPath();for(let a=0;a<=Math.PI*2.15;a+=0.18){const k=1+(R()-.5)*0.08;const px=x+Math.cos(a-0.4)*r*k,py=y+Math.sin(a-0.4)*(ry||r*0.92)*k;a?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()}
   function fitText(g,t,maxW){if(g.measureText(t).width<=maxW)return t;let s=t;while(s.length>3&&g.measureText(s+'…').width>maxW)s=s.slice(0,-1);return s.trim()+'…'}
-  function wrapLines(g,t,maxW){const words=(t||'').split(/\s+/),out=[];let l='';words.forEach(w=>{const n=l?l+' '+w:w;if(g.measureText(n).width>maxW&&l){out.push(l);l=w}else l=n});if(l)out.push(l);return out}
   function km(items){let d=0;const p=items.filter(x=>x.pos);for(let i=1;i<p.length;i++){const a=p[i-1].pos,b=p[i].pos,R=6371,r=v=>v*Math.PI/180;d+=2*R*Math.asin(Math.sqrt(Math.sin(r(b.lat-a.lat)/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(r(b.lon-a.lon)/2)**2))}return d}
   const kmText=d=>d>=1?`${d.toFixed(1).replace('.',cfg.lang==='en'?'.':',')} km`:`${Math.round(d*1000)} m`;
-  const hm=x=>new Date(x.takenAt||x.t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'});
-  const SERIF='"Shippori Mincho","Hiragino Mincho ProN",Georgia,serif',MONO='"JetBrains Mono",Menlo,monospace',SANS='-apple-system,"SF Pro Text","Helvetica Neue",Arial,sans-serif',HAND='"Caveat","Bradley Hand","Segoe Print",cursive';
+  const SERIF='"Shippori Mincho","Hiragino Mincho ProN",Georgia,serif',MONO='"JetBrains Mono",Menlo,monospace';
+  function palette(){const light=document.documentElement.dataset.theme==='light';return light?{bg:'#F3F1EB',ink:'#1A1A18',mut:'#77746D',fnt:'#A9A59C',tile:'#E4E0D6'}:{bg:'#0D0D0C',ink:'#ECEAE4',mut:'#8C8A84',fnt:'#55534E',tile:'#1A1A18'}}
+  function spaced(g,t,x,y,sp,align){let w=0;for(const ch of t)w+=g.measureText(ch).width+sp;w-=sp;let cx=align==='right'?x-w:align==='center'?x-w/2:x;for(const ch of t){g.fillText(ch,cx,y);cx+=g.measureText(ch).width+sp}return w}
+  function statsLine(D){return [`${D.items.length} ${t_(D.items.length===1?'lugar':'lugares')}`,D.dur,km(D.items)>0.05?kmText(km(D.items)):''].filter(Boolean).join('  ·  ')}
+  // the index of every place, set as quiet running text, sized so all of it fits
+  function drawIndex(g,D,P,x,y,w,maxH,dry){
+    let fs=26;const parts=D.items.map((it,i)=>[String(i+1).padStart(2,'0'),LV(it).name]);
+    const layoutAt=f=>{const lines=[];let line=[],lw=0;g.font=`500 ${f}px ${SERIF}`;const sp=f*0.9;
+      parts.forEach(([n,nm])=>{g.font=`400 ${f*0.62}px ${MONO}`;const nw=g.measureText(n).width+f*0.35;g.font=`500 ${f}px ${SERIF}`;const tw=nw+g.measureText(nm).width;
+        if(lw&&lw+sp+tw>w){lines.push(line);line=[];lw=0}line.push([n,nm,nw]);lw+=(lw?sp:0)+tw});if(line.length)lines.push(line);return lines};
+    let lines=layoutAt(fs);while(lines.length*fs*1.55>maxH&&fs>15){fs-=1;lines=layoutAt(fs)}
+    if(dry)return lines.length*fs*1.55;const sp=fs*0.9;lines.forEach((line,li)=>{let cx=x;const ly=y+fs+li*fs*1.55;line.forEach(([n,nm,nw])=>{g.fillStyle=P.fnt;g.font=`400 ${fs*0.62}px ${MONO}`;g.fillText(n,cx,ly);cx+=nw;g.fillStyle=P.mut;g.font=`500 ${fs}px ${SERIF}`;g.fillText(nm,cx,ly);cx+=g.measureText(nm).width+sp})});
+    return lines.length*fs*1.55}
+  function header(g,D,P,M,W){g.textBaseline='alphabetic';g.fillStyle=P.mut;g.font=`400 22px ${MONO}`;spaced(g,'MANU-GO',M,M+18,4);spaced(g,(D.label||'').toUpperCase(),W-M,M+18,3,'right')}
   async function drawDay(layout,D){
-    try{await Promise.all(['600 80px "Shippori Mincho"','500 30px "JetBrains Mono"','700 60px "Caveat"','500 40px "Caveat"'].map(f=>document.fonts.load(f)))}catch(e){}
+    try{await Promise.all(['600 80px "Shippori Mincho"','500 30px "Shippori Mincho"','400 24px "JetBrains Mono"'].map(f=>document.fonts.load(f)))}catch(e){}
     const {W,H}=POSTER,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
-    const bm=await dayAssets(D.items);
-    ({film:posterFilm,map:posterMap,list:posterList}[layout]||posterFilm)(g,D,bm);
+    const bm=await dayAssets(D.items);const P=palette();g.fillStyle=P.bg;g.fillRect(0,0,W,H);
+    ({mosaic:posterMosaic,cover:posterCover,grid:posterGrid}[layout]||posterMosaic)(g,D,bm,P);
     return await new Promise(r=>cv.toBlob(r,'image/png'))}
 
-  // 1 · FOTOS — a contact sheet: every photo of the day, numbered, with a china-marker circle on one
-  function posterFilm(g,D,bm){
-    const {W,H,M}=POSTER,R=rng(D.items[0].t|0),n=D.items.length;
-    g.fillStyle='#0B0B0A';g.fillRect(0,0,W,H);
-    // sprocket holes, like the edge of a negative
-    g.fillStyle='#1C1B19';for(let y=40;y<H-30;y+=58){g.beginPath();g.roundRect?g.roundRect(22,y,26,34,6):g.rect(22,y,26,34);g.fill();g.beginPath();g.roundRect?g.roundRect(W-48,y,26,34,6):g.rect(W-48,y,26,34);g.fill()}
-    g.fillStyle='#E6A23C';g.font=`500 22px ${MONO}`;g.textBaseline='alphabetic';
-    g.fillText('MANU-GO  ▸  '+(D.label||'').toUpperCase(),M,M+6);
-    g.fillStyle='#ECEAE4';let fs=D.title?96:128;g.font=`600 ${fs}px ${SERIF}`;let lines=wrapLines(g,D.title||D.city||'',W-2*M);while(lines.length>2&&fs>60){fs-=8;g.font=`600 ${fs}px ${SERIF}`;lines=wrapLines(g,D.title||D.city||'',W-2*M)}
-    let y=M+40;lines.slice(0,2).forEach(l=>{y+=fs*1.02;g.fillText(l,M,y)});
-    if(D.title&&D.city){g.fillStyle='#8C8A84';g.font=`500 26px ${MONO}`;g.fillText(D.city.toUpperCase(),M,y+52);y+=52}
-    // grid that always fits everything
-    const top=y+56,bottom=H-150,gap=12,lab=58;let best=null;
-    for(let c=2;c<=7;c++){const rows=Math.ceil(n/c),cw=(W-2*M-(c-1)*gap)/c,ch=Math.min(cw*1.25,(bottom-top-(rows-1)*gap)/rows-lab);if(ch<40)continue;const area=cw*ch;if(!best||area>best.area)best={c,rows,cw,ch,area}}
-    const {c,cw,ch}=best||{c:7,cw:(W-2*M-6*gap)/7,ch:60};
-    const pick=D.items.findIndex(x=>x.kind!=='thing');const star=pick<0?0:pick;
-    D.items.forEach((x,i)=>{const col=i%c,row=Math.floor(i/c),px=M+col*(cw+gap),py=top+row*(ch+lab+gap);
-      if(bm[x.t])cover(g,bm[x.t],px,py,cw,ch);else{g.fillStyle='#1E1E1C';g.fillRect(px,py,cw,ch);g.fillStyle='#ECEAE4';g.font=`600 ${Math.max(18,Math.min(34,cw/7))}px ${SERIF}`;wrapLines(g,LV(x).name,cw-24).slice(0,4).forEach((l,k)=>g.fillText(l,px+12,py+40+k*Math.max(22,Math.min(38,cw/6))))}
-      g.fillStyle='#E6A23C';g.font=`500 ${cw<150?15:18}px ${MONO}`;g.fillText(`${String(i+1).padStart(2,'0')}  ${hm(x)}`,px,py+ch+22);
-      g.fillStyle='#ECEAE4';g.font=`600 ${cw<150?16:20}px ${SANS}`;g.fillText(fitText(g,LV(x).name,cw),px,py+ch+46);
-      if(i===star){g.strokeStyle='#D9483B';g.lineJoin='round';g.lineCap='round';roughCircle(g,px+cw/2,py+ch/2,cw*0.6,R,6,ch*0.62)}});
-    g.fillStyle='#8C8A84';g.font=`500 24px ${MONO}`;g.fillText([`${n} ${t_('lugares')}`,D.dur,km(D.items)>0?kmText(km(D.items)):''].filter(Boolean).join('   ·   ').toUpperCase(),M,H-80);
-    grain(g,W,H,26,3)}
+  // 1 · MOSAICO — photos at their own proportions in quiet columns, like a moodboard; the city and an index below
+  function posterMosaic(g,D,bm,P){
+    const {W,H,M}=POSTER;header(g,D,P,M,W);
+    const ph=D.items.filter(x=>bm[x.t]);const gap=10;
+    const idxH=drawIndex(g,D,P,M,0,W-2*M,1e4,true);const footTop=H-M-Math.min(520,150+idxH);const top=M+80,areaH=footTop-top-40;
+    let colsN=ph.length<=2?1:ph.length<=6?2:ph.length<=14?3:4,block=null;
+    const build=(c,w)=>{c=Math.min(c,ph.length);const cw=(w-(c-1)*gap)/c,cols=Array.from({length:c},()=>[]),hs=Array(c).fill(0);
+      ph.forEach(x=>{const b=bm[x.t];const ar=Math.min(1.45,Math.max(0.68,b.height/b.width));const k=hs.indexOf(Math.min(...hs));cols[k].push([x,cw*ar]);hs[k]+=cw*ar+gap});
+      const T=hs.reduce((a,b)=>a+b,0)/c-gap,pos=[];   // every column ends on the same line: each photo is cropped a little to get there
+      cols.forEach((col,k)=>{const sum=col.reduce((a,[,h])=>a+h,0),avail=T-gap*(col.length-1);let y=0;col.forEach(([x,h])=>{const hh=h*avail/sum;pos.push([k,y,cw,hh,x]);y+=hh+gap})});
+      return{cw,pos,h:T,c}};
+    if(ph.length){let w=W-2*M;block=build(colsN,w);while(block.h>areaH&&colsN<6){colsN++;block=build(colsN,w)}
+      if(block.h>areaH){const s=areaH/block.h;w=w*s;block=build(colsN,w)}
+      const bw=block.cw*block.c+gap*(block.c-1),ox=(W-bw)/2,oy=top+(areaH-block.h)*0.72;
+      block.pos.forEach(([k,y,cw,h,x])=>cover(g,bm[x.t],ox+k*(cw+gap),oy+y,cw,h))}
+    // city, numbers, index
+    let y=footTop+40;g.fillStyle=P.ink;let fs=88;g.font=`600 ${fs}px ${SERIF}`;const title=D.city||D.label||'';while(g.measureText(title).width>W-2*M&&fs>48){fs-=4;g.font=`600 ${fs}px ${SERIF}`}
+    g.fillText(title,M,y+fs*0.8);y+=fs*0.8+34;g.fillStyle=P.mut;g.font=`400 22px ${MONO}`;spaced(g,statsLine(D).toUpperCase(),M,y,2);
+    drawIndex(g,D,P,M,y+22,W-2*M,H-M-(y+22)+10)}
 
-  // 2 · MAPA — a hand-drawn walk on paper: pencil route, tilted polaroids taped on, notes in the margin
-  function posterMap(g,D,bm){
-    const {W,H,M}=POSTER,R=rng((D.items[0].t|0)+11),n=D.items.length;
-    g.fillStyle='#EFEBE2';g.fillRect(0,0,W,H);
-    g.strokeStyle='rgba(60,50,30,.07)';g.lineWidth=1;for(let y=0;y<H;y+=46){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke()}
-    const INK='#1B1A17';
-    g.fillStyle=INK;g.font=`500 22px ${MONO}`;g.fillText('manu-go',M,M+4);g.textAlign='right';g.fillText((D.label||'').toUpperCase(),W-M,M+4);g.textAlign='left';
-    let fs=D.title?104:132;g.font=`700 ${fs}px ${HAND}`;let lines=wrapLines(g,D.title||D.city||'',W-2*M);while(lines.length>2&&fs>64){fs-=8;g.font=`700 ${fs}px ${HAND}`;lines=wrapLines(g,D.title||D.city||'',W-2*M)}
-    let y=M+30;lines.slice(0,2).forEach(l=>{y+=fs*0.95;g.fillText(l,M,y)});
-    g.strokeStyle='#D9483B';g.lineWidth=5;g.lineCap='round';g.beginPath();g.moveTo(M,y+16);g.quadraticCurveTo(M+260,y+6+R()*10,M+Math.min(W-2*M,g.measureText(lines[lines.length-1]||'').width),y+14);g.stroke();
-    if(D.title&&D.city){g.fillStyle='#6E6A60';g.font=`500 24px ${MONO}`;g.fillText(D.city.toUpperCase(),M,y+62);y+=46}
-    // place the stops: real positions when there are, a meander when not
-    const top=y+90,bottom=H-170,L=M+30,Rt=W-M-30;const s=Math.max(120,Math.min(250,Math.sqrt(((Rt-L)*(bottom-top))/n)*0.62));
-    const pts=D.items.filter(x=>x.pos);let P;
-    if(pts.length>=2){const k=Math.cos(pts[0].pos.lat*Math.PI/180);const xs=pts.map(p=>p.pos.lon*k),ys=pts.map(p=>-p.pos.lat);const mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);
-      const sx=(Rt-L-s)/Math.max(mxx-mnx,1e-6),sy=(bottom-top-s*1.2)/Math.max(mxy-mny,1e-6);
-      const map=new Map(pts.map((p,i)=>[p.t,[L+s/2+(xs[i]-mnx)*sx,top+s*0.6+(ys[i]-mny)*sy]]));
-      P=D.items.map((x,i)=>map.get(x.t)||null);for(let i=0;i<n;i++)if(!P[i]){const a=P.slice(0,i).reverse().find(Boolean)||P.find(Boolean);P[i]=[a[0]+(R()-.5)*120,a[1]+(R()-.5)*120]}}
-    else{const cols=Math.max(2,Math.round(Math.sqrt(n*0.6)));P=D.items.map((x,i)=>{const r=Math.floor(i/cols),c=i%cols,cc=r%2?cols-1-c:c;const rows=Math.ceil(n/cols);return[L+s/2+(Rt-L-s)*(cols===1?.5:cc/(cols-1)),top+s*0.6+(bottom-top-s*1.2)*(rows===1?.5:r/(rows-1))]})}
-    // polaroid boxes, nudged apart so none hides another
-    const B=P.map(p=>({x:p[0],y:p[1],ax:p[0],ay:p[1]}));const bw=s,bh=s*1.3;
-    for(let it=0;it<120;it++){for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){const a=B[i],b=B[j],dx=b.x-a.x,dy=b.y-a.y,ox=bw*1.02-Math.abs(dx),oy=bh*1.02-Math.abs(dy);
-        if(ox>0&&oy>0){if(ox<oy){const m=ox/2*(dx<0?-1:1);a.x-=m;b.x+=m}else{const m=oy/2*(dy<0?-1:1);a.y-=m;b.y+=m}}}
-      B.forEach(b=>{b.x=Math.min(Rt-bw/2,Math.max(L+bw/2,b.x));b.y=Math.min(bottom-bh/2,Math.max(top+bh/2,b.y))})}
-    // pencil route through the real points
-    g.strokeStyle=INK;g.lineCap='round';g.lineJoin='round';roughLine(g,B.map(b=>[b.x,b.y]),R,4,2);
-    // polaroids
-    B.forEach((b,i)=>{const x=D.items[i],ang=(R()-.5)*0.22;g.save();g.translate(b.x,b.y);g.rotate(ang);
-      g.shadowColor='rgba(0,0,0,.22)';g.shadowBlur=18;g.shadowOffsetY=6;g.fillStyle='#FBFAF6';g.fillRect(-bw/2,-bh/2,bw,bh);g.shadowColor='transparent';
-      const ins=bw*0.07,ph=bw-ins*2;if(bm[x.t])cover(g,bm[x.t],-bw/2+ins,-bh/2+ins,ph,ph);else{g.fillStyle='#DDD8CC';g.fillRect(-bw/2+ins,-bh/2+ins,ph,ph);g.fillStyle=INK;g.font=`700 ${ph*0.42}px ${HAND}`;g.textAlign='center';g.fillText(String(i+1),0,-bh/2+ins+ph*0.66);g.textAlign='left'}
-      g.fillStyle='rgba(230,220,180,.75)';g.save();g.rotate((R()-.5)*0.4);g.fillRect(-bw*0.18,-bh/2-12,bw*0.36,30);g.restore();
-      g.fillStyle=INK;const fz=Math.max(20,Math.min(32,bw*0.13));g.font=`700 ${fz}px ${HAND}`;let cl=wrapLines(g,`${i+1}. ${LV(x).name}`,bw-ins*2);if(cl.length>2)cl=[cl[0],fitText(g,cl.slice(1).join(' '),bw-ins*2)];const cy=-bh/2+ins+ph+fz*1.05;cl.forEach((l,k)=>g.fillText(l,-bw/2+ins,cy+k*fz*0.95));
-      g.restore()});
-    // start / end notes
-    g.fillStyle='#D9483B';g.font=`700 40px ${HAND}`;const st=B[0];g.save();g.translate(Math.min(W-M-150,st.x+bw*0.3),Math.max(top-6,st.y-bh*0.56));g.rotate(-0.12);g.fillText(t_('salida')+' ↓',0,0);g.restore();
-    g.fillStyle=INK;g.font=`700 44px ${HAND}`;g.fillText([`${n} ${t_('lugares')}`,D.dur,km(D.items)>0?kmText(km(D.items)):''].filter(Boolean).join('  ·  '),M,H-92);
-    grain(g,W,H,18,5)}
+  // 2 · PORTADA — one photo as the cover, the rest as a quiet strip, the city set large
+  function posterCover(g,D,bm,P){
+    const {W,H,M}=POSTER;header(g,D,P,M,W);
+    const ph=D.items.filter(x=>bm[x.t]);const hero=ph.find(x=>x.kind!=='thing')||ph[0];const rest=ph.filter(x=>x!==hero);
+    let y=M+70;const idxH=Math.min(300,drawIndex(g,D,P,M,0,W-2*M,1e4,true));const stripH=rest.length?(rest.length>8?210:180):0;const heroH=Math.max(640,H-M-y-56-stripH-30-110-46-idxH-20);
+    if(hero){cover(g,bm[hero.t],M,y,W-2*M,heroH)}else{g.fillStyle=P.tile;g.fillRect(M,y,W-2*M,heroH)}
+    if(hero){g.fillStyle=P.mut;g.font=`400 20px ${MONO}`;spaced(g,`${String(D.items.indexOf(hero)+1).padStart(2,'0')}  ${LV(hero).name}`.toUpperCase(),M,y+heroH+34,2)}
+    y+=heroH+64;
+    if(rest.length){const gap=8,n=rest.length,per=n<=4?n:Math.min(8,Math.ceil(n/Math.ceil(n/8))),rows=Math.ceil(n/per),s=(W-2*M-(per-1)*gap)/per,h=Math.min(s,rows>1?(stripH-(rows-1)*gap)/rows:stripH);
+      rest.forEach((x,i)=>{const r=Math.floor(i/per),c=i%per;cover(g,bm[x.t],M+c*(s+gap),y+r*(h+gap),s,h)});y+=rows*(h+gap)+30}
+    g.fillStyle=P.ink;let fs=110;const title=D.city||D.label||'';g.font=`600 ${fs}px ${SERIF}`;while(g.measureText(title).width>W-2*M&&fs>56){fs-=4;g.font=`600 ${fs}px ${SERIF}`}
+    y+=fs*0.82;g.fillText(title,M,y);y+=46;g.fillStyle=P.mut;g.font=`400 22px ${MONO}`;spaced(g,statsLine(D).toUpperCase(),M,y,2);
+    drawIndex(g,D,P,M,y+18,W-2*M,H-M-(y+18)+10)}
 
-  // 3 · LISTA — the day in numbers and names, over your best photo, Wrapped-style
-  function posterList(g,D,bm){
-    const {W,H,M}=POSTER,n=D.items.length;const hero=D.items.find(x=>bm[x.t]&&x.kind!=='thing')||D.items.find(x=>bm[x.t]);
-    g.fillStyle='#0D0D0C';g.fillRect(0,0,W,H);
-    if(hero){cover(g,bm[hero.t],0,0,W,H);const id=g.getImageData(0,0,W,H),d=id.data;for(let i=0;i<d.length;i+=4){const v=d[i]*.3+d[i+1]*.59+d[i+2]*.11;d[i]=v*.85+8;d[i+1]=v*.82+6;d[i+2]=v*.72+4}g.putImageData(id,0,0);
-      const gr=g.createLinearGradient(0,0,0,H);gr.addColorStop(0,'rgba(10,10,9,.55)');gr.addColorStop(.35,'rgba(10,10,9,.78)');gr.addColorStop(1,'rgba(10,10,9,.96)');g.fillStyle=gr;g.fillRect(0,0,W,H)}
-    g.fillStyle='#4CD07D';g.beginPath();g.arc(M+8,M-6,8,0,7);g.fill();g.fillStyle='#ECEAE4';g.font=`500 24px ${MONO}`;g.fillText('manu-go',M+28,M+2);
-    g.textAlign='right';g.fillStyle='#B8B5AD';g.fillText((D.label||'').toUpperCase(),W-M,M+2);g.textAlign='left';
-    // the numbers
-    const d=km(D.items);const stats=[[String(n),t_('lugares')],[D.dur.replace(' min','′').replace(' h ','h '),t_('caminando')]];if(d>0)stats.push([kmText(d),t_('recorridos')]);
-    let y=M+150;const colW=(W-2*M)/stats.length;let sf=stats.length>2?96:116;g.font=`600 ${sf}px ${SERIF}`;while(sf>48&&stats.some(([v])=>g.measureText(v).width>colW-24)){sf-=4;g.font=`600 ${sf}px ${SERIF}`}
-    stats.forEach(([v,l],i)=>{g.fillStyle='#ECEAE4';g.font=`600 ${sf}px ${SERIF}`;g.fillText(v,M+i*colW,y);g.fillStyle='#4CD07D';g.font=`500 22px ${MONO}`;g.fillText(l.toUpperCase(),M+i*colW,y+40)});
-    y+=120;g.fillStyle='#ECEAE4';let fs=D.title?72:84;g.font=`italic 600 ${fs}px ${SERIF}`;const tl=wrapLines(g,D.title||D.city||'',W-2*M).slice(0,2);tl.forEach(l=>{y+=fs*1.05;g.fillText(l,M,y)});
-    if(D.title&&D.city){g.fillStyle='#B8B5AD';g.font=`500 24px ${MONO}`;y+=62;g.fillText(D.city.toUpperCase(),M,y)}
-    g.strokeStyle='rgba(236,234,228,.35)';g.lineWidth=2;y+=46;g.beginPath();g.moveTo(M,y);g.lineTo(W-M,y);g.stroke();
-    // every place, sized to fit — one or two columns, never "+N"
-    const top=y+30,bottom=H-130,twoCol=n>11,perCol=twoCol?Math.ceil(n/2):n,colW2=twoCol?(W-2*M-40)/2:W-2*M;
-    const rowH=Math.min(110,(bottom-top)/perCol);let nf=Math.min(58,rowH*0.5);
-    {const avail=colW2-(twoCol?0:110)-nf*1.25;g.font=`600 100px ${SERIF}`;const longest=Math.max(...D.items.map(x=>g.measureText(LV(x).name).width));nf=Math.max(22,Math.min(nf,100*avail/longest*0.98))}
-    if(twoCol)nf=Math.max(nf,24);
-    D.items.forEach((x,i)=>{const col=twoCol&&i>=perCol?1:0,r=col?i-perCol:i,bx=M+col*(colW2+40),by=top+r*rowH+rowH*0.62;
-      g.fillStyle='#4CD07D';g.font=`500 ${Math.max(16,nf*0.42)}px ${MONO}`;g.fillText(String(i+1).padStart(2,'0'),bx,by);
-      const nx=bx+nf*1.25;g.fillStyle='#ECEAE4';g.font=`600 ${nf}px ${SERIF}`;g.fillText(fitText(g,LV(x).name,colW2-(nx-bx)-(twoCol?0:110)),nx,by);
-      if(!twoCol){g.textAlign='right';g.fillStyle='#8C8A84';g.font=`500 ${Math.max(16,nf*0.4)}px ${MONO}`;g.fillText(hm(x),W-M,by);g.textAlign='left'}});
-    g.fillStyle='#8C8A84';g.font=`500 22px ${MONO}`;g.fillText((D.city?D.city+'  ·  ':'')+t_('un día con manu-go').toUpperCase(),M,H-74);
-    grain(g,W,H,22,9)}
-
+  // 3 · CUADRÍCULA — square tiles, like a feed: every place gets one, photo or its name
+  function posterGrid(g,D,bm,P){
+    const {W,H,M}=POSTER;header(g,D,P,M,W);
+    const n=D.items.length;const title=D.city||D.label||'';let fs=96;g.font=`600 ${fs}px ${SERIF}`;while(g.measureText(title).width>W-2*M&&fs>56){fs-=4;g.font=`600 ${fs}px ${SERIF}`}
+    const headH=fs*0.6+44+60,gap=6,idxH=Math.min(320,drawIndex(g,D,P,M,0,W-2*M,1e4,true)),avail=H-M-40-(M+70);
+    let c=Math.min(n,n===3?3:n<=4?2:3);const gridMax=avail-headH-18-idxH;const fits=c=>{const s=(W-2*M-(c-1)*gap)/c;return Math.ceil(n/c)*(s+gap)-gap<=gridMax};while(!fits(c)&&c<6)c++;
+    let s=(W-2*M-(c-1)*gap)/c;const rows=Math.ceil(n/c);if(rows*(s+gap)-gap>gridMax)s=(gridMax-(rows-1)*gap)/rows;
+    const gw=c*s+(c-1)*gap,ox=(W-gw)/2,gh=rows*(s+gap)-gap;
+    let y=M+70+Math.max(0,(avail-(headH+gh+18+idxH))/2);
+    g.fillStyle=P.ink;g.font=`600 ${fs}px ${SERIF}`;g.textAlign='center';g.fillText(title,W/2,y+fs*0.6);g.textAlign='left';y+=fs*0.6+44;
+    g.fillStyle=P.mut;g.font=`400 22px ${MONO}`;spaced(g,statsLine(D).toUpperCase(),W/2,y,2,'center');y+=60;
+    D.items.forEach((x,i)=>{const r=Math.floor(i/c),cc=i%c,px=ox+cc*(s+gap),py=y+r*(s+gap);
+      if(bm[x.t])cover(g,bm[x.t],px,py,s,s);else{g.fillStyle=P.tile;g.fillRect(px,py,s,s);g.fillStyle=P.ink;let f=Math.min(40,s/6);g.font=`600 ${f}px ${SERIF}`;
+        const words=LV(x).name.split(/\s+/),lines=[];let l='';words.forEach(w=>{const t=l?l+' '+w:w;if(g.measureText(t).width>s-36&&l){lines.push(l);l=w}else l=t});if(l)lines.push(l);
+        lines.slice(0,5).forEach((ln,k)=>g.fillText(fitText(g,ln,s-36),px+18,py+18+f*1.1*(k+1)))}
+      g.fillStyle='rgba(0,0,0,.0)'});
+    const gy=y+rows*(s+gap)-gap;
+    // one line of names under the grid, small, every place
+    drawIndex(g,D,P,ox,gy+18,gw,H-M-(gy+18)+10)}
 
   // ---------- settings ----------
   // ---------- move discoveries between Safari and the installed app ----------
