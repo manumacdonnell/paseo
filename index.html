@@ -1089,7 +1089,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
-  const RULES=()=>`Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Escribe siempre los años, siglos y fechas con cifras (1944, siglo XVI), nunca en letras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
+  const RULES=()=>`Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. REGLA DE ORO: todo lo que digas está anclado en ESTE lugar concreto: esta ciudad, este barrio, esta calle, este local. La persona no quiere lo que le diría un buscador, quiere lo que tiene que ver con dónde está. Nunca cuentes la historia general de algo (cómo se fundó una cadena en otro país, el origen de un estilo en otra parte, qué es algo en abstracto); como mucho media frase, y solo si lo conectas con aquí. Si es una cadena o algo global: qué pasa con eso AQUÍ (cuándo llegó a esta ciudad o país, qué tiene este local, qué hubo antes en este edificio o esta calle, qué significa aquí). Si es un detalle (una baldosa, una farola, una puerta, un estilo): por qué está en esta ciudad y qué cuenta de ella. Si no sabes nada seguro de este sitio exacto, habla del edificio, la calle o el barrio donde está. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Escribe siempre los años, siglos y fechas con cifras (1944, siglo XVI), nunca en letras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho y va al grano: cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 7 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
 NAME: si es un sitio, su nombre propio exacto (genérico solo si SOURCE es generic); si es una cosa (SOURCE thing), lo que es, concreto y bien dicho (p. ej. "Tarta de zanahoria", "Pierogi ruskie"), NUNCA el nombre del local donde está
@@ -1205,11 +1205,12 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
         if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
         pos=await posPromise;
       }
-      if(pos&&!cityNear(pos))placeInfo(pos);   // start finding the city now, so it is ready with the title
+      const pinfo=pos?placeInfo(pos).catch(()=>null):Promise.resolve(null);   // start finding the street and city now, so they are ready with the title
       if(pos){$('loading-text').textContent='Mirando alrededor…';const p=await placesPromise;near=p.wiki;osm=p.osm;scanPlaces(osm,near)}
       $('loading-text').textContent='Averiguando qué es…';
       const where=pos?(pos.fromPhoto?'La foto se sacó en':'Foto tomada en'):'';
-      const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
+      const pi=await Promise.race([pinfo,wait(900).then(()=>null)]);const here_=pi&&(pi.address||pi.city)?`\nDirección aproximada: ${[pi.address,pi.address&&(pi.city||cityNear(pos))&&pi.address.includes(pi.city||cityNear(pos))?'':(pi.city||cityNear(pos))].filter(Boolean).join(', ')}.`:(pos&&cityNear(pos)?`\nCiudad: ${cityNear(pos)}.`:'');
+      const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).${here_}`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
         (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
       const prompt=photoPrompt(hint,ctx);
@@ -1226,7 +1227,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function processQueued(f,it){
     const img=await resize(f,800,'dataurl');const pos=it.pos;let near=[],osm=[];
     if(pos){try{const p=await places(pos);near=p.wiki;osm=p.osm}catch(e){}}
-    const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).`+
+    let pi=null;if(pos){try{pi=await placeInfo(pos)}catch(e){}}
+    const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).${pi&&(pi.address||pi.city)?`\nDirección aproximada: ${[pi.address,pi.address&&pi.city&&pi.address.includes(pi.city)?'':pi.city].filter(Boolean).join(', ')}.`:''}`+
       (osm.length?`\nSitios con nombre cerca según OpenStreetMap: ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
       (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen.';
     const base={img,file:f,pos,near,osm,deep:{},fromGallery:it.fromGallery,city:pos?cityNear(pos):'',takenAt:it.takenAt||it.t,_bg:true};
