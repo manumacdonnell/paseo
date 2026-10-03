@@ -355,7 +355,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .lback svg{width:22px;height:22px}
 .lrow.on .lback{opacity:1;transform:none;pointer-events:auto}
 .lback:active{transform:scale(.92)}
-.acc-body .lrow{margin:6px 0 4px}.acc-body .lpill{height:34px;font-size:13px}.acc-body .lback{width:34px;height:34px}
+.acc-body .lrow{margin:2px 0 14px}.acc-body .lpill{height:34px;font-size:13px}.acc-body .lback{width:34px;height:34px}
 .mb-listen{flex:none!important;display:none;align-items:center;gap:8px;height:34px;padding:0 12px!important;border-radius:999px;border:1px solid color-mix(in srgb,var(--live) 55%,transparent)!important;color:var(--live)!important;font-family:var(--sans)!important;font-size:13px!important;font-weight:500!important}
 .mb-listen.is-play,.mb-listen.is-pause{display:inline-flex}
 .mb-listen .eq{display:flex;align-items:flex-end;gap:2px;width:16px;height:14px}
@@ -1289,6 +1289,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;listenStop();$('lrow').hidden=!!opt.partial||!!c.noAI||!cfg.elKey;pillSet($('btn-listen'),'idle');$('btn-prev').hidden=true;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent='Copiar nombre';$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     metaWhenReady(c);
     if(!opt.partial)renderAccordion(c);
+    if(!opt.partial&&cfg.elKey&&!c.noAI&&LV(c).ok&&c.what)setTimeout(()=>{if(cur===c)prepScript(cardText(c)).catch(()=>{})},1500);   // get the read-aloud text ready while you read
     if(view!=='result')show('result');
   }
   function openCard(c,fromHistory){
@@ -1337,7 +1338,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function fillBody(body,points){
     const grow=isOpen(body)&&!body._slideT?body.offsetHeight:0;
     body.innerHTML='';const ul=document.createElement('ul');
-    points.forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});body.appendChild(ul);if(body._topic)deepListen(body,body._topic,points);
+    points.forEach(p=>{const li=document.createElement('li');li.textContent=p;ul.appendChild(li)});body.appendChild(ul);if(body._topic)deepListen(body,body._topic,points);const lr=body.querySelector('.lrow');if(lr)body.insertBefore(lr,ul);
     if(grow){const h1=body.scrollHeight;if(h1!==grow){body.style.overflow='hidden';body.style.height=grow+'px';void body.offsetHeight;body.style.transition='height .28s cubic-bezier(.2,.7,.2,1)';body.style.height=h1+'px';setTimeout(()=>{body.style.height='';body.style.overflow='';body.style.transition=''},300)}}
   }
   function waiting(body){body.innerHTML='<div class="skel" aria-label="Cargando"><i></i><i></i><i></i></div>'}
@@ -1855,12 +1856,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   async function ttsBlob(text){
     const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(cfg.elVoice||DEFAULT_VOICE)}?output_format=mp3_44100_64`,{method:'POST',
       headers:{'xi-api-key':cfg.elKey,'Content-Type':'application/json','Accept':'audio/mpeg'},
-      body:JSON.stringify({text,model_id:'eleven_multilingual_v2',voice_settings:{stability:.45,similarity_boost:.8,style:.15,use_speaker_boost:true}})});
+      body:JSON.stringify({text,model_id:'eleven_flash_v2_5',language_code:cfg.lang==='en'?'en':'es',voice_settings:{stability:.45,similarity_boost:.8,style:.15,use_speaker_boost:true}})});
     if(!r.ok){let j={};try{j=await r.json()}catch(e){}const d=j.detail||{},st=String(d.status||d.code||''),m=String(d.message||j.message||'').toLowerCase();
       const e=new Error(m);e.kind=r.status===401&&!/library|paid/.test(st+m)?'key':/quota|credit/.test(st+m)?'quota':/library|paid|subscription|tier|plan/.test(st+m)||r.status===402?'paid':/voice_not_found|not found/.test(st+m)?'voice':r.status===429?'busy':'other';throw e}
     return await r.blob()}
   const clean=x=>x.trim().replace(/[.!?…:;]?$/,m=>m||'.');
   // turn the card text into something a voice reads well: acronyms, roman numerals, abbreviations and symbols in words
+  const scriptMem=new Map();
+  const needsScript=t=>/\b[A-ZÁÉÍÓÚÑ]{2,}\b|\b[IVXLCDM]+\b|\b(?:p\. ?ej|aprox|s|ss|km|kg|n\.?º|nº|av|c\/|etc)\.|[%°ºª&@#]|\d+\s?(?:m|km|m²|kg|cm)\b/.test(t);
+  function prepScript(text){if(!cfg.elKey||!cfg.key||!text||!needsScript(text))return Promise.resolve(text);
+    if(!scriptMem.has(text)){const p=speakable(text);scriptMem.set(text,p);p.then(r=>{if(r===text)scriptMem.delete(text)})}return scriptMem.get(text)}
   async function speakable(text){
     try{const L=cfg.lang==='en'?'inglés':'español';
       const out=await gemini([{text:`Prepara este texto para que una voz sintética lo lea en voz alta en ${L}. NO cambies el contenido, ni el tono, ni el orden, ni añadas nada: solo reescribe lo que una voz leería mal.\n- Siglas: si es una sigla conocida que se dice como palabra (UNESCO, OTAN), déjala; si se deletrea, sustitúyela por el nombre completo si lo sabes con certeza, o si no escribe sus letras como se pronuncian en ${L}, separadas con guiones (p. ej. "pe-uve doble-ese").\n- Números romanos, siglos, abreviaturas (p. ej., aprox., s., km, m) y símbolos: escríbelos en palabras.\n- Nombres extranjeros difíciles: déjalos tal cual.\n- Mantén los saltos de línea y los títulos de sección (terminan en punto) tal cual.\nDevuelve JSON: {"script": "..."}\n\nTEXTO:\n${text}`}],{fast:true});
@@ -1875,22 +1880,23 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     listenStop();if(!text)return;
     if(!player){player=new Audio();player.playsInline=true;player.onended=()=>{if(player.src!==SILENT)listenStop()};player.ontimeupdate=()=>{if(!active||player.src===SILENT||!player.duration)return;const pg=active.btn.querySelector('.prog');if(pg)pg.style.width=(100*player.currentTime/player.duration).toFixed(1)+'%'}}
     player.src=SILENT;player.play().catch(()=>{});   // iPhone: unlock audio inside the tap
-    const run=++listenRun;key=`audio2|${key}|${cfg.lang}|${cfg.elVoice}|${text.length}`;active={btn:b,key};pillSet(b,'load');
+    const run=++listenRun;key=`audio3|${key}|${cfg.lang}|${cfg.elVoice}|${text.length}`;active={btn:b,key};pillSet(b,'load');
     try{
       let blob=audioMem.get(key)||await getPhoto(key);
-      if(!blob){blob=await ttsBlob(await speakable(text));putPhoto(key,blob)}
+      if(!blob){blob=await ttsBlob(await prepScript(text));putPhoto(key,blob)}
       audioMem.set(key,blob);if(run!==listenRun)return;
       if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(blob);player.src=player._url;
       await player.play();if(run===listenRun)pillSet(b,'play');
     }catch(e){if(run!==listenRun)return;listenStop();
       status(t_({key:'La clave de ElevenLabs no funciona. Revísala en Ajustes.',quota:'Se acabaron los créditos de este mes en ElevenLabs.',paid:'ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).',voice:'No encuentro esa voz. Revisa el ID en Ajustes.',busy:'ElevenLabs va saturado. Prueba otra vez en un momento.'}[e.kind]||'No pude generar el audio. Prueba otra vez.'),true)}
   }
-  $('btn-listen').onclick=()=>{const c=cur;if(!c)return;const V=LV(c);listen($('btn-listen'),[V.name,V.what&&t_('Qué es')+'.\n'+clean(V.what),V.cool&&t_('Un dato curioso')+'.\n'+clean(V.cool)].filter(Boolean).map(clean).join('\n\n'),c.t+'|card')};
+  function cardText(c){const V=LV(c);return [V.name,V.what&&t_('Qué es')+'.\n'+clean(V.what),V.cool&&t_('Un dato curioso')+'.\n'+clean(V.cool)].filter(Boolean).map(clean).join('\n\n')}
+  $('btn-listen').onclick=()=>{const c=cur;if(!c)return;listen($('btn-listen'),cardText(c),c.t+'|card')};
   $('mb-listen').onclick=e=>{e.stopPropagation();if(active)active.btn.click()};
   function deepListen(body,t,points){if(!cfg.elKey||!points||!points.length)return;
     const row=document.createElement('div');row.className='lrow';const b=document.createElement('button');b.className='lpill';b._label='Escuchar';row.appendChild(b);body.appendChild(row);pillSet(b,'idle');row.onclick=e=>e.stopPropagation();
     if(active&&active.key.includes('|'+t.id+'|')&&active.key.includes('|'+(cur&&cur.t)+'|')){active.btn=b;pillSet(b,player&&!player.paused?'play':'pause')}
-    b.onclick=e=>{e.stopPropagation();listen(b,[t.label,...points].map(clean).join('\n\n'),(cur&&cur.t)+'|'+t.id)}}
+    const txt=[t.label,...points].map(clean).join('\n\n');prepScript(txt).catch(()=>{});b.onclick=e=>{e.stopPropagation();listen(b,txt,(cur&&cur.t)+'|'+t.id)}}
   $('s-el-save').onclick=()=>{cfg.elKey=$('s-el-key').value.trim();cfg.elVoice=$('s-el-voice').value.trim()||DEFAULT_VOICE;store.set('elKey',cfg.elKey);store.set('elVoice',cfg.elVoice);$('s-el-voice').value=cfg.elVoice;
     const b=$('s-el-save');b.textContent=t_(cfg.elKey?'Guardada ✓':'Guardar');b.classList.toggle('ok',!!cfg.elKey);setTimeout(()=>{b.textContent=t_('Guardar');b.classList.remove('ok')},1600)};
   $('s-el-key').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-el-save').click();$('s-el-key').blur()}});
