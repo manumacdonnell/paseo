@@ -833,23 +833,6 @@ body,.app{transition:background-color .3s ease,color .3s ease}
       <div class="seg" id="s-auto-seg" role="group" aria-label="Al aparecer un resultado">
         <button data-v="read">Solo leer</button><button data-v="listen">Narrar</button>
       </div>
-      <p class="fl" style="margin-top:20px">Sonido de la voz</p>
-      <div class="seg" id="s-voice-seg" role="group" aria-label="Sonido de la voz">
-        <button data-v="iphone">iPhone</button><button data-v="el">ElevenLabs</button>
-      </div>
-      <div id="s-voice-sys" hidden><select id="s-sys-voice-es" hidden></select><select id="s-sys-voice-en" hidden></select></div>
-      <div id="s-voice-el" hidden>
-        <p class="fl" style="margin-top:14px">Clave de ElevenLabs</p>
-        <div class="keyrow">
-          <input id="s-el-key" type="password" autocomplete="off" placeholder="Pega tu clave aquí" aria-label="Clave de ElevenLabs">
-          <button id="s-el-save">Guardar</button>
-        </div>
-        <p class="fl" style="margin-top:18px">ID de la voz</p>
-        <div class="keyrow">
-          <input id="s-el-voice" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ID de la voz" aria-label="ID de la voz">
-        </div>
-        <p class="help" id="s-el-state">Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.</p>
-      </div>
     </div>
 
     <details class="more" id="s-more">
@@ -869,6 +852,26 @@ body,.app{transition:background-color .3s ease,color .3s ease}
           <li>Copia la clave y pégala arriba.</li>
         </ol>
       </details>
+    </div>
+
+    <div class="sgroup">
+      <p class="sh">Sonido de la voz</p>
+      <div class="seg" id="s-voice-seg" role="group" aria-label="Sonido de la voz">
+        <button data-v="iphone">iPhone</button><button data-v="el">ElevenLabs</button>
+      </div>
+      <div id="s-voice-sys" hidden><select id="s-sys-voice-es" hidden></select><select id="s-sys-voice-en" hidden></select></div>
+      <div id="s-voice-el" hidden>
+        <p class="fl" style="margin-top:14px">Clave de ElevenLabs</p>
+        <div class="keyrow">
+          <input id="s-el-key" type="password" autocomplete="off" placeholder="Pega tu clave aquí" aria-label="Clave de ElevenLabs">
+          <button id="s-el-save">Guardar</button>
+        </div>
+        <p class="fl" style="margin-top:18px">ID de la voz</p>
+        <div class="keyrow">
+          <input id="s-el-voice" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ID de la voz" aria-label="ID de la voz">
+        </div>
+        <p class="help" id="s-el-state">Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.</p>
+      </div>
     </div>
 
     <div class="sgroup transfer">
@@ -897,7 +900,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.12 · 01:50</p>
+    <p class="note small ver" translate="no">manu-go · v 3.13 · 02:00</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="ndock" id="ndock" role="region" aria-label="Narración"><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span class="eq"><i></i><i></i><i></i></span><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
