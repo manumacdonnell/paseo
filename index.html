@@ -360,6 +360,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .fl{margin:0 0 2px;color:var(--muted);font-size:14px}
 .srow{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:18px;min-height:44px}
 .srow[hidden]{display:none}
+.ver{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--faint);margin-top:6px}
 .srow>span{color:var(--muted);font-size:15px;flex:none}
 .settings .srow .vsel{border:0;padding:8px 26px 8px 0;width:auto;max-width:70%;text-align:right;text-align-last:right;font-size:16px;color:var(--ink);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238C8A84' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 6 6 6-6 6'/%3E%3C/svg%3E") no-repeat right 0 center/18px;-webkit-appearance:none;appearance:none}
 .vsel:focus,.vsel:focus-visible{outline:none;box-shadow:none;border-bottom-color:var(--muted)}
@@ -853,6 +854,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
+    <p class="note small ver" translate="no">manu-go · v 3.10 · 21:50</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
