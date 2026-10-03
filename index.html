@@ -98,7 +98,7 @@ p{margin:0}
 /* card */
 .result{display:flex;flex-direction:column;gap:26px}
 .photo{position:relative;margin:-14px -20px 0}
-.thumb{width:100%;height:44vh;max-height:420px;object-fit:cover;display:block;cursor:zoom-in}
+.thumb{width:100%;height:37vh;max-height:350px;object-fit:cover;display:block;cursor:zoom-in}
 .photo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none}
 .photo-save{position:absolute;right:16px;bottom:14px;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(13,13,12,.45);color:#fff;display:grid;place-items:center;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 .photo-save svg{width:18px;height:18px}
@@ -1847,24 +1847,24 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   const PILL='<span class="lic"><svg class="i-spk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="i-res" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5v14l12-7z"/></svg></span><span class="lt"></span><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><span class="prog"></span>';
   const BACK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 3.5v3.7h3.7"/><text x="12.2" y="15.4" font-size="7.6" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,Helvetica,Arial,sans-serif" font-weight="600">5</text></svg>';
   function ensureBack(b){const row=b.parentElement;if(!row||!row.classList.contains('lrow')||row.querySelector('.lback'))return;const k=document.createElement('button');k.className='lback';k.innerHTML=BACK;k.setAttribute('aria-label',t_('Atrás 5 segundos'));
-    k.onclick=e=>{e.stopPropagation();if(!player||!active||active.btn!==b)return;player.currentTime=Math.max(0,player.currentTime-5);if(player.paused)player.play().then(()=>pillSet(b,'play')).catch(()=>{})};row.appendChild(k)}
+    k.onclick=e=>{e.stopPropagation();if(!player||!active||active.btn!==b||!active.segs)return;rewind(5)};row.appendChild(k)}
   function pillSet(b,st){if(!b)return;if(!b.querySelector('.lt'))b.innerHTML=PILL;ensureBack(b);const row=b.parentElement;if(row&&row.classList.contains('lrow'))row.classList.toggle('on',st==='play'||st==='pause');if(st==='idle'||st==='load'){const pg=b.querySelector('.prog');if(pg)pg.style.width='0'}['load','play','pause'].forEach(x=>b.classList.toggle('is-'+x,st===x));
     b.querySelector('.lt').textContent=t_(st==='play'?'Escuchando':st==='load'?'Preparando…':st==='pause'?'Seguir escuchando':(b._label||'Escuchar'));
     b.setAttribute('aria-label',t_(st==='play'?'Pausar':'Escuchar'));
     if(active&&active.btn===b){const m=$('mb-listen');['play','pause'].forEach(x=>m.classList.toggle('is-'+x,st===x));m.setAttribute('aria-label',t_(st==='play'?'Pausar':'Seguir escuchando'))}}
   function listenStop(){listenRun++;if(player){try{player.pause()}catch(e){}}if(active){const b=active.btn;pillSet(b,'idle');active=null}const m=$('mb-listen');m&&m.classList.remove('is-play','is-pause')}
-  async function ttsBlob(text){
+  async function ttsBlob(text,prev,next){
     const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(cfg.elVoice||DEFAULT_VOICE)}?output_format=mp3_44100_64`,{method:'POST',
       headers:{'xi-api-key':cfg.elKey,'Content-Type':'application/json','Accept':'audio/mpeg'},
-      body:JSON.stringify({text,model_id:'eleven_flash_v2_5',language_code:cfg.lang==='en'?'en':'es',voice_settings:{stability:.45,similarity_boost:.8,style:.15,use_speaker_boost:true}})});
+      body:JSON.stringify({text,...(prev?{previous_text:prev}:{}),...(next?{next_text:next}:{}),model_id:'eleven_flash_v2_5',language_code:cfg.lang==='en'?'en':'es',voice_settings:{stability:.45,similarity_boost:.8,style:.15,use_speaker_boost:true}})});
     if(!r.ok){let j={};try{j=await r.json()}catch(e){}const d=j.detail||{},st=String(d.status||d.code||''),m=String(d.message||j.message||'').toLowerCase();
       const e=new Error(m);e.kind=r.status===401&&!/library|paid/.test(st+m)?'key':/quota|credit/.test(st+m)?'quota':/library|paid|subscription|tier|plan/.test(st+m)||r.status===402?'paid':/voice_not_found|not found/.test(st+m)?'voice':r.status===429?'busy':'other';throw e}
     return await r.blob()}
   const clean=x=>x.trim().replace(/[.!?…:;]?$/,m=>m||'.');
   // turn the card text into something a voice reads well: acronyms, roman numerals, abbreviations and symbols in words
   const scriptMem=new Map();
-  const needsScript=t=>/\b[A-ZÁÉÍÓÚÑ]{2,}\b|\b[IVXLCDM]+\b|\b(?:p\. ?ej|aprox|s|ss|km|kg|n\.?º|nº|av|c\/|etc)\.|[%°ºª&@#]|\d+\s?(?:m|km|m²|kg|cm)\b/.test(t);
-  function prepScript(text){if(!cfg.elKey||!cfg.key||!text||!needsScript(text))return Promise.resolve(text);
+  const needsScript=t=>/\b[A-ZÁÉÍÓÚÑ]{2,}\b|\b(?:p\. ?ej|aprox|s|ss|km|kg|n\.?º|nº|av|c\/|etc)\.|[%°ºª&@#]|\d+\s?(?:m|km|m²|kg|cm)\b/.test(t);
+  function prepScript(text){text=sayNumbers(text);if(!cfg.elKey||!cfg.key||!text||!needsScript(text))return Promise.resolve(text);
     if(!scriptMem.has(text)){const p=speakable(text);scriptMem.set(text,p);p.then(r=>{if(r===text)scriptMem.delete(text)})}return scriptMem.get(text)}
   async function speakable(text){
     try{const L=cfg.lang==='en'?'inglés':'español';
@@ -1872,23 +1872,82 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const sc=(out&&out.script||'').trim();return sc.length>text.length*.6?sc:text}
     catch(e){return text}
   }
+  // ---- numbers, years and roman numerals read as words, on the phone, instantly ----
+  const ES_U=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+  const ES_T=['','','','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'];
+  const ES_H=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'];
+  function es999(n){if(n<30)return ES_U[n];if(n<100)return ES_T[n/10|0]+(n%10?' y '+ES_U[n%10]:'');if(n===100)return 'cien';return ES_H[n/100|0]+(n%100?' '+es999(n%100):'')}
+  function numEs(n){if(n<1000)return es999(n);if(n<1e6){const k=n/1000|0,r=n%1000;return (k===1?'mil':es999(k).replace(/uno$/,'ún').replace(/^ún$/,'un')+' mil')+(r?' '+es999(r):'')}
+    const m=n/1e6|0,r=n%1e6;return (m===1?'un millón':numEs(m).replace(/uno$/,'ún')+' millones')+(r?' '+numEs(r):'')}
+  const EN_U=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+  const EN_T=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+  function en999(n){if(n<20)return EN_U[n];if(n<100)return EN_T[n/10|0]+(n%10?'-'+EN_U[n%10]:'');return EN_U[n/100|0]+' hundred'+(n%100?' and '+en999(n%100):'')}
+  function numEn(n){if(n<1000)return en999(n);if(n<1e6)return en999(n/1000|0)+' thousand'+(n%1000?(n%1000<100?' and ':' ')+en999(n%1000):'');return numEn(n/1e6|0)+' million'+(n%1e6?' '+numEn(n%1e6):'')}
+  function yearEn(n){if(n>=2000&&n<2010)return numEn(n);const a=n/100|0,b=n%100;return en999(a)+' '+(b===0?'hundred':b<10?'oh '+EN_U[b]:en999(b))}
+  function ordEn(w){return w.replace(/(one|two|three|five|eight|nine|twelve|ty|\w+)$/,x=>({one:'first',two:'second',three:'third',five:'fifth',eight:'eighth',nine:'ninth',twelve:'twelfth'})[x]||(x.endsWith('ty')?x.slice(0,-1)+'ieth':x+'th'))}
+  const ES_ORD=['','primero','segundo','tercero','cuarto','quinto','sexto','séptimo','octavo','noveno','décimo'];
+  function roman(r){const v={I:1,V:5,X:10,L:50,C:100,D:500,M:1000};let t=0;for(let i=0;i<r.length;i++){const a=v[r[i]],b=v[r[i+1]]||0;t+=a<b?-a:a}return t}
+  const ROM='M{0,3}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})';
+  function sayNumbers(t){const en=cfg.lang==='en',W=n=>en?numEn(n):numEs(n);
+    t=t.replace(new RegExp(`\\b(siglos?|s\\.|centur(?:y|ies)|milenio)\\s+(${ROM})\\b`,'g'),(m,w,r)=>r?`${w==='s.'?'siglo':w} ${W(roman(r))}`:m);
+    t=t.replace(new RegExp(`\\b(${ROM})\\s+(centur(?:y|ies))\\b`,'g'),(m,r,w)=>r?`the ${ordEn(numEn(roman(r)))} ${w}`:m);
+    t=t.replace(new RegExp(`([A-ZÁÉÍÓÚ][a-záéíóúñ]+)\\s+(${ROM})\\b(?![\\w'])`,'g'),(m,name,r)=>{if(!r||(r==='I'&&en&&/^(When|And|But|Then|So|If)$/.test(name)))return m;const n=roman(r);return `${name} ${en?'the '+ordEn(numEn(n)):(ES_ORD[n]||numEs(n))}`});
+    t=t.replace(/(\d)\s?[-–]\s?(\d)/g,(m,x,y,o,str)=>`${x} ${en?'to':/entre\s+\S*$/i.test(str.slice(Math.max(0,o-14),o+1))?'y':'a'} ${y}`);
+    const UN=en?{km:'kilometres','m²':'square metres',m2:'square metres',m:'metres',kg:'kilos',cm:'centimetres',ha:'hectares'}:{km:'kilómetros','m²':'metros cuadrados',m2:'metros cuadrados',m:'metros',kg:'kilos',cm:'centímetros',ha:'hectáreas'};
+    t=t.replace(/(\d)\s?(km|m²|m2|kg|cm|ha|m)(?![\wáéíóú])/g,(m,d,u)=>`${d} ${UN[u]}`);
+    t=t.replace(/(\d+(?:[.,]\d+)?)\s?%/g,(m,x)=>`${x} ${en?'percent':'por ciento'}`);
+    t=t.replace(/\b(\d+)\s?\.?([ºª])/g,(m,x,g)=>{const n=+x;if(en)return ordEn(numEn(n));const w=ES_ORD[n]||numEs(n);return g==='ª'?w.replace(/o$/,'a'):w});
+    t=t.replace(/\b(\d+)(st|nd|rd|th)\b/g,(m,x)=>en?ordEn(numEn(+x)):m);
+    t=t.replace(/\b(\d{1,3}(?:[.,   ]\d{3})+|\d+)(?:([.,])(\d+))?\b/g,(m,a,sep,dec,off,str)=>{
+      const grouped=/[.,   ]/.test(a);const n=parseInt(a.replace(/\D/g,''),10);if(!isFinite(n)||n>999999999)return m;
+      // a lone "1.5"/"1,5": decimal in the reading language
+      if(!grouped&&sep&&dec&&((en&&sep==='.')||(!en&&sep===','))&&!/\d/.test(str[off+m.length]||''))return `${W(n)} ${en?'point':'coma'} ${dec.split('').map(d=>W(+d)).join(' ')}`;
+      const rest=sep?m.slice(a.length):'';
+      const word=(en&&!grouped&&a.length===4&&n>=1100&&n<2100)?yearEn(n):W(n);return word+rest});
+    return t}
+  function chunks(text){   // a short first piece so the voice starts almost at once, then one piece per paragraph
+    const paras=text.split(/\n{2,}/).map(x=>x.trim()).filter(Boolean);if(!paras.length)return[];
+    const out=[];let first='';const sents=[];
+    paras.forEach((p,pi)=>p.split(/(?<=[.!?…])\s+/).forEach(x=>sents.push({x,pi})));
+    let k=0;while(k<sents.length&&first.length<70){first+=(k?(sents[k].pi!==sents[k-1].pi?'\n\n':' '):'')+sents[k].x;k++}
+    out.push(first);let cur='',cp=-1;
+    for(;k<sents.length;k++){const {x,pi}=sents[k];if(pi!==cp&&cur){out.push(cur);cur=''}cur+=(cur?' ':'')+x;cp=pi}
+    if(cur)out.push(cur);return out}
+  function segKey(base,txt){let h=0;for(let i=0;i<txt.length;i++)h=(h*31+txt.charCodeAt(i))|0;return base+'|'+h}
+  function segBlob(A,i){const sg=A.segs[i];if(!sg.p){sg.p=(async()=>{const k=segKey(A.key,sg.text);let b=audioMem.get(k)||await getPhoto(k);
+      if(!b){try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text)}catch(e){if(e.kind!=='busy')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
+      audioMem.set(k,b);return b})();sg.p.catch(()=>{sg.p=null})}return sg.p}
+  async function playSeg(A,i,at){
+    const run=listenRun;const sg=A.segs[i];if(!sg)return;
+    if(!sg.blobReady)pillSet(A.btn,'load');
+    const b=await segBlob(A,i);sg.blobReady=true;if(run!==listenRun||active!==A)return;
+    A.i=i;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(b);player.src=player._url;
+    player.onloadedmetadata=()=>{sg.dur=player.duration;if(at)player.currentTime=Math.max(0,Math.min(at,player.duration-.05))};
+    await player.play();if(run===listenRun&&active===A)pillSet(A.btn,'play');
+    if(A.segs[i+1])segBlob(A,i+1).then(()=>A.segs[i+1].blobReady=true).catch(()=>{});if(A.segs[i+2]&&A.segs[i+1].blobReady)segBlob(A,i+2).catch(()=>{});
+  }
+  function rewind(sec){const A=active;if(!A)return;const t=player.currentTime;
+    if(t>=sec||A.i===0){player.currentTime=Math.max(0,t-sec);if(player.paused)player.play().then(()=>pillSet(A.btn,'play')).catch(()=>{});return}
+    const p=A.segs[A.i-1];playSeg(A,A.i-1,(p.dur||0)-(sec-t)).catch(()=>{})}
   async function listen(b,text,key){
     if(active&&active.btn===b){   // same button: pause / resume
       if(b.classList.contains('is-play')){player.pause();pillSet(b,'pause');return}
       if(b.classList.contains('is-pause')){player.play().then(()=>pillSet(b,'play')).catch(()=>{});return}
       listenStop();return}
     listenStop();if(!text)return;
-    if(!player){player=new Audio();player.playsInline=true;player.onended=()=>{if(player.src!==SILENT)listenStop()};player.ontimeupdate=()=>{if(!active||player.src===SILENT||!player.duration)return;const pg=active.btn.querySelector('.prog');if(pg)pg.style.width=(100*player.currentTime/player.duration).toFixed(1)+'%'}}
+    if(!player){player=new Audio();player.playsInline=true;
+      player.onended=()=>{const A=active;if(player.src===SILENT||!A||!A.segs)return;if(A.segs[A.i+1])playSeg(A,A.i+1).catch(fail);else listenStop()};
+      player.ontimeupdate=()=>{const A=active;if(!A||!A.segs||player.src===SILENT||!player.duration)return;const tot=A.segs.reduce((x,y)=>x+y.text.length,0);let done=0;for(let k=0;k<A.i;k++)done+=A.segs[k].text.length;
+        const pg=A.btn.querySelector('.prog');if(pg)pg.style.width=(100*(done+A.segs[A.i].text.length*player.currentTime/player.duration)/tot).toFixed(1)+'%'}}
     player.src=SILENT;player.play().catch(()=>{});   // iPhone: unlock audio inside the tap
-    const run=++listenRun;key=`audio3|${key}|${cfg.lang}|${cfg.elVoice}|${text.length}`;active={btn:b,key};pillSet(b,'load');
+    const run=++listenRun;const A={btn:b,key:`audio4|${key}|${cfg.lang}|${cfg.elVoice}`,i:0};active=A;pillSet(b,'load');
     try{
-      let blob=audioMem.get(key)||await getPhoto(key);
-      if(!blob){blob=await ttsBlob(await prepScript(text));putPhoto(key,blob)}
-      audioMem.set(key,blob);if(run!==listenRun)return;
-      if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(blob);player.src=player._url;
-      await player.play();if(run===listenRun)pillSet(b,'play');
-    }catch(e){if(run!==listenRun)return;listenStop();
-      status(t_({key:'La clave de ElevenLabs no funciona. Revísala en Ajustes.',quota:'Se acabaron los créditos de este mes en ElevenLabs.',paid:'ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).',voice:'No encuentro esa voz. Revisa el ID en Ajustes.',busy:'ElevenLabs va saturado. Prueba otra vez en un momento.'}[e.kind]||'No pude generar el audio. Prueba otra vez.'),true)}
+      const script=await prepScript(text);if(run!==listenRun)return;
+      A.segs=chunks(script).map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
+      await playSeg(A,0);
+    }catch(e){fail(e)}
+    function fail(e){if(active!==A)return;listenStop();
+      status(t_({key:'La clave de ElevenLabs no funciona. Revísala en Ajustes.',quota:'Se acabaron los créditos de este mes en ElevenLabs.',paid:'ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).',voice:'No encuentro esa voz. Revisa el ID en Ajustes.',busy:'ElevenLabs va saturado. Prueba otra vez en un momento.'}[e&&e.kind]||'No pude generar el audio. Prueba otra vez.'),true)}
   }
   function cardText(c){const V=LV(c);return [V.name,V.what&&t_('Qué es')+'.\n'+clean(V.what),V.cool&&t_('Un dato curioso')+'.\n'+clean(V.cool)].filter(Boolean).map(clean).join('\n\n')}
   $('btn-listen').onclick=()=>{const c=cur;if(!c)return;listen($('btn-listen'),cardText(c),c.t+'|card')};
