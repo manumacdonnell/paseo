@@ -1178,7 +1178,7 @@ body:not([data-view=home]) .top{display:none}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.56 · 20:00</p>
+    <p class="note small ver" translate="no">manu-go · v 3.57 · 20:15</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2333,7 +2333,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const span=Math.max(0,Math.round((t1-t0)/60000)),d=routeKm(items);
     return{city:city||(L?'Somewhere':'Algún lugar'),meta:meta.toLowerCase(),days,places:items.length,
       time:days>1?`${days} ${t_('días')}`:(span>=60?`${Math.floor(span/60)} h ${String(span%60).padStart(2,'0')}`:`${span} min`),dist:d>0.05?kmText(d):''}}
-  let storyFrom=null;const INKED=['sello','insignia','portada','libro','label','collage','mapa','text'];const PHOTOED=['sello','portada','libro','label','collage','mapa'];
+  let storyFrom=null;const INKED=['sello','portada','libro','label','collage','mapa','text'];const PHOTOED=['sello','portada','libro','label','collage','mapa'];
   // a country's own two colours, taken from its flag and made printable (dark ink on a light paper)
   const FLAG={polonia:['#C8102E','#F4F1EC'],poland:['#C8102E','#F4F1EC'],espana:['#AA151B','#F6D36B'],spain:['#AA151B','#F6D36B'],brasil:['#0B7A3B','#F5D547'],brazil:['#0B7A3B','#F5D547'],argentina:['#2E6DAA','#EAF2FA'],
     portugal:['#046A38','#F3DD6A'],francia:['#1F3A93','#F3F1EC'],france:['#1F3A93','#F3F1EC'],italia:['#008C45','#F4F2EC'],italy:['#008C45','#F4F2EC'],alemania:['#1A1A1A','#F2C230'],germany:['#1A1A1A','#F2C230'],deutschland:['#1A1A1A','#F2C230'],
@@ -2355,7 +2355,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
     const run=++storyRun;listenStop();
     const city=scope==='place'?(items[0].city||''):(mapCity&&mapCity!=='Sin ubicación'?mapCity:'');const C=storyCopy(items,scope==='place'?'day':scope,city);
-    const LAY=[['sello','Sello'],['insignia','Insignia'],['portada','Portada'],['label','Etiqueta'],['mapa','Mapa']];
+    const LAY=[['sello','Sello'],['portada','Portada'],['label','Etiqueta'],['mapa','Mapa']];
     const sh=$('sh2'),grid=$('sh2-car'),names=$('sh2-names'),inks=$('sh2-inks'),phs=$('sh2-photos'),tone=$('sh2-tone');
     $('sh2-t').textContent=t_(scope==='place'?'Compartir lugar':scope==='city'?'Compartir viaje':'Compartir día');
     grid.innerHTML='';names.innerHTML='';LAY.forEach(([v,l])=>{const b=document.createElement('button');b.className='sh2-tile sh2-slide';b.dataset.v=v;b.innerHTML='<img alt="">';b.setAttribute('aria-label',t_(l));grid.appendChild(b);
