@@ -428,8 +428,9 @@ html.sheet-open,html.sheet-open body{overflow:hidden}
 .sh2-slide img{background:transparent;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease}.sh2-slide.in img{opacity:1}
 .sh2-row1{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px 0;min-height:46px}
 .sh2-names{display:flex;margin-left:-10px}
-.sh2-names button{background:transparent;border:0;color:var(--faint);font-size:15px;padding:10px;transition:color .2s ease}
-.sh2-names button.on{color:var(--ink)}
+.sh2-names{gap:2px;margin-left:-8px!important}.sh2-names button{position:relative;width:24px;height:36px;background:transparent;border:0;padding:0;font-size:0;color:transparent}
+.sh2-names button::before{content:'';position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:var(--faint);transition:background-color .2s ease,transform .2s ease}
+.sh2-names button.on::before{background:var(--ink);transform:scale(1.15)}
 .sh2-tone{display:flex;gap:14px;padding-right:4px}
 .sh2-tone button{position:relative;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);padding:0;transition:box-shadow .2s ease}
 .sh2-tone button::after{content:'';position:absolute;inset:-8px}
@@ -1048,7 +1049,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.37 · 19:30</p>
+    <p class="note small ver" translate="no">manu-go · v 3.38 · 20:00</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2426,19 +2427,19 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if(im){const dt=duotone(im,bw,bh,Math.max(1.4,bw/240),D.ink);g.save();polyPath(g,inner);g.clip();if(sh!=='circle'&&sh!=='diamond'){g.beginPath();g.rect(bx,by,bw,bandT-by);g.clip()}g.imageSmoothingEnabled=false;g.drawImage(dt,bx,by,bw,bh);g.imageSmoothingEnabled=true;g.restore()}
     g.fillStyle=ink;g.textAlign='center';
     if(sh==='circle'){const r=Math.min(w,h)/2;g.save();g.beginPath();g.arc(cx,cy,r*0.82,0,Math.PI*2);g.clip();if(im){const dt=duotone(im,r*1.64,r*1.64,Math.max(1.4,r/120),D.ink);g.imageSmoothingEnabled=false;g.drawImage(dt,cx-r*0.82,cy-r*0.82,r*1.64,r*1.64);g.imageSmoothingEnabled=true}g.restore();
-      let f=r*0.1;g.font=`600 ${f}px ${SANS}`;const up=name.toLocaleUpperCase(LOCALE());while(g.measureText(up).width*1.15>Math.PI*r*0.86&&f>14){f-=1;g.font=`600 ${f}px ${SANS}`}
+      let f=r*0.1;g.font=`600 ${f}px ${SANS}`;const up=name.toLocaleUpperCase(LOCALE());while(g.measureText(up).width*1.2>Math.PI*r*0.78&&f>14){f-=1;g.font=`600 ${f}px ${SANS}`}
       g.fillStyle=ink;arcText(g,up,cx,cy,r*0.905,-Math.PI/2,1,f);arcText(g,`${val}  ·  ${date}`.toUpperCase(),cx,cy,r*0.905,Math.PI/2,-1,Math.max(13,f*0.62))}
-    else if(sh==='diamond'){const lw=w*0.6,lh=h*0.15,ly=cy+h*0.01;g.fillStyle=paper;g.fillRect(cx-lw/2,ly,lw,lh);g.fillStyle=ink;let f=lh*0.38;g.font=`600 ${f}px ${SANS}`;while(g.measureText(name).width>lw*0.9&&f>13){f-=1;g.font=`600 ${f}px ${SANS}`}
-      g.fillText(name,cx,ly+lh*0.5);g.font=`400 ${Math.max(12,f*0.55)}px ${MONO}`;g.fillStyle=mut;g.fillText(`${val}  ·  ${date}`.toUpperCase(),cx,ly+lh*0.82)}
-    else{const yb=bandT,avail=by+bh-yb;const half=sh==='tri'?(w*k)*(1-(yb-by)/bh)*0.5:0;const tw0=sh==='tri'?Math.max(w*0.4,(bw*((yb+avail*0.4-by)/bh))*0.86):bw*0.86;
+    else if(sh==='diamond'){const lw=w*0.56,lh=h*0.16,ly=cy+h*0.0;g.fillStyle=paper;g.fillRect(cx-lw/2,ly,lw,lh);g.fillStyle=ink;let f=lh*0.34;g.font=`600 ${f}px ${SANS}`;while(g.measureText(name).width>lw*0.78&&f>13){f-=1;g.font=`600 ${f}px ${SANS}`}
+      g.fillText(name,cx,ly+lh*0.5);let vf=Math.max(12,f*0.55);g.font=`400 ${vf}px ${MONO}`;const vt=`${val}  ·  ${date}`.toUpperCase();while(g.measureText(vt).width>lw*0.8&&vf>10){vf-=1;g.font=`400 ${vf}px ${MONO}`}g.fillStyle=mut;g.fillText(vt,cx,ly+lh*0.8)}
+    else{const yb=bandT,avail=by+bh-yb;const widthAt=yy=>sh==='tri'?bw*((yy-by)/bh):sh==='hex'?bw*(1-Math.max(0,(yy-(by+bh/2))/(bh/2))*0.5):bw;const tw0=widthAt(yb+avail*0.18)*0.72;
       let f=avail*0.34;g.font=`600 ${f}px ${SANS}`;let nl=wrapT(g,name,tw0);while((nl.length>2||g.measureText(nl[0]||'').width>tw0)&&f>13){f-=1;g.font=`600 ${f}px ${SANS}`;nl=wrapT(g,name,tw0)}
-      const blockH=nl.length*f*1.02+f*0.9;let y0=yb+(avail-blockH)/2+f*0.82;nl.forEach((l,i)=>g.fillText(l,cx,y0+i*f*1.02));g.font=`400 ${Math.max(12,f*0.5)}px ${MONO}`;g.fillStyle=mut;g.fillText(`${val}  ·  ${date}`.toUpperCase(),cx,y0+(nl.length-1)*f*1.02+f*0.85)}
+      const blockH=nl.length*f*1.02+f*0.9;let y0=yb+(avail-blockH)/2+f*0.82;nl.forEach((l,i)=>g.fillText(l,cx,y0+i*f*1.02));const vy=y0+(nl.length-1)*f*1.02+f*0.85;let vf=Math.max(12,f*0.5);const vt=`${val}  ·  ${date}`.toUpperCase();g.font=`400 ${vf}px ${MONO}`;while(g.measureText(vt).width>widthAt(vy)*0.7&&vf>10){vf-=1;g.font=`400 ${vf}px ${MONO}`}g.fillStyle=mut;g.fillText(vt,cx,vy)}
     g.textAlign='left';
     if(P.clear){g.globalCompositeOperation='destination-out';perfPoly(g,outer,Math.max(6,w*0.021),'#000');g.globalCompositeOperation='source-over'}else perfPoly(g,outer,Math.max(6,w*0.021),P.bg);
     return {outer,cx,cy,w,h,x,where,date}}
   // the cancellation mark: proof the stamp travelled — city and date, in the stamp's ink
   function cancel(g,D,bm,x,cxp,cyp,r,light){const pr=INKS[D.ink]||null;let col=light?'#F3F0E8':(pr?pr[0]:'#2B2A27');const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');
-    postmark(g,cxp,cyp,r,(x.city||D.C.city||'').toString(),`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${String(t.getFullYear()).slice(2)}`,col,false)}
+    postmark(g,cxp,cyp,r,(x.city||D.C.city||'').toString(),`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${String(t.getFullYear()).slice(2)}`,col,false,light?'#141413':'#F3F0E8')}
 
   // SELLO — the place as a postage stamp: your photo printed in two inks, the name and its local name, its number in your collection
   function hsl2rgb(h,s,l){s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return[f(0),f(8),f(4)].map(v=>Math.round(v*255))}
@@ -2534,13 +2535,17 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     grain(g,sx,sy,sw,sh,.07)}
 
   // a round postmark: the city around the rim, the date in the middle, wavy cancellation lines beside it
-  function postmark(g,cx,cy,r,top,mid,col,lines){g.save();g.strokeStyle=col;g.fillStyle=col;g.globalAlpha=.82;g.lineWidth=Math.max(2,r*0.05);
-    g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy,r*0.72,0,Math.PI*2);g.stroke();
-    const f=Math.max(11,r*0.2);g.font=`600 ${f}px ${SANS}`;const txt=top.toUpperCase();const ang=Math.min(Math.PI*1.1,g.measureText(txt).width/(r*0.86)+txt.length*0.02);
-    let a=-Math.PI/2-ang/2;for(const ch of txt){const cw=g.measureText(ch).width/(r*0.86)+0.02;g.save();g.translate(cx+Math.cos(a+cw/2)*r*0.86,cy+Math.sin(a+cw/2)*r*0.86);g.rotate(a+cw/2+Math.PI/2);g.fillText(ch,-g.measureText(ch).width/2,f*0.35);g.restore();a+=cw}
-    g.font=`500 ${Math.max(10,r*0.17)}px ${MONO}`;g.textAlign='center';g.fillText(mid,cx,cy+r*0.06);g.textAlign='left';
-    if(lines){g.lineWidth=Math.max(2,r*0.045);for(let k=0;k<5;k++){const yy=cy-r*0.5+k*r*0.25;g.beginPath();for(let xx=0;xx<=r*2.6;xx+=4){const px=cx+r*1.1+xx,py=yy+Math.sin(xx/(r*0.22))*r*0.07;xx?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()}}
-    g.restore()}
+  function postmark(g,cx,cy,r,top,mid,col,lines,halo){
+    const pass=(c,hw)=>{g.save();g.strokeStyle=c;g.fillStyle=c;g.globalAlpha=hw?.9:.88;g.lineJoin='round';g.lineWidth=Math.max(2,r*0.055)+hw;
+      g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.stroke();g.beginPath();g.arc(cx,cy,r*0.72,0,Math.PI*2);g.stroke();
+      const f=Math.max(11,r*0.21);g.font=`600 ${f}px ${SANS}`;const txt=top.toUpperCase();const ang=Math.min(Math.PI*1.1,g.measureText(txt).width/(r*0.86)+txt.length*0.02);
+      const put=(t2,x,y)=>{if(hw){g.lineWidth=hw;g.strokeText(t2,x,y)}g.fillText(t2,x,y)};
+      let a=-Math.PI/2-ang/2;for(const ch of txt){const cw=g.measureText(ch).width/(r*0.86)+0.02;g.save();g.translate(cx+Math.cos(a+cw/2)*r*0.86,cy+Math.sin(a+cw/2)*r*0.86);g.rotate(a+cw/2+Math.PI/2);put(ch,-g.measureText(ch).width/2,f*0.35);g.restore();a+=cw}
+      g.font=`600 ${Math.max(10,r*0.18)}px ${MONO}`;g.textAlign='center';put(mid,cx,cy+r*0.06);g.textAlign='left';
+      if(lines){g.lineWidth=Math.max(2,r*0.045)+hw;for(let k=0;k<5;k++){const yy=cy-r*0.5+k*r*0.25;g.beginPath();for(let xx=0;xx<=r*2.6;xx+=4){const px=cx+r*1.1+xx,py=yy+Math.sin(xx/(r*0.22))*r*0.07;xx?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()}}
+      g.restore()};
+    if(halo)pass(halo,Math.max(4,r*0.09));   // a thin paper edge under the ink: readable on any photo
+    pass(col,0)}
   function airmail(g,x0,y0,w,h,bw,c1,c2){g.save();g.beginPath();g.rect(x0,y0,w,h);g.rect(x0+bw,y0+bw,w-2*bw,h-2*bw);g.clip('evenodd');const step=bw*2.4;let k=0;for(let t=-h;t<w+h;t+=step,k++){g.fillStyle=k%2?c2:c1;g.beginPath();g.moveTo(x0+t,y0);g.lineTo(x0+t+step*0.5,y0);g.lineTo(x0+t+step*0.5-h,y0+h);g.lineTo(x0+t-h,y0+h);g.closePath();g.fill()}g.restore()}
   function postalPlace(g,D,bm,P){
     const {W,H,M}=POSTER,x=D.items[0],V=LV(x);const pair=D.ink&&D.ink!=='auto'?INKS[D.ink]:['#B3231C','#1D3C8F'];const c1=pair[0],c2=D.ink&&D.ink!=='auto'?pair[1]:'#1D3C8F';
