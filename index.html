@@ -211,6 +211,7 @@ p{margin:0}
 /* floating things */
 .minibar{position:fixed;left:0;right:0;top:0;z-index:650;display:flex;align-items:center;gap:12px;padding:calc(env(safe-area-inset-top,0px) + 8px) 20px 10px;background:rgba(13,13,12,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);transform:translateY(-110%);transition:transform .2s ease}
 .minibar.on{transform:none}
+.minibar.noimg img{display:none}
 .minibar img{width:38px;height:38px;border-radius:4px;object-fit:cover;flex:none;cursor:zoom-in}
 .minibar button{flex:1;min-width:0;text-align:left;background:transparent;border:0;font-family:var(--serif);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 0}
 .fab{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:58px;height:58px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:700}
@@ -629,6 +630,10 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:0 2px 8px r
 .big .shutter{width:118px!important;height:118px!important;border-width:2.5px!important}
 .big .shutter::after{width:98px!important;height:98px!important}
 .dock{padding-top:8px}
+.home .dock{padding-bottom:26px}
+#homemeta{display:none!important}
+.dockside .badge{display:none!important}
+.home .quick{margin-bottom:6px}
 
 .topicons{display:flex;align-items:center;gap:2px}
 /* in the dark you see the sun (tap for day); in the day you see the moon */
@@ -937,7 +942,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.17 · 02:55</p>
+    <p class="note small ver" translate="no">manu-go · v 3.18 · 03:05</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="sheet-bg" id="sheet-bg" hidden></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><span class="sh-grab"></span><p class="sh-t"></p><div class="sh-list"></div></div>
@@ -1801,6 +1806,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- mini bar: photo + name stay at hand while you read further down ----------
   function updateMinibar(){
     const bar=$('minibar');const img=$('r-img');
+    if(view==='mymap'){const h=document.querySelector('#v-mymap h2');bar.hidden=false;bar.classList.add('noimg');bar.classList.toggle('on',h.getBoundingClientRect().bottom<10);$('minibar-name').textContent=[t_('Mi mapa'),mapCity&&mapCity!=='Sin ubicación'?mapCity:''].filter(Boolean).join(' · ');return}
+    bar.classList.remove('noimg');
     if(view!=='result'||$('r-photo').hidden||!img.src){bar.classList.remove('on');bar.hidden=true;return}
     bar.hidden=false;
     const r=img.getBoundingClientRect();bar.classList.toggle('on',r.bottom<20);
@@ -2068,7 +2075,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       const n=document.createElement('button');n.dataset.v=v;n.textContent=t_(l);n.setAttribute('role','tab');names.appendChild(n)});
     names.hidden=LAY.length<2;
     const cache={},ready={};let layout=scope==='place'?'ficha':store.get('dayLayout6','catalog');if(!LAY.some(([v])=>v===layout))layout=LAY[0][0];
-    let tn=store.get('dayTone',document.documentElement.dataset.theme==='light'?'light':'dark');
+    let tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';   // starts like the app looks; a change only lasts for this share
     const D={items,C,scope};
     const get=(lay,fmt)=>{const key=lay+'|'+tn+'|'+fmt;if(!cache[key])cache[key]=drawDay(lay,D,tn,fmt).then(b=>{ready[key]=b;return b});return cache[key]};
     const mark=()=>{car.querySelectorAll('.st-slide').forEach(s=>s.classList.toggle('on',s.dataset.v===layout));names.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===layout);b.setAttribute('aria-selected',b.dataset.v===layout?'true':'false')});tone.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===tn))};
@@ -2084,7 +2091,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     car.addEventListener('scroll',()=>{car.classList.add('live');if(!raf)raf=requestAnimationFrame(track);clearTimeout(st);st=setTimeout(()=>{car.classList.remove('live');if(scope!=='place')store.set('dayLayout6',layout);warm()},120)},{passive:true});
     car.onclick=e=>{const s=e.target.closest('.st-slide');if(!s)return;if(s.dataset.v!==layout){goTo(s.dataset.v,true);return}const im=s.querySelector('img');if(im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}};
     names.onclick=e=>{const b=e.target.closest('button');if(b)goTo(b.dataset.v,true)};
-    tone.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===tn)return;tn=b.dataset.v;store.set('dayTone',tn);paint()};
+    tone.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===tn)return;tn=b.dataset.v;paint()};
     requestAnimationFrame(()=>{pad();goTo(layout,false);mark();track()});window.addEventListener('resize',function rs(){if(run!==storyRun){window.removeEventListener('resize',rs);return}pad();goTo(layout,false)});
     paint();
     const fname=`manu-go-${((scope==='place'?LV(items[0]).name:city)||'dia').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'')}.png`;
