@@ -1130,10 +1130,10 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div class="ask askbottom" id="ask-panel" hidden>
         <button class="more-head" id="more-head" aria-expanded="false"><span>Más</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         <div class="more-body" id="more-body" hidden><div class="ask-row">
-          <a class="route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span class="txt"><span class="lab" id="route-label">Cómo llegar</span></span></a>
+          <a class="route" id="btn-route" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab" id="route-label">Cómo llegar</span></span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
           <button id="btn-saverow" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="txt"><span class="lab">Guardar la foto</span></span></button>
-          <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="txt"><span class="lab">Preguntar a ChatGPT</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
-          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="txt"><span class="lab">Preguntar a Claude</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
+          <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener"><span class="txt"><span class="lab">Preguntar a ChatGPT</span></span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
+          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="txt"><span class="lab">Preguntar a Claude</span></span><svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
           <button id="ask-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="txt"><span class="lab">Copiar información</span></span></button>
         </div>
         </div>
@@ -1310,7 +1310,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.91 · 02:30</p>
+    <p class="note small ver" translate="no">manu-go · v 3.92 · 03:10</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1366,7 +1366,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   let cur=null; // the card on screen
   let view='home';
   var scrollMem={},goBack=false,pendY=null;
-  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();view=v;const fabOn=['result','mymap','settings','all'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();if(prev==='result'&&v!=='result'&&!['ask','alts','story'].includes(v))resetCardUI();view=v;const fabOn=['result','mymap','settings','all'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -1919,7 +1919,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function openCard(c,fromHistory){
     const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
-    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory||!!c.fromGallery;detachVoice();paintCard(c);
+    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory||!!c.fromGallery;detachVoice();resetCardUI();paintCard(c);
     if(!fromHistory){saveDiscovery();prefetchDeep(cur);{const me=cur;setTimeout(()=>verifyCard(me),1800)}if(cfg.autoListen&&canListen()&&!c.noAI){const me=cur;setTimeout(()=>{if(cur===me&&view==='result'&&!(active&&active.btn.isConnected))$('btn-listen').click()},350)}}
   }
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
@@ -2283,6 +2283,8 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
   $('ask-copy').onclick=()=>{if(copyAsk()){askFlash('ask-copy');said('ask-copy','Copiado')}};
 
   function stopVoice(){listenStop()}
+  function resetCardUI(){const h=$('more-head'),b=$('more-body');h.setAttribute('aria-expanded','false');clearTimeout(b._slideT);b.hidden=true;b.dataset.closing='';['height','overflow','opacity','transition','paddingTop','paddingBottom'].forEach(k=>b.style[k]='');
+    $('card-ask-input').value='';$('card-ask-input').blur();$('ask-text').hidden=true;const ap=$('ask-panel');if(ap&&ap.classList.contains('askbottom')===false)ap.hidden=true}
   function detachVoice(){if(!active||!active.btn||!active.btn.isConnected)return;const o=active.btn,p=document.createElement('button');p.className=o.className;p.innerHTML=o.innerHTML;p._title=o._title;p._img=o._img;p._label=o._label;p.onclick=()=>listen(p);active.btn=p;pillSet(o,'idle')}
   function reattach(b){const p=active&&active.btn;if(!p||p===b)return;b._title=p._title;b._img=p._img;const w=(p.querySelector('.prog')||{style:{}}).style.width||'0';active.btn=b;pillSet(b,p.classList.contains('is-play')?'play':p.classList.contains('is-pause')?'pause':'load');progSet(b,w)}
 
@@ -3117,11 +3119,14 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     const {W,H,M}=POSTER,n=D.items.length,dark=P.bg==='#0D0D0C',pl=D.scope==='place';const ig=inkGround(D.ink);const paper=ig.G,blk=ig.FG,A=ig.FG;
     const cx=M*0.6,cy=M*0.6,cw=W-2*cx,ch=H-2*cy;g.fillStyle=paper;g.fillRect(cx,cy,cw,ch);
     const pad=cw*0.07,L=cx+pad,R=cx+cw-pad,T=cy+pad,B=cy+ch-pad;const x0=D.items[0];
-    // title + date, small; footer with the figures
-    const title=pl?LV(x0).name:D.C.city;let tf=POSTER.big?76:64;g.font=`400 ${tf}px ${SERIF}`;while(g.measureText(title).width>(R-L)*0.72&&tf>34){tf-=2;g.font=`400 ${tf}px ${SERIF}`}
-    g.fillStyle=blk;g.fillText(title,L-2,T+tf*0.8);g.font=`400 ${POSTER.big?17:15}px ${MONO}`;g.textAlign='right';g.fillText((pl?(x0.city||''):D.C.meta).toUpperCase(),R,T+tf*0.8);g.textAlign='left';
-    g.fillText('MANU-GO',L,B+4);g.textAlign='right';g.fillText([pl?'':`${n} ${t_(n===1?'lugar':'lugares')}`,D.C.dist].filter(Boolean).join('  ·  ').toUpperCase(),R,B+4);g.textAlign='left';
-    const mL=cx,mR=cx+cw,mT=T+tf+34,mB=B-34;const pts=D.items.map((x,i)=>[x,i]).filter(([x])=>x.pos);
+    // black bands top and bottom, the colour in between: the title knocked out big and heavy, the figures underneath
+    const title=(pl?LV(x0).name:D.C.city).toLocaleUpperCase(LOCALE());let tf=POSTER.big?118:96;g.font=`800 ${tf}px ${SANS}`;while(g.measureText(title).width>(R-L)&&tf>40){tf-=2;g.font=`800 ${tf}px ${SANS}`}
+    const mf=POSTER.big?20:17,hb=pad*0.8+tf*0.82+mf*2.6;g.fillStyle=blk;g.fillRect(cx,cy,cw,hb);
+    g.fillStyle=paper;try{g.letterSpacing='-2px'}catch(e){}g.fillText(title,L-4,cy+pad*0.55+tf*0.8);try{g.letterSpacing='0px'}catch(e){}
+    g.font=`500 ${mf}px ${MONO}`;g.fillText((pl?(x0.city||''):D.C.meta).toUpperCase(),L,cy+hb-pad*0.4);
+    const fb=POSTER.big?92:78,fy=cy+ch-fb;g.fillStyle=blk;g.fillRect(cx,fy,cw,fb);g.fillStyle=paper;g.font=`500 ${mf}px ${MONO}`;g.fillText('MANU-GO',L,fy+fb/2+mf*0.35);
+    g.textAlign='right';g.fillText([pl?'':`${n} ${t_(n===1?'lugar':'lugares')}`,D.C.dist].filter(Boolean).join('  ·  ').toUpperCase(),R,fy+fb/2+mf*0.35);g.textAlign='left';
+    const mL=cx,mR=cx+cw,mT=cy+hb,mB=fy;const pts=D.items.map((x,i)=>[x,i]).filter(([x])=>x.pos);
     let proj=null;const tiles=D._tiles;
     if(tiles){const dt=duotone(tiles.canvas,mR-mL,mB-mT,1.5,[mixC(paper,blk,.42),paper]);g.save();g.globalAlpha=.75;g.imageSmoothingEnabled=false;g.drawImage(dt,mL,mT,mR-mL,mB-mT);g.restore();const sx=(mR-mL)/tiles.canvas.width,sy=(mB-mT)/tiles.canvas.height;proj=(la,lo)=>{const [a,b]=tiles.proj(la,lo);return[mL+a*sx,mT+b*sy]}}
     else{g.strokeStyle=mixC(paper,blk,.15);g.lineWidth=1;for(let x=mL;x<mR;x+=48){g.beginPath();g.moveTo(x,mT);g.lineTo(x,mB);g.stroke()}for(let y=mT;y<mB;y+=48){g.beginPath();g.moveTo(mL,y);g.lineTo(mR,y);g.stroke()}
@@ -3133,9 +3138,9 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     const path=p=>{g.beginPath();g.moveTo(p[0][0],p[0][1]);for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],q=p[i+1],p3=p[i+2]||q;g.bezierCurveTo(p1[0]+(q[0]-p0[0])/6,p1[1]+(q[1]-p0[1])/6,q[0]-(p3[0]-p1[0])/6,q[1]-(p3[1]-p1[1])/6,q[0],q[1])}};
     g.save();g.beginPath();g.rect(mL,mT,mR-mL,mB-mT);g.clip();g.lineCap='round';g.lineJoin='round';
     byDay.forEach(d=>{const p=d.idx.map(i=>XY[i]);if(p.length<2)return;g.strokeStyle=paper;g.lineWidth=n>30?12:18;path(p);g.stroke();g.strokeStyle=A;g.lineWidth=n>30?6:9;path(p);g.stroke()});
-    const sq=n>40?11:n>15?15:20;XY.forEach(([x,y],j)=>{g.fillStyle=paper;g.fillRect(x-sq/2-3,y-sq/2-3,sq+6,sq+6);g.fillStyle=blk;g.fillRect(x-sq/2,y-sq/2,sq,sq)});
-    if(n<=30){XY.forEach(([x,y],j)=>{const lab=String(pts[j][1]+1).padStart(2,'0')+(n<=5?'  '+LV(pts[j][0]).name:'');g.font=`500 ${POSTER.big?18:16}px ${MONO}`;const right=x<mR-200;g.textAlign=right?'left':'right';const tx=x+(right?sq/2+10:-sq/2-10),tw0=g.measureText(lab).width;
-      g.fillStyle=paper;g.fillRect(right?tx-5:tx-tw0-5,y-15,tw0+10,26);g.fillStyle=blk;g.fillText(lab,tx,y+5)});g.textAlign='left'}
+    const sq=n>40?14:n>15?20:28;XY.forEach(([x,y],j)=>{g.fillStyle=paper;g.fillRect(x-sq/2-4,y-sq/2-4,sq+8,sq+8);g.fillStyle=blk;g.fillRect(x-sq/2,y-sq/2,sq,sq)});
+    if(n<=30){XY.forEach(([x,y],j)=>{const lab=String(pts[j][1]+1).padStart(2,'0')+(n<=5?'  '+LV(pts[j][0]).name:'');g.font=`600 ${POSTER.big?22:19}px ${MONO}`;const right=x<mR-200;g.textAlign=right?'left':'right';const tx=x+(right?sq/2+10:-sq/2-10),tw0=g.measureText(lab).width;
+      g.fillStyle=blk;g.fillRect(right?tx-8:tx-tw0-8,y-19,tw0+16,34);g.fillStyle=paper;g.fillText(lab,tx,y+7)});g.textAlign='left'}
     g.restore();grain(g,cx,cy,cw,ch,.07)}
 
   // a photo turned into a pen drawing: edges in black ink, the darkest areas lightly hatched — like a screen-printed illustration
