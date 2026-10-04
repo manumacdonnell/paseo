@@ -340,8 +340,8 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .story article{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)!important}
 .st-car{--sh:min(58vh,600px);display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:4px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .st-car::-webkit-scrollbar{display:none}
-.st-slide{flex:none;height:var(--sh);aspect-ratio:9/16;scroll-snap-align:center;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--raise);opacity:.32;transform:scale(.93);transition:opacity .35s ease,transform .35s cubic-bezier(.2,.7,.2,1)}
-.st-slide.on{opacity:1;transform:none}
+.st-car.live .st-slide{transition:none}
+.st-slide{flex:none;height:var(--sh);aspect-ratio:9/16;scroll-snap-align:center;padding:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--raise);opacity:.32;transform:scale(.93);transition:opacity .2s ease,transform .2s ease}
 .st-slide img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease}.st-slide.in img{opacity:1}
 .st-slide.busy img{opacity:.55}
 .st-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 0;min-height:44px}
@@ -933,7 +933,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.15 · 02:50</p>
+    <p class="note small ver" translate="no">manu-go · v 3.16 · 02:40</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="sheet-bg" id="sheet-bg" hidden></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><span class="sh-grab"></span><p class="sh-t"></p><div class="sh-list"></div></div>
@@ -2076,12 +2076,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     // the carousel: centred slides, the one in the middle is the chosen design
     const pad=()=>{const s=car.querySelector('.st-slide');if(!s)return;const p=Math.max(0,(car.clientWidth-s.offsetWidth)/2);car.style.paddingLeft=car.style.paddingRight=p+'px'};
     const goTo=(v,smooth)=>{const s=car.querySelector(`.st-slide[data-v="${v}"]`);if(!s)return;car.scrollTo({left:s.offsetLeft-(car.clientWidth-s.offsetWidth)/2,behavior:smooth?'smooth':'auto'})};
-    let st=null;car.addEventListener('scroll',()=>{clearTimeout(st);st=setTimeout(()=>{const mid=car.scrollLeft+car.clientWidth/2;let best=null,bd=1e9;car.querySelectorAll('.st-slide').forEach(s=>{const d=Math.abs(s.offsetLeft+s.offsetWidth/2-mid);if(d<bd){bd=d;best=s}});
-      if(best&&best.dataset.v!==layout){layout=best.dataset.v;if(scope!=='place')store.set('dayLayout6',layout);mark();warm()}},90)},{passive:true});
+    let st=null,raf=0;const track=()=>{raf=0;const mid=car.scrollLeft+car.clientWidth/2;let best=null,bd=1e9;car.querySelectorAll('.st-slide').forEach(s=>{const c=s.offsetLeft+s.offsetWidth/2,d=Math.abs(c-mid),k=Math.min(1,d/(s.offsetWidth+16));s.style.opacity=(1-k*0.68).toFixed(3);s.style.transform=`scale(${(1-k*0.07).toFixed(4)})`;if(d<bd){bd=d;best=s}});
+      if(best&&best.dataset.v!==layout){layout=best.dataset.v;mark()}};
+    car.addEventListener('scroll',()=>{car.classList.add('live');if(!raf)raf=requestAnimationFrame(track);clearTimeout(st);st=setTimeout(()=>{car.classList.remove('live');if(scope!=='place')store.set('dayLayout6',layout);warm()},120)},{passive:true});
     car.onclick=e=>{const s=e.target.closest('.st-slide');if(!s)return;if(s.dataset.v!==layout){goTo(s.dataset.v,true);return}const im=s.querySelector('img');if(im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}};
     names.onclick=e=>{const b=e.target.closest('button');if(b)goTo(b.dataset.v,true)};
     tone.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===tn)return;tn=b.dataset.v;store.set('dayTone',tn);paint()};
-    requestAnimationFrame(()=>{pad();goTo(layout,false);mark()});window.addEventListener('resize',function rs(){if(run!==storyRun){window.removeEventListener('resize',rs);return}pad();goTo(layout,false)});
+    requestAnimationFrame(()=>{pad();goTo(layout,false);mark();track()});window.addEventListener('resize',function rs(){if(run!==storyRun){window.removeEventListener('resize',rs);return}pad();goTo(layout,false)});
     paint();
     const fname=`manu-go-${((scope==='place'?LV(items[0]).name:city)||'dia').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'')}.png`;
     async function shareBlob(blob){const f=new File([blob],fname,{type:'image/png'});
@@ -2090,10 +2091,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const fmtOpt=(fmt,lab,sub,ratio)=>({label:lab,sub,meta:ratio,run:async()=>{const key=layout+'|'+tn+'|'+fmt;const b=ready[key];if(b){shareBlob(b);return}   // ready: share inside the tap, as the iPhone requires
         status(t_('Preparando…'));const bb=await get(layout,fmt);status('');shareBlob(bb)}});
     box.querySelector('.st-go').onclick=()=>{get(layout,'post');get(layout,'square');
-      const opts=[fmtOpt('story',L?'Story':'Historia',L?'Instagram, WhatsApp':'Instagram, WhatsApp','9:16'),fmtOpt('post',L?'Feed post':'Publicación',L?'Instagram feed':'Feed de Instagram','4:5'),fmtOpt('square',L?'Square':'Cuadrada','','1:1'),{sep:true}];
+      const save={label:L?'Save to Photos':'Guardar en Fotos',sub:L?'Hold the image and choose “Save to Photos”':'Mantén pulsada la imagen y elige «Guardar en Fotos»',run:()=>{const im=car.querySelector('.st-slide[data-v="'+layout+'"] img');if(im&&im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}}};
+      const opts=[save,{sep:true},fmtOpt('story',L?'Vertical':'Vertical',L?'Stories, WhatsApp, wallpaper':'Historias, WhatsApp, fondo de pantalla','9:16'),fmtOpt('post',L?'Portrait':'Retrato',L?'Feed posts':'Publicaciones','4:5'),fmtOpt('square',L?'Square':'Cuadrada','','1:1'),{sep:true}];
       if(scope==='place')opts.push({label:L?'Photo and text':'Foto y texto',sub:L?'For a chat or your notes':'Para un chat o tus notas',run:()=>sharePlaceText(items[0])});
       else opts.push({label:L?'List as text':'Lista en texto',sub:L?'Every name, ready to paste':'Todos los nombres, para pegar',run:()=>exportPlaces(items,[city,scope==='day'?label:C.meta].filter(Boolean).join(' · '),scope!=='day')});
-      openSheet(L?'Share as':'Compartir como',opts)};
+      openSheet(L?'Share or save':'Compartir o guardar',opts)};
   }
   // ---- bottom sheet ----
   function openSheet(title,opts){const sh=$('sheet'),bg=$('sheet-bg'),list=sh.querySelector('.sh-list');sh.querySelector('.sh-t').textContent=title;list.innerHTML='';
@@ -2236,7 +2238,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const c3=(W-2*M-2*gap)/3,X=[M,M+c3+gap,M+2*(c3+gap)];const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');
     const date=`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`,time=`${p2(t.getHours())}:${p2(t.getMinutes())}`;
     const coord=x.pos?`${Math.abs(x.pos.lat).toFixed(4)}° ${x.pos.lat>=0?'N':'S'}  ${Math.abs(x.pos.lon).toFixed(4)}° ${x.pos.lon>=0?'E':'W'}`:'';
-    const cool=clean(V.cool||V.what||'');const ttl=V.cool?t_('Un dato curioso'):t_('Qué es');
+    const cool=clean(V.what||V.cool||'');const ttl=V.what?t_('Qué es'):t_('Un dato curioso');
     const df=POSTER.big?21:19;let bf=POSTER.big?24:21,lines;const bw=2*c3+gap;
     for(;bf>=15;bf--){g.font=`400 ${bf}px ${SANS}`;lines=wrapT(g,cool,bw);if(lines.length*bf*1.38<=H*0.2)break}
     g.font=`600 ${df+1}px ${SANS}`;const tl=wrapT(g,ttl,c3);
