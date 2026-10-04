@@ -991,7 +991,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
 .nd-prog{left:26px!important;right:26px!important}
 body[data-view=home] .ndock,body[data-view=prep] .ndock,body[data-view=loading] .ndock{opacity:0!important;pointer-events:none!important;transform:translateY(14px)!important}
 body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}
-.lback{display:grid!important}.lrow .lback{margin-left:10px}
+.lback{display:grid!important}.lrow .lback{width:0!important;padding:0!important;min-width:0!important;margin-left:-10px;border-width:0!important;overflow:hidden;transition:width .34s cubic-bezier(.2,.7,.2,1),margin .34s cubic-bezier(.2,.7,.2,1),opacity .25s ease .08s,transform .25s ease .08s}.lrow.on .lback{width:38px!important;margin-left:0;border-width:1px!important}.acc-body .lrow.on .lback{width:34px!important}
 .home>.hnow:not([hidden])+.history{margin-top:0}
 .hnow{animation:rowin .42s cubic-bezier(.2,.7,.2,1) both}
 .hn{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 44px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -1310,7 +1310,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.90 · 01:50</p>
+    <p class="note small ver" translate="no">manu-go · v 3.91 · 02:30</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2838,7 +2838,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     const poly=geo.pts.map(([u,v])=>[ox+u*w,oy+v*h]);const cx=ox+w/2,cy=oy+h/2;const dotR=Math.max(6,Math.max(w,h)*0.014);
     const outer=resample(poly,dotR*2.7);g.fillStyle=paper;polyPath(g,poly);g.fill();
     const inner=shrink(poly,cx,cy,0.93);const im=bm[x.t];
-    if(im){const dt=duotone(im,w,h,Math.max(1.4,w/240),D.ink);g.save();polyPath(g,inner);g.clip();g.imageSmoothingEnabled=false;g.drawImage(dt,ox,oy,w,h);g.imageSmoothingEnabled=true;g.restore()}
+    if(im){const dt=duotone(im,w,h,Math.max(1.4,w/240),inkPair(D.ink));g.save();polyPath(g,inner);g.clip();g.imageSmoothingEnabled=false;g.drawImage(dt,ox,oy,w,h);g.imageSmoothingEnabled=true;g.restore()}
     if(P.clear){g.globalCompositeOperation='destination-out';perfPoly(g,outer,dotR,'#000');g.globalCompositeOperation='source-over'}else perfPoly(g,outer,dotR,P.bg);
     const name=day?(geo.name||D.C.city):(V.name||''),t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0'),date=`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`;
     const val=day?`${nn} ${t_(nn===1?'lugar':'lugares')}`:`Nº ${D.no||1}`;const ty=oy+h+H*0.05;g.textAlign='center';g.fillStyle=P.ink;let f=POSTER.big?84:70;g.font=`600 ${f}px ${SANS}`;while(g.measureText(name).width>W*0.84&&f>30){f-=2;g.font=`600 ${f}px ${SANS}`}
@@ -2854,9 +2854,9 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     const val=day?`${nn} ${t_(nn===1?'lugar':'lugares')}`:`Nº ${D.no||1}`,where=day?D.C.meta:(x.city||D.C.city||'');
     const im=bm[x.t];const ys=inner.map(p=>p[1]),xs=inner.map(p=>p[0]),bx=Math.min(...xs),by=Math.min(...ys),bw=Math.max(...xs)-bx,bh=Math.max(...ys)-by;
     let bandT=by+bh;if(sh==='tri')bandT=by+bh*0.7;else if(sh==='ellipse')bandT=by+bh*0.68;else if(sh==='hex'||sh==='rect')bandT=by+bh*0.72;
-    if(im){const dt=duotone(im,bw,bh,Math.max(1.4,bw/240),D.ink);g.save();polyPath(g,inner);g.clip();if(sh!=='circle'&&sh!=='diamond'){g.beginPath();g.rect(bx,by,bw,bandT-by);g.clip()}g.imageSmoothingEnabled=false;g.drawImage(dt,bx,by,bw,bh);g.imageSmoothingEnabled=true;g.restore()}
+    if(im){const dt=duotone(im,bw,bh,Math.max(1.4,bw/240),inkPair(D.ink));g.save();polyPath(g,inner);g.clip();if(sh!=='circle'&&sh!=='diamond'){g.beginPath();g.rect(bx,by,bw,bandT-by);g.clip()}g.imageSmoothingEnabled=false;g.drawImage(dt,bx,by,bw,bh);g.imageSmoothingEnabled=true;g.restore()}
     g.fillStyle=ink;g.textAlign='center';
-    if(sh==='circle'){const r=Math.min(w,h)/2;g.save();g.beginPath();g.arc(cx,cy,r*0.82,0,Math.PI*2);g.clip();if(im){const dt=duotone(im,r*1.64,r*1.64,Math.max(1.4,r/120),D.ink);g.imageSmoothingEnabled=false;g.drawImage(dt,cx-r*0.82,cy-r*0.82,r*1.64,r*1.64);g.imageSmoothingEnabled=true}g.restore();
+    if(sh==='circle'){const r=Math.min(w,h)/2;g.save();g.beginPath();g.arc(cx,cy,r*0.82,0,Math.PI*2);g.clip();if(im){const dt=duotone(im,r*1.64,r*1.64,Math.max(1.4,r/120),inkPair(D.ink));g.imageSmoothingEnabled=false;g.drawImage(dt,cx-r*0.82,cy-r*0.82,r*1.64,r*1.64);g.imageSmoothingEnabled=true}g.restore();
       let f=r*0.1;g.font=`600 ${f}px ${SANS}`;const up=name.toLocaleUpperCase(LOCALE());while(g.measureText(up).width*1.2>Math.PI*r*0.78&&f>14){f-=1;g.font=`600 ${f}px ${SANS}`}
       g.fillStyle=ink;arcText(g,up,cx,cy,r*0.905,-Math.PI/2,1,f);arcText(g,`${val}  ·  ${date}`.toUpperCase(),cx,cy,r*0.905,Math.PI/2,-1,Math.max(13,f*0.62))}
     else if(sh==='diamond'){const lw=w*0.56,lh=h*0.16,ly=cy+h*0.0;g.fillStyle=paper;g.fillRect(cx-lw/2,ly,lw,lh);g.fillStyle=ink;let f=lh*0.34;g.font=`600 ${f}px ${SANS}`;while(g.measureText(name).width>lw*0.78&&f>13){f-=1;g.font=`600 ${f}px ${SANS}`}
@@ -2882,8 +2882,12 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
   const hexA=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),hexS=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
   const mixC=(a,b,k)=>{const A=hexA(a),B=hexA(b);return hexS(A.map((v,i)=>v+(B[i]-v)*k))};
   // every ink takes over the whole card: the more saturated colour becomes the ground, the other the print
-  function inkGround(key){const pr=INKS[key&&key!=='auto'?key:'rojo']||INKS.rojo;const sat=c=>{const v=hexA(c).map(x=>x/255);return Math.max(...v)-Math.min(...v)},lum=c=>{const [r,g,b]=hexA(c);return(.2126*r+.7152*g+.0722*b)/255};
-    const light=sat(pr[1])>sat(pr[0])+0.15;const G=light?pr[1]:pr[0];const FG=light?(lum(pr[0])<.4?pr[0]:'#1B1A17'):(lum(G)<.62?'#F3EEE2':'#1B1A17');return{G,FG}}
+  function rgb2hsl([r,g,b]){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s2=0;if(mx!==mn){const d=mx-mn;s2=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s2*100,l*100]}
+  const lumA=a=>{const f=v=>{v/=255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(a[0])+.7152*f(a[1])+.0722*f(a[2])};   // relative luminance: black reads on anything above ~0.2
+  function vivid(c){let [h,s2,l]=rgb2hsl(hexA(c));if(s2<15)return'#E9E4D6';s2=Math.max(s2,62);let rgb=hsl2rgb(h,s2,l);while(lumA(rgb)<0.21&&l<76){l+=1.5;rgb=hsl2rgb(h,s2,l)}return hexS(rgb)}
+  function inkGround(key){const pr=INKS[key&&key!=='auto'?key:'rojo']||INKS.rojo;const sat=c=>{const v=hexA(c).map(x=>x/255);return Math.max(...v)-Math.min(...v)};
+    const c=sat(pr[1])>sat(pr[0])+0.15?pr[1]:pr[0];return{G:vivid(c),FG:'#141413'}}
+  const inkPair=k=>k==='color'?k:(({G,FG})=>[FG,G])(inkGround(k));
   function duotone(bm,w,h,cell,ink){
     const cw=Math.max(8,Math.round(w/cell)),ch=Math.max(8,Math.round(h/cell));const c=document.createElement('canvas');c.width=cw;c.height=ch;const x=c.getContext('2d',{willReadFrequently:true});
     const r=Math.max(cw/bm.width,ch/bm.height),dw=bm.width*r,dh=bm.height*r;x.drawImage(bm,(cw-dw)/2,(ch-dh)/2,dw,dh);
@@ -2926,7 +2930,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     g.textAlign='right';g.font=`500 ${tiny}px ${SANS}`;g.fillText(fitText(g,day?(D.C.time||''):(x.city||D.C.city||''),tw*0.45),sx+sw-pad,y);g.textAlign='left';
     // the photo, printed edge to edge in two inks
     const py=y+pad*0.9,ph=sy+sh-py;const im=bm[x.t];
-    if(im&&ph>40){const dt=duotone(im,sw,ph,sw/240,D.ink);g.imageSmoothingEnabled=false;g.drawImage(dt,sx,py,sw,ph);g.imageSmoothingEnabled=true}
+    if(im&&ph>40){const dt=duotone(im,sw,ph,sw/240,inkPair(D.ink));g.imageSmoothingEnabled=false;g.drawImage(dt,sx,py,sw,ph);g.imageSmoothingEnabled=true}
     else{g.fillStyle=mut;g.fillRect(sx,py,sw,ph)}
     // perforations: bites of the background along every edge
     const r=sw*0.021;g.fillStyle=P.bg;if(P.clear){g.globalCompositeOperation='destination-out';g.fillStyle='#000'}const edge=(x0,y0,x1,y1)=>{const len=Math.hypot(x1-x0,y1-y0),n=Math.max(4,Math.round(len/(r*2.7)));for(let k=0;k<=n;k++){g.beginPath();g.arc(x0+(x1-x0)*k/n,y0+(y1-y0)*k/n,r,0,Math.PI*2);g.fill()}};
@@ -3119,7 +3123,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     g.fillText('MANU-GO',L,B+4);g.textAlign='right';g.fillText([pl?'':`${n} ${t_(n===1?'lugar':'lugares')}`,D.C.dist].filter(Boolean).join('  ·  ').toUpperCase(),R,B+4);g.textAlign='left';
     const mL=cx,mR=cx+cw,mT=T+tf+34,mB=B-34;const pts=D.items.map((x,i)=>[x,i]).filter(([x])=>x.pos);
     let proj=null;const tiles=D._tiles;
-    if(tiles){const dt=duotone(tiles.canvas,mR-mL,mB-mT,1.5,[mixC(paper,blk,.55),paper]);g.save();g.globalAlpha=.6;g.imageSmoothingEnabled=false;g.drawImage(dt,mL,mT,mR-mL,mB-mT);g.restore();const sx=(mR-mL)/tiles.canvas.width,sy=(mB-mT)/tiles.canvas.height;proj=(la,lo)=>{const [a,b]=tiles.proj(la,lo);return[mL+a*sx,mT+b*sy]}}
+    if(tiles){const dt=duotone(tiles.canvas,mR-mL,mB-mT,1.5,[mixC(paper,blk,.42),paper]);g.save();g.globalAlpha=.75;g.imageSmoothingEnabled=false;g.drawImage(dt,mL,mT,mR-mL,mB-mT);g.restore();const sx=(mR-mL)/tiles.canvas.width,sy=(mB-mT)/tiles.canvas.height;proj=(la,lo)=>{const [a,b]=tiles.proj(la,lo);return[mL+a*sx,mT+b*sy]}}
     else{g.strokeStyle=mixC(paper,blk,.15);g.lineWidth=1;for(let x=mL;x<mR;x+=48){g.beginPath();g.moveTo(x,mT);g.lineTo(x,mB);g.stroke()}for(let y=mT;y<mB;y+=48){g.beginPath();g.moveTo(mL,y);g.lineTo(mR,y);g.stroke()}
       if(pts.length){const k=Math.cos(pts[0][0].pos.lat*Math.PI/180);const lon=pts.map(([x])=>x.pos.lon),lat=pts.map(([x])=>x.pos.lat);const mnLo=Math.min(...lon),mxLo=Math.max(...lon),mnLa=Math.min(...lat),mxLa=Math.max(...lat);
         const AW=(mR-mL)*0.7,AH=(mB-mT)*0.7,spX=Math.max((mxLo-mnLo)*k,1e-4),spY=Math.max(mxLa-mnLa,1e-4),sc=Math.min(AW/spX,AH/spY);proj=(la,lo)=>[(mL+mR)/2+(lo-(mnLo+mxLo)/2)*k*sc,(mT+mB)/2-(la-(mnLa+mxLa)/2)*sc]}}
@@ -3128,24 +3132,24 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     const byDay=[];pts.forEach(([x],i)=>{const dk=dayKeyOf(x.takenAt||x.t);if(!byDay.length||byDay[byDay.length-1].dk!==dk)byDay.push({dk,idx:[]});byDay[byDay.length-1].idx.push(i)});
     const path=p=>{g.beginPath();g.moveTo(p[0][0],p[0][1]);for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],q=p[i+1],p3=p[i+2]||q;g.bezierCurveTo(p1[0]+(q[0]-p0[0])/6,p1[1]+(q[1]-p0[1])/6,q[0]-(p3[0]-p1[0])/6,q[1]-(p3[1]-p1[1])/6,q[0],q[1])}};
     g.save();g.beginPath();g.rect(mL,mT,mR-mL,mB-mT);g.clip();g.lineCap='round';g.lineJoin='round';
-    byDay.forEach(d=>{const p=d.idx.map(i=>XY[i]);if(p.length<2)return;g.strokeStyle=paper;g.lineWidth=n>30?9:13;path(p);g.stroke();g.strokeStyle=A;g.lineWidth=n>30?4:6;path(p);g.stroke()});
+    byDay.forEach(d=>{const p=d.idx.map(i=>XY[i]);if(p.length<2)return;g.strokeStyle=paper;g.lineWidth=n>30?12:18;path(p);g.stroke();g.strokeStyle=A;g.lineWidth=n>30?6:9;path(p);g.stroke()});
     const sq=n>40?11:n>15?15:20;XY.forEach(([x,y],j)=>{g.fillStyle=paper;g.fillRect(x-sq/2-3,y-sq/2-3,sq+6,sq+6);g.fillStyle=blk;g.fillRect(x-sq/2,y-sq/2,sq,sq)});
     if(n<=30){XY.forEach(([x,y],j)=>{const lab=String(pts[j][1]+1).padStart(2,'0')+(n<=5?'  '+LV(pts[j][0]).name:'');g.font=`500 ${POSTER.big?18:16}px ${MONO}`;const right=x<mR-200;g.textAlign=right?'left':'right';const tx=x+(right?sq/2+10:-sq/2-10),tw0=g.measureText(lab).width;
       g.fillStyle=paper;g.fillRect(right?tx-5:tx-tw0-5,y-15,tw0+10,26);g.fillStyle=blk;g.fillText(lab,tx,y+5)});g.textAlign='left'}
     g.restore();grain(g,cx,cy,cw,ch,.07)}
 
   // a photo turned into a pen drawing: edges in black ink, the darkest areas lightly hatched — like a screen-printed illustration
-  function inkDrawing(im,w,h,ink){const cw=Math.max(60,Math.round(w/1.6)),ch=Math.max(60,Math.round(h/1.6));const c=document.createElement('canvas');c.width=cw;c.height=ch;const x=c.getContext('2d',{willReadFrequently:true});
+  function inkDrawing(im,w,h,ink){const cw=Math.max(60,Math.round(w/1.15)),ch=Math.max(60,Math.round(h/1.15));const c=document.createElement('canvas');c.width=cw;c.height=ch;const x=c.getContext('2d',{willReadFrequently:true});
     const r=Math.min(cw/im.width,ch/im.height),dw=im.width*r,dh=im.height*r;x.drawImage(im,(cw-dw)/2,(ch-dh)/2,dw,dh);const id=x.getImageData(0,0,cw,ch),d=id.data,L=new Float32Array(cw*ch);
     for(let i=0;i<cw*ch;i++)L[i]=.3*d[i*4]+.59*d[i*4+1]+.11*d[i*4+2];
     const E=new Float32Array(cw*ch);const vals=[];for(let y=1;y<ch-1;y++)for(let xx=1;xx<cw-1;xx++){const i=y*cw+xx;const gx=-L[i-cw-1]-2*L[i-1]-L[i+cw-1]+L[i-cw+1]+2*L[i+1]+L[i+cw+1],gy=-L[i-cw-1]-2*L[i-cw]-L[i-cw+1]+L[i+cw-1]+2*L[i+cw]+L[i+cw+1];E[i]=Math.hypot(gx,gy);vals.push(E[i])}
     vals.sort((a,b)=>a-b);const th=vals[Math.floor(vals.length*0.86)]||40,th2=vals[Math.floor(vals.length*0.95)]||80;const sL=Array.from(L).sort((a,b)=>a-b),dk=sL[Math.floor(sL.length*0.18)];
     const [ir,ig,ib]=[1,3,5].map(k=>parseInt(ink.slice(k,k+2),16));const inside=(xx,y)=>{const u=(xx-(cw-dw)/2)/dw,v=(y-(ch-dh)/2)/dh;return u>=0.025&&u<=0.975&&v>=0.025&&v<=0.975};
     // an engraving: horizontal lines that swell where the photo is dark (like a banknote or an old print), plus the strongest outlines
-    const lo=sL[Math.floor(sL.length*0.04)],hi=sL[Math.floor(sL.length*0.97)]||255,PER=3.4;
-    for(let y=0;y<ch;y++)for(let xx=0;xx<cw;xx++){const i=y*cw+xx,p=i*4;let a=0;if(inside(xx,y)){let v=1-(L[i]-lo)/Math.max(1,hi-lo);v=Math.min(1,Math.max(0,v));v=Math.pow(v,1.15)*0.92;
-      const yy=y+Math.sin(xx*0.045)*0.9,ph=((yy%PER)+PER)%PER/PER,dist=Math.abs(ph-0.5)*2;let cov=Math.min(1,Math.max(0,(v-dist)*2.2+0.15));if(v<0.06)cov=0;
-      if(E[i]>th2)cov=Math.max(cov,0.85);a=Math.round(cov*255)}d[p]=ir;d[p+1]=ig;d[p+2]=ib;d[p+3]=a}
+    const lo=sL[Math.floor(sL.length*0.02)],hi=sL[Math.floor(sL.length*0.98)]||255,PER=2.6;
+    for(let y=0;y<ch;y++)for(let xx=0;xx<cw;xx++){const i=y*cw+xx,p=i*4;let a=0;if(inside(xx,y)){let v=1-(L[i]-lo)/Math.max(1,hi-lo);v=Math.min(1,Math.max(0,v));v=Math.pow(v,0.95);
+      const yy=y+Math.sin(xx*0.045)*0.9,ph=((yy%PER)+PER)%PER/PER,dist=Math.abs(ph-0.5)*2;let cov=Math.min(1,Math.max(0,(v-dist)*1.6+v*0.35));if(v<0.04)cov=0;
+      if(E[i]>th)cov=Math.max(cov,E[i]>th2?0.9:0.55);a=Math.round(cov*255)}d[p]=ir;d[p+1]=ig;d[p+2]=ib;d[p+3]=a}
     x.putImageData(id,0,0);return c}
   // ETIQUETA — a printed label: two columns of capitals set like old type, a pen drawing of the place in the middle, a small data box, a seal
   function posterLabel(g,D,bm,P){
@@ -3169,7 +3173,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     // seal
     postmark(g,midR-20,dT+90,POSTER.big?62:54,'MANU-GO · ARCHIVO',place?`Nº ${String(D.no||1).padStart(4,'0')}`:`${D.items.length} ${t_('lug.')}`,blk,false);
     // data box over the drawing
-    const bw2=midW+w*0.1,bh2=POSTER.big?150:130,bx=(midL+midR)/2-bw2/2,by=colBot-bh2+10;g.fillStyle=A;g.fillRect(bx,by,bw2,bh2);g.fillStyle=paper;
+    const bw2=midW,bh2=POSTER.big?150:130,bx=(midL+midR)/2-bw2/2,by=colBot-bh2+10;g.fillStyle=A;g.fillRect(bx,by,bw2,bh2);g.fillStyle=paper;
     g.font=`400 ${POSTER.big?30:26}px ${SERIF}`;g.fillText(place?(x0.local&&x0.local.toLowerCase()!==(V.name||'').toLowerCase()?x0.local:V.name):t_('Un paseo por')+' '+D.C.city,bx+16,by+38,bw2-32);
     g.strokeStyle=paper;g.lineWidth=1.2;g.beginPath();g.moveTo(bx+16,by+54);g.lineTo(bx+bw2-16,by+54);g.stroke();
     g.font=`400 ${POSTER.big?16:14}px ${MONO}`;const rowsB=place?[[`${p2(t0.getDate())}.${p2(t0.getMonth()+1)}.${t0.getFullYear()}`,`${p2(t0.getHours())}:${p2(t0.getMinutes())}`],[x0.pos?`${x0.pos.lat.toFixed(4)}° N`:'',x0.pos?`${x0.pos.lon.toFixed(4)}° E`:'']]:[[`${D.items.length} ${t_(D.items.length===1?'lugar':'lugares')}`,D.C.time||''],[D.C.dist||'',`Nº ${String(D.no0||1).padStart(4,'0')}–${String(D.no1||1).padStart(4,'0')}`]];
