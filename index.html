@@ -180,7 +180,7 @@ p{margin:0}
 .ask-row>a,.ask-row>button{min-height:50px!important;font-size:16px!important;font-weight:400!important;justify-content:flex-start!important;gap:14px}
 .ask-row>a>svg,.ask-row>button>svg,.ask-row .ico{order:-1!important;margin:0!important;width:18px!important;height:18px!important;color:var(--muted)}
 .ask-row>a:last-child,.ask-row>button:last-child{border-bottom:0!important}
-.ndock .nd-pp{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+
 .ask-row .sub{font-size:13px;font-weight:400;color:var(--muted);line-height:1.35}
 .ask-row .ico{order:2;flex:none}
 
@@ -873,6 +873,28 @@ body,.app{transition:background-color .3s ease,color .3s ease}
 .confirm>span{font-size:13px;color:var(--muted);margin-right:4px}
 .confirm button{padding:8px 18px!important;font-size:14px!important}
 .confirm button.no{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important;padding:8px 18px!important;font-weight:600!important}
+
+/* narration mini-player: a full-width bar floating above the back / camera row, like the mini-players of podcast and music apps:
+   artwork, title, then play/pause and the secondary skip. No equalizer, no neon: quiet, like the rest */
+.ndock{left:20px!important;right:20px!important;bottom:calc(env(safe-area-inset-bottom,0px) + 90px)!important;height:62px!important;border-radius:14px!important;background:var(--surface)!important;padding:0 8px 0 10px!important;gap:12px!important;max-width:520px;margin:0 auto}
+.nd-art{flex:none;width:42px;height:42px;border-radius:6px;object-fit:cover;background:var(--raise)}
+.nd-mid{gap:4px!important}
+.nd-t{font-size:15px!important;font-weight:600}
+.nd-s{font-family:var(--sans)!important;font-size:12px!important;letter-spacing:0!important;text-transform:none!important;color:var(--muted)!important}
+.nd-pp{width:44px!important;height:44px!important;background:transparent!important;color:var(--ink)!important;border:0!important}
+.nd-pp svg{width:24px!important;height:24px!important}
+.nd-back{width:44px!important;height:44px!important;color:var(--ink)}
+.nd-back svg{width:25px!important;height:25px!important}
+.nd-prog{left:12px!important;right:12px!important;bottom:0!important;height:2px!important;background:var(--line)!important}
+.nd-prog i,.ndock.is-pause .nd-prog i{background:var(--ink)!important}
+.ndock.is-load .nd-s{animation:skpulse 1s ease-in-out infinite alternate}
+body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 170px)}
+/* the camera keeps the shutter's language everywhere */
+.fab{background:var(--bg)!important;border:2px solid var(--ink)!important;box-shadow:none!important;color:var(--ink)}
+.fab svg{display:none}
+.fab::after{content:"";width:44px;height:44px;border-radius:50%;background:var(--ink)}
+/* no empty band above the content: the photo of a card starts right under the status bar */
+body:not([data-view=home]) .top{display:none}
 </style>
 </head>
 <body>
@@ -1133,7 +1155,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.47 · 15:55</p>
+    <p class="note small ver" translate="no">manu-go · v 3.48 · 16:20</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1151,7 +1173,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     <div class="sh2-foot"><button class="sh2-go" id="sh2-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span>Compartir</span></button></div>
   </div>
   <div class="sheet-bg" id="sheet-bg" hidden></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><span class="sh-grab"></span><p class="sh-t"></p><div class="sh-list"></div></div>
-  <div class="ndock" id="ndock" role="region" aria-label="Narración"><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span class="eq"><i></i><i></i><i></i></span><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
+  <div class="ndock" id="ndock" role="region" aria-label="Narración"><img class="nd-art" id="nd-art" alt="" hidden><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
   <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
   <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsado para guardar · Toca para cerrar</p></div>
   <button class="navback" id="navback" hidden aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
@@ -3104,11 +3126,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     try{if(useEL()){if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{})}
       else if(hasSys()){const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}}
   function cardText(c){const V=LV(c);return [V.name,V.what&&t_('Qué es')+'.\n'+clean(V.what),V.cool&&t_('Un dato curioso')+'.\n'+clean(V.cool)].filter(Boolean).map(clean).join('\n\n')}
-  $('btn-listen').onclick=()=>{const c=cur;if(!c)return;$('btn-listen')._title=LV(c).name;listen($('btn-listen'),cardText(c),c.t+'|card')};
+  $('btn-listen').onclick=()=>{const c=cur;if(!c)return;$('btn-listen')._title=LV(c).name;$('btn-listen')._img=c.img||'';listen($('btn-listen'),cardText(c),c.t+'|card')};
   function progSet(b,w){const pg=b&&b.querySelector('.prog');if(pg)pg.style.width=w;if(active&&active.btn===b)$('nd-prog').style.width=w}
   $('nd-back').innerHTML=BACK;$('nd-back').setAttribute('aria-label',t_('Atrás 5 segundos'));
-  function dockSet(st){const d=$('ndock');if(st==='idle'||!active){d.classList.remove('on','is-play','is-pause','is-load');d.style.transform='';d.style.opacity='';$('nd-prog').style.width='0';mediaState('none');return}
-    $('nd-t').textContent=active.title||'manu-go';$('nd-s').textContent=t_(st==='play'?'Escuchando':st==='pause'?'En pausa':'Preparando');
+  function dockSet(st){const d=$('ndock');document.body.classList.toggle('dock-on',!(st==='idle'||!active));if(st==='idle'||!active){d.classList.remove('on','is-play','is-pause','is-load');d.style.transform='';d.style.opacity='';$('nd-prog').style.width='0';mediaState('none');return}
+    $('nd-t').textContent=active.title||'manu-go';{const im=active.btn&&active.btn._img,a=$('nd-art');a.hidden=!im;if(im&&a.src!==im)a.src=im}$('nd-s').textContent=t_(st==='play'?'Escuchando':st==='pause'?'En pausa':'Preparando');
     ['play','pause','load'].forEach(x=>d.classList.toggle('is-'+x,st===x));d.classList.add('on');$('nd-pp').setAttribute('aria-label',t_(st==='play'?'Pausar':'Seguir escuchando'));
     mediaState(st==='play'?'playing':'paused',active.title)}
   function dockToggle(){if(!active||active.btn.classList.contains('is-load'))return;active.btn.click()}
@@ -3128,7 +3150,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   function deepListen(body,t,points){if(!canListen()||!points||!points.length)return;
     const row=document.createElement('div');row.className='lrow';const b=document.createElement('button');b.className='lpill';b._label='Escuchar';b._title=t.label;row.appendChild(b);body.appendChild(row);pillSet(b,'idle');row.onclick=e=>e.stopPropagation();
     if(active&&active.key.includes('|'+t.id+'|')&&active.key.includes('|'+(cur&&cur.t)+'|')){active.btn=b;if(active.sys)dockSet(active.paused?'pause':'play');pillSet(b,player&&!player.paused?'play':'pause')}
-    const txt=[t.label,...points].map(clean).join('\n\n');prepScript(txt).catch(()=>{});b.onclick=e=>{e.stopPropagation();listen(b,txt,(cur&&cur.t)+'|'+t.id)}}
+    const txt=[t.label,...points].map(clean).join('\n\n');prepScript(txt).catch(()=>{});b.onclick=e=>{e.stopPropagation();b._img=cur&&cur.img||'';b._title=t.label+(cur?' · '+(LV(cur).name||''):'');listen(b,txt,(cur&&cur.t)+'|'+t.id)}}
   $('s-el-save').onclick=()=>{cfg.elKey=$('s-el-key').value.trim();cfg.elVoice=$('s-el-voice').value.trim()||DEFAULT_VOICE;store.set('elKey',cfg.elKey);store.set('elVoice',cfg.elVoice);$('s-el-voice').value=cfg.elVoice;
     const b=$('s-el-save');b.textContent=t_(cfg.elKey?'Guardada ✓':'Guardar');b.classList.toggle('ok',!!cfg.elKey);setTimeout(()=>{b.textContent=t_('Guardar');b.classList.remove('ok')},1600)};
   $('s-el-key').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-el-save').click();$('s-el-key').blur()}});
