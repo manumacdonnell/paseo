@@ -327,7 +327,14 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .backprev{max-width:100%}.backprev span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 
 /* Cómo llegar */
-.placetools{display:flex;flex-wrap:wrap;column-gap:22px;margin-top:12px}.placetools .copyplace{margin-top:0}
+.placetools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:18px}.placetools .copyplace{margin-top:0}
+.placetools .lrow{margin:0}
+.placetools .copyplace{height:38px;padding:0 15px 0 13px;border-radius:999px;border:1px solid color-mix(in srgb,var(--muted) 45%,transparent);color:var(--ink);font-family:var(--sans);font-size:14px;letter-spacing:0;text-transform:none;gap:8px}
+.placetools .copyplace svg{width:15px;height:15px}
+/* "¿No es esto?" is a correction, not an action: quiet, on the date line, out of the way of the thumb */
+.head{position:relative}
+.head>div{min-width:0;flex:1}
+.notthis{position:absolute;right:0;top:-9px;margin:0!important;border:0!important;padding:8px 0 8px 14px!important;font-family:var(--sans)!important;font-size:13px!important;letter-spacing:0!important;text-transform:none!important;color:var(--muted);text-decoration:underline;text-decoration-color:var(--faint);text-underline-offset:3px}
 .copyplace.route{text-decoration:none}
 #btn-copyplace{min-height:26px;min-width:26px}
 .storybtn{display:inline-flex;align-items:center;gap:8px;margin:4px 0 12px;height:38px;padding:0 16px 0 14px;border-radius:999px;border:1px solid color-mix(in srgb,var(--muted) 45%,transparent);background:transparent;color:var(--ink);font-size:14px}
@@ -766,9 +773,8 @@ body,.app{transition:background-color .3s ease,color .3s ease}
           <p class="local" id="r-local" hidden></p>
           <button class="backprev" id="btn-prev" hidden></button>
           <div class="confirm" id="r-confirm" hidden><span>¿Es esto?</span><button id="btn-yes">Sí</button><button class="no" id="btn-no">No</button></div>
-          <div class="placetools"><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span id="copyplace-label">Compartir</span></button>
+          <div class="placetools"><div class="lrow" id="lrow" hidden><button class="lpill" id="btn-listen"></button></div><button class="copyplace" id="btn-copyplace" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3"/><path d="m7 8 5-5 5 5"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg><span id="copyplace-label">Compartir</span></button>
           <a class="copyplace route" id="btn-route" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Cómo llegar</span></a><button class="copyplace" id="btn-lang" hidden style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span>English</span></button></div>
-          <div class="lrow" id="lrow" hidden><button class="lpill" id="btn-listen"></button></div>
         </div>
         <button class="notthis" id="btn-notthis">¿No es esto?</button>
       </div>
@@ -942,7 +948,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.18 · 03:05</p>
+    <p class="note small ver" translate="no">manu-go · v 3.19 · 03:15</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="sheet-bg" id="sheet-bg" hidden></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><span class="sh-grab"></span><p class="sh-t"></p><div class="sh-list"></div></div>
