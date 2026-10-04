@@ -381,6 +381,12 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .st-slide img{display:block;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease}.st-slide.in img{opacity:1}
 .st-slide.busy img{opacity:.55}
 .st-car.place{--sh:max(240px,min(calc(100svh - 380px),560px))}
+.st-car.place.day{--sh:max(220px,min(calc(100svh - 446px),520px))}
+.st-photos{display:flex;gap:8px;overflow-x:auto;margin:14px -20px 0;padding:6px 20px;scrollbar-width:none;transition:opacity .25s ease;touch-action:pan-x}
+.st-photos::-webkit-scrollbar{display:none}
+.st-photos.off{opacity:0;pointer-events:none}
+.st-photos button{flex:none;width:44px;height:44px;border-radius:6px;border:1px solid var(--line);padding:0;background:var(--raise) center/cover no-repeat;transition:box-shadow .2s ease}
+.st-photos button.on{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--ink)}
 .st-inks{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));justify-items:center;width:100%;max-width:330px;box-sizing:border-box;align-self:center;margin:16px auto 0;padding:0 4px;transition:opacity .25s ease}
 .st-inks.off{opacity:0;pointer-events:none}
 .st-inks .ink{width:26px;height:26px;border-radius:50%;border:1px solid var(--line);padding:0;transition:box-shadow .2s ease;display:grid;place-items:center;background:var(--raise);color:var(--muted);font-family:var(--mono);font-size:11px}
@@ -984,7 +990,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.26 · 12:30</p>
+    <p class="note small ver" translate="no">manu-go · v 3.27 · 13:10</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2096,7 +2102,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
 
   // ---------- Share a day or a whole city: a catalogue of what you saw, or the route you walked ----------
   let storyRun=0;
-  const DAY_LAYOUTS=[['pliego','Pliego'],['text','Texto'],['postal','Postal']];
+  const DAY_LAYOUTS=[['sello','Sello'],['postal','Postal'],['text','Texto']];
   const dayKeyOf=t=>{const d=new Date(t);return d.getFullYear()*1e4+d.getMonth()*100+d.getDate()};
   function storyCopy(items,scope,city){
     const L=cfg.lang==='en',t0=items[0].takenAt||items[0].t,t1=items[items.length-1].takenAt||items[items.length-1].t;
@@ -2112,21 +2118,24 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
     const run=++storyRun;show('story');const box=$('story');
     const city=scope==='place'?(items[0].city||''):(mapCity&&mapCity!=='Sin ubicación'?mapCity:'');const C=storyCopy(items,scope==='place'?'day':scope,city);
-    box.innerHTML=`<p class="st-eyebrow"></p><div class="st-car"></div><div class="st-inks" hidden role="group"></div><div class="st-row"><div class="st-names" role="tablist"></div><div class="st-swatches" role="group"><button data-v="dark" class="sw sw-dark"></button><button data-v="light" class="sw sw-light"></button></div></div><button class="st-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span></span></button>`;
+    box.innerHTML=`<p class="st-eyebrow"></p><div class="st-car"></div><div class="st-inks" hidden role="group"></div><div class="st-photos" hidden role="group"></div><div class="st-row"><div class="st-names" role="tablist"></div><div class="st-swatches" role="group"><button data-v="dark" class="sw sw-dark"></button><button data-v="light" class="sw sw-light"></button></div></div><button class="st-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span></span></button>`;
     box.querySelector('.st-eyebrow').textContent=scope==='place'?[LV(items[0]).name,city].filter(Boolean).join(' · '):[city,C.meta].filter(Boolean).join(' · ');
     box.querySelector('.st-go span').textContent=t_('Compartir');
     const car=box.querySelector('.st-car');car.classList.add('place');const _c=car,names=box.querySelector('.st-names'),tone=box.querySelector('.st-swatches');tone.children[0].setAttribute('aria-label',t_('Negro'));tone.children[1].setAttribute('aria-label',t_('Blanco'));
-    const hasPos=items.some(x=>x.pos);const LAY=scope==='place'?[['sello','Sello'],['ficha','Ficha']]:DAY_LAYOUTS;
+    const hasPos=items.some(x=>x.pos);const LAY=scope==='place'?[['sello','Sello'],['postal','Postal']]:DAY_LAYOUTS;
     LAY.forEach(([v,l])=>{const s=document.createElement('button');s.className='st-slide';s.dataset.v=v;s.innerHTML='<img alt="">';s.setAttribute('aria-label',t_(l));car.appendChild(s);
       const n=document.createElement('button');n.dataset.v=v;n.textContent=t_(l);n.setAttribute('role','tab');names.appendChild(n)});
     names.hidden=LAY.length<2;
+    const phs=box.querySelector('.st-photos');
+    if(scope!=='place'){phs.hidden=false;car.classList.add('day');(async()=>{for(const x of items){if(!x.hasPhoto&&!x.file)continue;const b=document.createElement('button');b.dataset.t=x.t;b.setAttribute('aria-label',LV(x).name);phs.appendChild(b);
+        try{const bl=(await getPhoto(x.t).catch(()=>null))||x.file;if(bl&&run===storyRun){const u=await resize(bl,140,'dataurl');b.style.backgroundImage=`url(${u})`}}catch(e){}if(run!==storyRun)return}mark()})()}
     const inks=box.querySelector('.st-inks');let ink='auto';
     {inks.hidden=false;[['auto',scope==='place'?'Color de la foto':'Un color por lugar'],...Object.keys(INKS).map(k=>[k,k])].forEach(([k,l])=>{const b=document.createElement('button');b.dataset.v=k;b.className='ink';b.setAttribute('aria-label',t_(l));if(k==='auto')b.innerHTML='<span>A</span>';else b.style.background=`linear-gradient(135deg,${INKS[k][0]} 50%,${INKS[k][1]} 50%)`;inks.appendChild(b)})}
     const cache={},ready={};let layout=scope==='place'?store.get('placeLayout','sello'):store.get('dayLayout6','catalog');if(!LAY.some(([v])=>v===layout))layout=LAY[0][0];
     let tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';   // starts like the app looks; a change only lasts for this share
     const D={items,C,scope};{const all=store.get('history',[]).slice().sort((a,b)=>a.t-b.t);const ix=all.findIndex(h=>h.t===items[0].t);D.no=ix>=0?ix+1:all.length+1;D.no0=D.no;const iz=all.findIndex(h=>h.t===items[items.length-1].t);D.no1=iz>=0?iz+1:D.no0+items.length-1}
-    const get=(lay,fmt)=>{const key=lay+'|'+tn+'|'+fmt+(INKED.includes(lay)?'|'+ink:'');D.ink=ink;if(!cache[key])cache[key]=drawDay(lay,D,tn,fmt).then(b=>{ready[key]=b;return b});return cache[key]};
-    const mark=()=>{inks.classList.toggle('off',!INKED.includes(layout));inks.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===ink));car.querySelectorAll('.st-slide').forEach(s=>s.classList.toggle('on',s.dataset.v===layout));names.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===layout);b.setAttribute('aria-selected',b.dataset.v===layout?'true':'false')});tone.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===tn))};
+    const get=(lay,fmt)=>{const key=lay+'|'+tn+'|'+fmt+(INKED.includes(lay)?'|'+ink:'')+(lay==='sello'?'|'+(D.cover||''):'');D.ink=ink;if(!cache[key])cache[key]=drawDay(lay,D,tn,fmt).then(b=>{ready[key]=b;return b});return cache[key]};
+    const mark=()=>{phs.classList.toggle('off',layout!=='sello');const cv=D.cover||(()=>{const f=items.find(i=>(i.hasPhoto||i.file)&&i.kind!=='thing')||items.find(i=>i.hasPhoto||i.file);return f&&f.t})();phs.querySelectorAll('button').forEach(b=>b.classList.toggle('on',String(b.dataset.t)===String(cv)));inks.classList.toggle('off',!INKED.includes(layout));inks.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===ink));car.querySelectorAll('.st-slide').forEach(s=>s.classList.toggle('on',s.dataset.v===layout));names.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.v===layout);b.setAttribute('aria-selected',b.dataset.v===layout?'true':'false')});tone.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===tn))};
     // every design rendered at 9:16; the other formats are made in the background for the one in view
     const paintOne=async s=>{if(!s)return;const t0=tn,k0=ink;s.classList.add('busy');try{const b=await get(s.dataset.v,'story');if(run!==storyRun||t0!==tn||k0!==ink)return;const im=s.querySelector('img');const u=URL.createObjectURL(b);const pre=new Image();pre.onload=()=>{const old=im._u;im.src=u;im._u=u;s.classList.remove('busy');if(old)setTimeout(()=>URL.revokeObjectURL(old),500)};pre.src=u}catch(e){}warm()};
     const paint=()=>{mark();car.querySelectorAll('.st-slide').forEach(async s=>{const t0=tn;s.classList.add('busy');try{const b=await get(s.dataset.v,'story');if(run!==storyRun||t0!==tn)return;const im=s.querySelector('img');const u=URL.createObjectURL(b);const pre=new Image();pre.onload=()=>{if(run!==storyRun)return;const old=im._u;im.src=u;im._u=u;s.classList.add('in');s.classList.remove('busy');if(old)setTimeout(()=>URL.revokeObjectURL(old),500)};pre.src=u}catch(e){console.warn(e)}})
@@ -2140,6 +2149,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     car.addEventListener('scroll',()=>{car.classList.add('live');if(!raf)raf=requestAnimationFrame(track);clearTimeout(st);st=setTimeout(()=>{car.classList.remove('live');store.set(scope==='place'?'placeLayout':'dayLayout6',layout);warm()},120)},{passive:true});
     car.onclick=e=>{const s=e.target.closest('.st-slide');if(!s)return;if(s.dataset.v!==layout){goTo(s.dataset.v,true);return}const im=s.querySelector('img');if(im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}};
     names.onclick=e=>{const b=e.target.closest('button');if(b)goTo(b.dataset.v,true)};
+    phs.onclick=e=>{const b=e.target.closest('button');if(!b||layout!=='sello')return;D.cover=+b.dataset.t;mark();paintOne(car.querySelector('.st-slide[data-v="sello"]'))};
     inks.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===ink||!INKED.includes(layout))return;ink=b.dataset.v;mark();car.querySelectorAll('.st-slide').forEach(s=>{if(INKED.includes(s.dataset.v))paintOne(s)})};
     tone.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===tn)return;tn=b.dataset.v;paint()};
     requestAnimationFrame(()=>{pad();goTo(layout,false);mark();track()});window.addEventListener('resize',function rs(){if(run!==storyRun){window.removeEventListener('resize',rs);return}pad();goTo(layout,false)});
@@ -2148,7 +2158,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     async function shareBlob(blob){const f=new File([blob],fname,{type:'image/png'});
       try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e.name==='AbortError')return}
       const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=f.name;document.body.appendChild(a);a.click();a.remove()}
-    const fmtOpt=(fmt,lab,sub,ratio)=>({label:lab,sub,meta:ratio,run:async()=>{const key=layout+'|'+tn+'|'+fmt+(INKED.includes(layout)?'|'+ink:'');const b=ready[key];if(b){shareBlob(b);return}   // ready: share inside the tap, as the iPhone requires
+    const fmtOpt=(fmt,lab,sub,ratio)=>({label:lab,sub,meta:ratio,run:async()=>{const key=layout+'|'+tn+'|'+fmt+(INKED.includes(layout)?'|'+ink:'')+(layout==='sello'?'|'+(D.cover||''):'');const b=ready[key];if(b){shareBlob(b);return}   // ready: share inside the tap, as the iPhone requires
         status(t_('Preparando…'));const bb=await get(layout,fmt);status('');shareBlob(bb)}});
     box.querySelector('.st-go').onclick=()=>{get(layout,'post');get(layout,'square');
       const save={label:L?'Save to Photos':'Guardar en Fotos',sub:L?'Hold the image and choose “Save to Photos”':'Mantén pulsada la imagen y elige «Guardar en Fotos»',run:()=>{const im=car.querySelector('.st-slide[data-v="'+layout+'"] img');if(im&&im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}}};
@@ -2332,26 +2342,26 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     for(let yy=0;yy<ch;yy++)for(let xx=0;xx<cw;xx++){const i=yy*cw+xx;let v=(L[i]-lo)/Math.max(1,hi-lo);v=Math.min(1,Math.max(0,v+((BY[(yy%4)*4+(xx%4)]+.5)/16-.5)*0.34));v=v*v*(3-2*v);const p=i*4;for(let c=0;c<3;c++)d[p+c]=Math.round(inkA[c]+(inkB[c]-inkA[c])*v);d[p+3]=255}
     x.putImageData(id,0,0);return c}
   function posterSello(g,D,bm,P){
-    const {W,H,M}=POSTER,x=D.items[0],V=LV(x),dark=P.bg==='#0D0D0C';
+    const {W,H,M}=POSTER,day=D.scope!=='place',x=day?(D.items.find(i=>i.t===D.cover&&bm[i.t])||D.items.find(i=>bm[i.t]&&i.kind!=='thing')||D.items.find(i=>bm[i.t])||D.items[0]):D.items[0],V=LV(x),dark=P.bg==='#0D0D0C',nn=D.items.length;
     const paper=dark?'#F3F0E8':'#141413',ink=dark?'#141413':'#F3F0E8',mut=dark?'#6F6C65':'#8C8A84';
     let sh=H-2*M-(POSTER.big?60:40),sw=sh*0.56;if(sw>W*(POSTER.big?0.66:0.62)){sw=W*(POSTER.big?0.66:0.62);sh=sw/0.56}
     const sx=(W-sw)/2,sy=(H-sh)/2,pad=sw*0.085,tw=sw-2*pad;
     g.fillStyle=paper;g.fillRect(sx,sy,sw,sh);
     // text block
-    const name=V.name||'',local=(x.local&&x.local.toLowerCase()!==name.toLowerCase())?x.local:'';
+    const name=day?D.C.city:(V.name||''),local=day?'':(x.local&&x.local.toLowerCase()!==name.toLowerCase())?x.local:'';
     let fs=sw*0.12,nl;for(;fs>sw*0.055;fs-=2){g.font=`600 ${fs}px ${SANS}`;nl=wrapT(g,name,tw);if(nl.length<=3)break}
     const small=Math.round(sw*0.036),tiny=Math.round(sw*0.026);
     let y=sy+pad+fs*0.82;g.fillStyle=ink;try{g.letterSpacing='-0.5px'}catch(e){}
     g.font=`600 ${fs}px ${SANS}`;nl.forEach((l,i)=>g.fillText(l,sx+pad,y+i*fs*1.0));y+=(nl.length-1)*fs*1.0;try{g.letterSpacing='0px'}catch(e){}
-    const where=[x.pos?`${Math.abs(x.pos.lat).toFixed(3)}° ${x.pos.lat>=0?'N':'S'} ${Math.abs(x.pos.lon).toFixed(3)}° ${x.pos.lon>=0?'E':'W'}`:''].filter(Boolean).join('  ·  ');
+    const where=day?[D.C.meta,D.C.dist].filter(Boolean).join('  ·  '):[x.pos?`${Math.abs(x.pos.lat).toFixed(3)}° ${x.pos.lat>=0?'N':'S'} ${Math.abs(x.pos.lon).toFixed(3)}° ${x.pos.lon>=0?'E':'W'}`:''].filter(Boolean).join('  ·  ');
     y+=small*2.1;g.font=`400 ${small}px ${SANS}`;g.fillStyle=mut;g.fillText(fitText(g,where,tw),sx+pad,y);
     // the stamp's "value": its number in your collection; the local name on the right, like the second script on a stamp
-    const vf=Math.round(sw*0.105);y+=vf*1.55;g.fillStyle=ink;g.font=`300 ${vf}px ${SANS}`;const num=`Nº ${D.no||1}`;g.fillText(num,sx+pad,y);
+    const vf=Math.round(sw*0.105);y+=vf*1.55;g.fillStyle=ink;g.font=`300 ${vf}px ${SANS}`;const num=day?`${nn} ${t_(nn===1?'lugar':'lugares')}`:`Nº ${D.no||1}`;g.fillText(num,sx+pad,y);
     if(local){const nw=g.measureText(num).width+sw*0.06;let lf=Math.round(sw*0.072),ll;for(;lf>sw*0.04;lf--){g.font=`400 ${lf}px ${SANS}`;ll=wrapT(g,local,tw-nw);if(ll.length<=2)break}
       g.textAlign='right';ll.forEach((l,i)=>g.fillText(l,sx+sw-pad,y-(ll.length-1-i)*lf*1.05));g.textAlign='left'}
     const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');y+=tiny*2.6;
     g.font=`700 ${tiny}px ${SANS}`;g.fillText('MANU-GO',sx+pad,y);const bw=g.measureText('MANU-GO').width;g.font=`400 ${tiny}px ${MONO}`;g.fillText(`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`,sx+pad+bw+tiny,y);
-    g.textAlign='right';g.font=`500 ${tiny}px ${SANS}`;g.fillText(fitText(g,x.city||D.C.city||'',tw*0.45),sx+sw-pad,y);g.textAlign='left';
+    g.textAlign='right';g.font=`500 ${tiny}px ${SANS}`;g.fillText(fitText(g,day?(D.C.time||''):(x.city||D.C.city||''),tw*0.45),sx+sw-pad,y);g.textAlign='left';
     // the photo, printed edge to edge in two inks
     const py=y+pad*0.9,ph=sy+sh-py;const im=bm[x.t];
     if(im&&ph>40){const dt=duotone(im,sw,ph,sw/240,D.ink);g.imageSmoothingEnabled=false;g.drawImage(dt,sx,py,sw,ph);g.imageSmoothingEnabled=true}
@@ -2414,8 +2424,29 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     g.font=`500 ${Math.max(10,r*0.17)}px ${MONO}`;g.textAlign='center';g.fillText(mid,cx,cy+r*0.06);g.textAlign='left';
     if(lines){g.lineWidth=Math.max(2,r*0.045);for(let k=0;k<5;k++){const yy=cy-r*0.5+k*r*0.25;g.beginPath();for(let xx=0;xx<=r*2.6;xx+=4){const px=cx+r*1.1+xx,py=yy+Math.sin(xx/(r*0.22))*r*0.07;xx?g.lineTo(px,py):g.moveTo(px,py)}g.stroke()}}
     g.restore()}
+  function airmail(g,x0,y0,w,h,bw,c1,c2){g.save();g.beginPath();g.rect(x0,y0,w,h);g.rect(x0+bw,y0+bw,w-2*bw,h-2*bw);g.clip('evenodd');const step=bw*2.4;let k=0;for(let t=-h;t<w+h;t+=step,k++){g.fillStyle=k%2?c2:c1;g.beginPath();g.moveTo(x0+t,y0);g.lineTo(x0+t+step*0.5,y0);g.lineTo(x0+t+step*0.5-h,y0+h);g.lineTo(x0+t-h,y0+h);g.closePath();g.fill()}g.restore()}
+  function postalPlace(g,D,bm,P){
+    const {W,H,M}=POSTER,x=D.items[0],V=LV(x);const pair=D.ink&&D.ink!=='auto'?INKS[D.ink]:['#B3231C','#1D3C8F'];const c1=pair[0],c2=D.ink&&D.ink!=='auto'?pair[1]:'#1D3C8F';
+    const cx0=M*0.6,cy0=M*0.6,cw=W-2*cx0,ch=H-2*cy0;g.fillStyle=PAPER;g.fillRect(cx0,cy0,cw,ch);const bw=Math.max(16,W*0.022);airmail(g,cx0,cy0,cw,ch,bw,c1,c2);
+    const pad=bw+cw*0.06,L=cx0+pad,R=cx0+cw-pad,T=cy0+pad,B=cy0+ch-pad;
+    // the stamp, top right, postmarked
+    const sw=Math.min(cw*0.3,POSTER.big?300:260),shh=sw*1.24,sx=R-sw;
+    miniStamp(g,bm[x.t],sx,T,sw,shh,D.ink&&D.ink!=='auto'?D.ink:'auto',D.no||1,'',{hole:PAPER,band:false});
+    const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');postmark(g,sx+sw*0.08,T+shh*0.82,sw*0.3,x.city||D.C.city||'',`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${String(t.getFullYear()).slice(2)}`,PINK,false);
+    // the name and where, top left
+    const tw=sx-L-sw*0.35;let fs=POSTER.big?72:62,nl;for(;fs>32;fs-=2){g.font=`600 ${fs}px ${SANS}`;nl=wrapT(g,V.name||'',tw);if(nl.length<=4)break}
+    g.fillStyle=PINK;try{g.letterSpacing='-1px'}catch(e){}nl.forEach((l,i)=>g.fillText(l,L-2,T+fs*0.8+i*fs*1.02));try{g.letterSpacing='0px'}catch(e){}
+    let y=T+fs*0.8+(nl.length-1)*fs*1.02+40;g.font=`400 ${POSTER.big?24:21}px ${SANS}`;g.fillStyle=PMUT;
+    const local=x.local&&x.local.toLowerCase()!==(V.name||'').toLowerCase()?x.local:'';[local,[x.city||D.C.city,`Nº ${D.no||1}`].filter(Boolean).join('  ·  ')].filter(Boolean).forEach(l=>{wrapT(g,l,tw).forEach(w=>{g.fillText(w,L,y);y+=32})});
+    // what it is, written on the lines of the card
+    const top=Math.max(T+shh+60,y+40),txt=clean(V.what||V.cool||'');let f=POSTER.big?46:38,lines;for(;f>=16;f--){g.font=`400 ${f}px ${SANS}`;lines=wrapT(g,txt,R-L);if(lines.length*f*1.9<=B-top-50)break}
+    const lh=f*1.9;g.strokeStyle='#D3CABA';g.lineWidth=1.5;for(let yy=top+lh;yy<=B-40;yy+=lh){g.beginPath();g.moveTo(L,yy);g.lineTo(R,yy);g.stroke()}
+    g.fillStyle=PINK;g.font=`400 ${f}px ${SANS}`;lines.forEach((l,i)=>g.fillText(l,L,top+lh*(i+1)-f*0.38));
+    g.textAlign='right';g.font=`600 ${POSTER.big?22:19}px ${SANS}`;g.fillText('manu-go',R,B);g.textAlign='left';
+    grain(g,cx0,cy0,cw,ch,.07)}
   // POSTAL — the day sent as a postcard: air-mail border, your walk drawn on the card, a few places stuck on as stamps and postmarked, the list written on the lines
   function posterPostal(g,D,bm,P){
+    if(D.scope==='place')return postalPlace(g,D,bm,P);
     const {W,H,M}=POSTER,n=D.items.length,dark=P.bg==='#0D0D0C';const pair=D.ink&&D.ink!=='auto'?INKS[D.ink]:['#B3231C','#1D3C8F'];const c1=pair[0],c2=D.ink&&D.ink!=='auto'?pair[1]:'#1D3C8F';
     const cx0=M*0.6,cy0=M*0.6,cw=W-2*cx0,ch=H-2*cy0;g.fillStyle=PAPER;g.fillRect(cx0,cy0,cw,ch);
     // air-mail border: slanted bars
