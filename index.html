@@ -1168,7 +1168,7 @@ body:not([data-view=home]) .top{display:none}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.54 · 19:10</p>
+    <p class="note small ver" translate="no">manu-go · v 3.55 · 19:40</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2311,7 +2311,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const span=Math.max(0,Math.round((t1-t0)/60000)),d=routeKm(items);
     return{city:city||(L?'Somewhere':'Algún lugar'),meta:meta.toLowerCase(),days,places:items.length,
       time:days>1?`${days} ${t_('días')}`:(span>=60?`${Math.floor(span/60)} h ${String(span%60).padStart(2,'0')}`:`${span} min`),dist:d>0.05?kmText(d):''}}
-  let storyFrom=null;const INKED=['sello','insignia','portada','libro','label','collage','mapa','text'];const PHOTOED=['sello','insignia','portada','libro','label','collage','mapa'];
+  let storyFrom=null;const INKED=['sello','insignia','portada','libro','label','collage','mapa','text'];const PHOTOED=['sello','portada','libro','label','collage','mapa'];
   // a country's own two colours, taken from its flag and made printable (dark ink on a light paper)
   const FLAG={polonia:['#C8102E','#F4F1EC'],poland:['#C8102E','#F4F1EC'],espana:['#AA151B','#F6D36B'],spain:['#AA151B','#F6D36B'],brasil:['#0B7A3B','#F5D547'],brazil:['#0B7A3B','#F5D547'],argentina:['#2E6DAA','#EAF2FA'],
     portugal:['#046A38','#F3DD6A'],francia:['#1F3A93','#F3F1EC'],france:['#1F3A93','#F3F1EC'],italia:['#008C45','#F4F2EC'],italy:['#008C45','#F4F2EC'],alemania:['#1A1A1A','#F2C230'],germany:['#1A1A1A','#F2C230'],deutschland:['#1A1A1A','#F2C230'],
@@ -2343,7 +2343,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     phs.innerHTML='';$('sh2-phrow').hidden=scope==='place';
     const D={items,C,scope};{const all=store.get('history',[]).slice().sort((a,b)=>a.t-b.t);const ix=all.findIndex(h=>h.t===items[0].t);D.no=ix>=0?ix+1:all.length+1;D.no0=D.no;const iz=all.findIndex(h=>h.t===items[items.length-1].t);D.no1=iz>=0?iz+1:D.no0+items.length-1}
     let layout=LAY[0][0];
-    let shape='rect';const shBtn=$('sh2-shape');const ctry0=countryOf(items);let inkG=store.get('shareInk',ctry0?'pais':'rojo');if(inkG==='pais'?!ctry0:!INKNAME[inkG])inkG='rojo';const inkOfLay=l=>inkG;let ink='auto',tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';
+    let shape='rect';const shBtn=$('sh2-shape');const ctry0=countryOf(items);let inkG=ctry0?'pais':(INKNAME[store.get('shareInk','rojo')]?store.get('shareInk','rojo'):'rojo');const inkOfLay=l=>inkG;let ink='auto',tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';
     const firstCover=()=>{const f=items.find(i=>(i.hasPhoto||i.file)&&i.kind!=='thing')||items.find(i=>i.hasPhoto||i.file);return f&&f.t};D.cover=firstCover();
     const cache={},ready={};const keyOf=(lay,t)=>lay+'|'+(t||tn)+(lay==='sello'?'|'+shape:'')+(INKED.includes(lay)?'|'+inkOfLay(lay):'')+(PHOTOED.includes(lay)&&scope!=='place'?'|'+D.cover:'');
     const get=(lay,t)=>{const key=keyOf(lay,t);if(!cache[key]){const DD={...D,ink:inkOfLay(lay),shape};cache[key]=drawDay(lay,DD,t||tn,'story').then(async b=>{ready[key]=b;if((t||tn)==='clear'){try{ready[key+'#cut']=await cropAlpha(b)}catch(e){}}return b});cache[key].catch(()=>{delete cache[key]})}return cache[key]};
@@ -2905,38 +2905,53 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     grain(g,cx,cy,cw,ch,.08)}
 
 
-  // INSIGNIA — the place or the day as an embroidered travel patch: photo in two inks in the middle, the city around the rim, a ribbon with the name
+  // INSIGNIA — a wax seal pressed with the city's initial: one seal per city, like a collection. No photo; the object alone on a plain ground.
+  // The wax is drawn, not pasted: an uneven spill, a pressed disc, a raised rim, letters in relief, a soft sheen. Its colour is the chosen ink.
   function posterInsignia(g,D,bm,P){
-    const {W,H}=POSTER,place=D.scope==='place';const pr=INKS[D.ink]||INKS.rojo;const A=pr[0],pap=pr[1],blk='#1C1B19';
-    const x=coverOf(D,bm),im=bm[x.t],V=LV(x);const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');
-    const R=W*0.4,cx=W/2,cy=H*0.47;
-    // the patch
-    g.fillStyle=A;g.beginPath();g.arc(cx,cy,R,0,Math.PI*2);g.fill();
-    g.save();g.strokeStyle=pap;g.globalAlpha=.85;g.lineWidth=3.2;g.setLineDash([11,8]);g.beginPath();g.arc(cx,cy,R*0.955,0,Math.PI*2);g.stroke();g.restore();
-    // rim text in the serif, set along the circle
-    const arc=(txt,r,mid,dir,f)=>{g.save();g.font=`400 ${f}px ${SERIF}`;g.fillStyle=pap;const sp=f*0.16;const ws=[...txt].map(ch=>g.measureText(ch).width+sp);const tot=ws.reduce((a,b)=>a+b,0)/r;let a=mid-dir*tot/2;
-      [...txt].forEach((ch,i)=>{const da=ws[i]/r,ac=a+dir*da/2;g.save();g.translate(cx+Math.cos(ac)*r,cy+Math.sin(ac)*r);g.rotate(ac+dir*Math.PI/2);g.fillText(ch,-g.measureText(ch).width/2,dir>0?f*0.34:f*0.34);g.restore();a+=dir*da});g.restore();return tot};
-    const ctry=(()=>{const a=(x.address||'').split(',').map(z=>z.trim()).filter(Boolean);return a.length>1?a[a.length-1]:''})();
-    const city=(x.city||D.C.city||'').toUpperCase();let top=[city,ctry.toUpperCase()].filter(Boolean).join('  ·  ');
-    const rT=R*0.83;let f=R*0.135;g.font=`400 ${f}px ${SERIF}`;const fitArc=(txt,maxA)=>{let ff=f;for(;ff>R*0.07;ff-=2){g.font=`400 ${ff}px ${SERIF}`;const w=[...txt].reduce((a,ch)=>a+g.measureText(ch).width+ff*0.16,0)/rT;if(w<=maxA)break}return ff};
-    if(fitArc(top,Math.PI*0.95)<R*0.1)top=city;arc(top,rT,-Math.PI/2,1,fitArc(top,Math.PI*0.95));
-    const bot=(place?`Nº ${String(D.no||1).padStart(4,'0')}  ·  ${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`:`${D.items.length} ${t_(D.items.length===1?'lugar':'lugares')}  ·  ${D.C.dist||p2(t.getDate())+'.'+p2(t.getMonth()+1)+'.'+t.getFullYear()}`).toUpperCase();
-    arc(bot,rT,Math.PI/2,-1,Math.min(fitArc(bot,Math.PI*0.8),R*0.1));
-    // little stars between the two texts
-    g.fillStyle=pap;[Math.PI,0].forEach(a=>{const sx=cx+Math.cos(a)*rT,sy=cy+Math.sin(a)*rT,s=R*0.03;g.beginPath();for(let k=0;k<10;k++){const rr=k%2?s*0.45:s,aa=-Math.PI/2+k*Math.PI/5;g.lineTo(sx+Math.cos(aa)*rr,sy+Math.sin(aa)*rr)}g.closePath();g.fill()});
-    // the photo
-    const ri=R*0.68;g.fillStyle=pap;g.beginPath();g.arc(cx,cy,ri,0,Math.PI*2);g.fill();const rp=ri*0.93;
-    if(im){const dt=duotone(im,rp*2,rp*2,Math.max(1.6,rp/170),[A,pap]);g.save();g.beginPath();g.arc(cx,cy,rp,0,Math.PI*2);g.clip();g.imageSmoothingEnabled=false;g.drawImage(dt,cx-rp,cy-rp,rp*2,rp*2);g.imageSmoothingEnabled=true;g.restore()}
-    // the ribbon across the lower half, with swallow-tail ends
-    const name=(place?(V.name||x.name||''):`${p2(t.getDate())} · ${t.toLocaleDateString(LOCALE(),{month:'short'}).replace('.','')} · ${t.getFullYear()}`).toUpperCase();
-    const rh=R*0.24,ry=cy+R*0.36,rw=R*2.18,rx=cx-rw/2,tail=R*0.13;
-    g.fillStyle=A;[[rx-tail*0.2,1],[rx+rw+tail*0.2,-1]].forEach(([ex,dir])=>{const y0=ry+rh*0.28;g.beginPath();g.moveTo(ex+dir*tail*1.4,y0);g.lineTo(ex-dir*tail*0.9,y0);g.lineTo(ex-dir*tail*0.9+dir*tail*0.35,y0+rh*0.5);g.lineTo(ex-dir*tail*0.9,y0+rh);g.lineTo(ex+dir*tail*1.4,y0+rh);g.closePath();g.fill()});
-    g.fillStyle=pap;g.fillRect(rx,ry,rw,rh);g.strokeStyle=A;g.lineWidth=4;g.strokeRect(rx+7,ry+7,rw-14,rh-14);
-    let nf=rh*0.5,lines=[name];for(;nf>rh*0.2;nf-=2){g.font=`400 ${nf}px ${SERIF}`;try{g.letterSpacing=(nf*0.1)+'px'}catch(e){}if(g.measureText(name).width<=rw*0.86)break;if(nf<rh*0.34){lines=wrapT(g,name,rw*0.86);if(lines.length<=2&&lines.every(l=>g.measureText(l).width<=rw*0.86))break;lines=[name]}}
-    g.fillStyle=A;g.textAlign='center';if(lines.length===1)g.fillText(fitText(g,name,rw*0.86),cx,ry+rh*0.5+nf*0.34);else lines.slice(0,2).forEach((l,i)=>g.fillText(l,cx,ry+rh*0.5+nf*0.34+(i-0.5)*nf*1.02));g.textAlign='left';try{g.letterSpacing='0px'}catch(e){}
-    g.save();g.beginPath();g.arc(cx,cy,R,0,Math.PI*2);g.clip();grain(g,cx-R,cy-R,R*2,R*2,.05);g.restore();
-    // a quiet line under the patch (not on the sticker)
-    if(!P.clear){g.fillStyle=P.mut;g.font=`400 ${POSTER.big?18:16}px ${MONO}`;g.textAlign='center';try{g.letterSpacing='3px'}catch(e){}g.fillText(`MANU-GO  ·  ${t_('ARCHIVO DE PASEOS')}`,cx,cy+R+110);try{g.letterSpacing='0px'}catch(e){}g.textAlign='left'}}
+    const {W,H}=POSTER,place=D.scope==='place';const pr=INKS[D.ink]||INKS.rojo;const base=D.ink==='amarillo'?'#C99A2E':pr[0];
+    const x=D.items[0],V=LV(x);const t=new Date(x.takenAt||x.t),p2=n=>String(n).padStart(2,'0');
+    const city=(x.city||D.C.city||V.name||'').trim();const ctry=(()=>{const a=(x.address||'').split(',').map(z=>z.trim()).filter(Boolean);return a.length>1?a[a.length-1]:''})();
+    const hx=c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)),toHex=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+    const mix=(c,w,k)=>{const A=hx(c),B=hx(w);return toHex(A.map((v,i)=>v+(B[i]-v)*k))};const lite=k=>mix(base,'#FFFFFF',k),dark=k=>mix(base,'#000000',k);
+    let seed=0;for(const ch of city)seed=(seed*31+ch.charCodeAt(0))>>>0;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+    const R=W*0.36,cx=W/2,cy=H*0.45;
+    // the spill: a circle pushed out of round, with a couple of drips
+    const ph=[rnd()*6,rnd()*6,rnd()*6],bul=[[rnd()*6.28,0.07+rnd()*0.05],[rnd()*6.28,0.05+rnd()*0.04],[rnd()*6.28,0.04+rnd()*0.03]];
+    const rad=a=>R*(1+0.028*Math.sin(5*a+ph[0])+0.018*Math.sin(9*a+ph[1])+0.012*Math.sin(14*a+ph[2])+bul.reduce((s,[c,h])=>{const d=Math.atan2(Math.sin(a-c),Math.cos(a-c));return s+h*Math.exp(-d*d/0.03)},0));
+    const blob=()=>{g.beginPath();for(let i=0;i<=240;i++){const a=i/240*Math.PI*2,r=rad(a);i?g.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):g.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r)}g.closePath()};
+    // a soft contact shadow, the only one in the app: it is an object lying on paper
+    g.save();g.shadowColor=P.clear?'rgba(0,0,0,.28)':(P.bg==='#0D0D0C'?'rgba(0,0,0,.6)':'rgba(40,30,20,.22)');g.shadowBlur=R*0.14;g.shadowOffsetY=R*0.05;g.fillStyle=base;blob();g.fill();g.restore();
+    g.save();blob();g.clip();
+    // the wax body: lit from the top left, rounding off at the edge
+    let gr=g.createRadialGradient(cx-R*0.35,cy-R*0.4,R*0.1,cx,cy,R*1.15);gr.addColorStop(0,lite(.16));gr.addColorStop(.55,base);gr.addColorStop(1,dark(.35));g.fillStyle=gr;g.fillRect(cx-R*1.4,cy-R*1.4,R*2.8,R*2.8);
+    g.lineWidth=R*0.06;g.strokeStyle=dark(.25);g.globalAlpha=.5;blob();g.stroke();g.globalAlpha=1;
+    // the pressed disc
+    const rp=R*0.76;g.fillStyle=dark(.08);g.beginPath();g.arc(cx,cy,rp,0,Math.PI*2);g.fill();
+    const ring=(r,w,col,ox,oy)=>{g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.arc(cx+ox,cy+oy,r,0,Math.PI*2);g.stroke()};
+    const d=R*0.012;   // relief depth
+    ring(rp,R*0.022,lite(.35),-d,-d);ring(rp,R*0.022,dark(.45),d,d);ring(rp,R*0.02,base,0,0);   // the edge of the press: lit on the far side
+    const ri=R*0.52;ring(ri,R*0.016,dark(.45),d,d);ring(ri,R*0.016,lite(.3),-d,-d);ring(ri,R*0.014,lite(.06),0,0);
+    // raised lettering: dark below-right, light above-left, then the face
+    const relief=(draw,k=1)=>{const e=d*k;g.save();g.translate(e*1.2,e*1.2);draw(dark(.5));g.restore();g.save();g.translate(-e*0.8,-e*0.8);draw(lite(.38));g.restore();draw(lite(.08))};
+    // the initial
+    const ini=(city[0]||'M').toLocaleUpperCase(LOCALE());const fs=R*0.74;
+    relief(c=>{g.fillStyle=c;g.font=`400 ${fs}px ${SERIF}`;g.textAlign='center';g.fillText(ini,cx,cy+fs*0.33);g.textAlign='left'});
+    // the legend around: city and country above, date (and the place) below
+    const arcT=(txt,r,mid,dir,f,col)=>{g.font=`400 ${f}px ${SERIF}`;g.fillStyle=col;const sp=f*0.2;const ws=[...txt].map(ch=>g.measureText(ch).width+sp);const tot=ws.reduce((a,b)=>a+b,0)/r;let a=mid-dir*tot/2;
+      [...txt].forEach((ch,i)=>{const da=ws[i]/r,ac=a+dir*da/2;g.save();g.translate(cx+Math.cos(ac)*r,cy+Math.sin(ac)*r);g.rotate(ac+dir*Math.PI/2);g.fillText(ch,-g.measureText(ch).width/2,f*0.34);g.restore();a+=dir*da})};
+    const rt=(rp+ri)/2,fitF=(txt,maxA,f0)=>{let f=f0;for(;f>R*0.05;f-=1){g.font=`400 ${f}px ${SERIF}`;const w=[...txt].reduce((a,ch)=>a+g.measureText(ch).width+f*0.2,0)/rt;if(w<=maxA)break}return f};
+    const top=[city,ctry].filter(Boolean).join(' · ').toUpperCase(),bot=(place?(V.name||'')+' · '+`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`:`${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`).toUpperCase();
+    const ft=fitF(top,Math.PI*0.92,R*0.1),fb=Math.min(ft,fitF(bot,Math.PI*0.72,R*0.09));
+    relief(c=>{arcT(top,rt,-Math.PI/2,1,ft,c);arcT(bot,rt,Math.PI/2,-1,fb,c);g.fillStyle=c;[Math.PI,0].forEach(a=>{g.beginPath();g.arc(cx+Math.cos(a)*rt,cy+Math.sin(a)*rt,R*0.016,0,Math.PI*2);g.fill()})},0.45);
+    // sheen on the swollen rim and a few fine scratches: it is wax, not a sticker
+    g.globalCompositeOperation='screen';const sh=g.createLinearGradient(cx-R,cy-R,cx+R*0.2,cy+R*0.2);sh.addColorStop(0,'rgba(255,255,255,.34)');sh.addColorStop(.35,'rgba(255,255,255,.06)');sh.addColorStop(1,'rgba(255,255,255,0)');
+    g.strokeStyle=sh;g.lineWidth=R*0.07;g.save();g.beginPath();for(let i=0;i<=240;i++){const a=i/240*Math.PI*2,r=rad(a)*0.9;i?g.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r):g.moveTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r)}g.closePath();g.stroke();g.restore();
+    g.globalCompositeOperation='source-over';g.strokeStyle='rgba(255,255,255,.07)';g.lineWidth=1.2;for(let k=0;k<14;k++){const a=rnd()*6.28,r0=rnd()*R*0.8,l=R*(0.08+rnd()*0.25),b=rnd()*6.28;const x0=cx+Math.cos(a)*r0,y0=cy+Math.sin(a)*r0;g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+Math.cos(b)*l,y0+Math.sin(b)*l);g.stroke()}
+    grain(g,cx-R*1.3,cy-R*1.3,R*2.6,R*2.6,.05);g.restore();
+    // a museum label under it (not on the sticker)
+    if(!P.clear){const ly=cy+R*1.32;g.textAlign='center';g.fillStyle=P.ink;g.font=`italic 400 ${POSTER.big?44:38}px ${SERIF}`;g.fillText(place?(V.name||city):city+(ctry?', '+ctry:''),cx,ly);
+      g.fillStyle=P.mut;g.font=`400 ${POSTER.big?17:15}px ${MONO}`;try{g.letterSpacing='3px'}catch(e){}g.fillText((place?`Nº ${String(D.no||1).padStart(4,'0')}  ·  ${p2(t.getDate())}.${p2(t.getMonth()+1)}.${t.getFullYear()}`:`${D.items.length} ${t_(D.items.length===1?'lugar':'lugares')}  ·  ${D.C.meta||''}`).toUpperCase(),cx,ly+48);
+      g.fillText('MANU-GO',cx,ly+80);try{g.letterSpacing='0px'}catch(e){}g.textAlign='left'}}
   // PORTADA — a magazine cover from the archive: a huge masthead, the photo printed edge to edge in two inks, cover lines underneath
   function posterPortada(g,D,bm,P){
     const {W,H,M}=POSTER,dark=P.bg==='#0D0D0C',place=D.scope==='place';const cx=M*0.6,cy=M*0.6,cw=W-2*cx,ch=H-2*cy;const k=D.ink&&D.ink!=='auto'?D.ink:null;
