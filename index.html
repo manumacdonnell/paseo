@@ -605,6 +605,7 @@ html.sheet-open,html.sheet-open body{overflow:hidden}
 .mb-listen{display:none!important}.lback{display:none!important}
 .ndock{position:fixed;left:88px;right:88px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);height:58px;border-radius:29px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;gap:2px;padding:0 6px;z-index:705;box-shadow:0 8px 24px rgba(0,0,0,.45);overflow:hidden;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .3s ease,transform .38s cubic-bezier(.2,.75,.25,1);touch-action:none;-webkit-user-select:none;user-select:none}
 .ndock.on{opacity:1;transform:none;pointer-events:auto}
+body[data-view=home] .ndock,body[data-view=prep] .ndock{bottom:auto!important;top:calc(env(safe-area-inset-top,0px) + 76px)!important;z-index:720}
 .ndock.drag{transition:none}
 html[data-theme="light"] .ndock{background:var(--bg);box-shadow:none}
 .ndock{box-shadow:none!important}
@@ -1282,7 +1283,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.87 · 00:20</p>
+    <p class="note small ver" translate="no">manu-go · v 3.88 · 00:40</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1338,7 +1339,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
   let cur=null; // the card on screen
   let view='home';
   var scrollMem={},goBack=false,pendY=null;
-  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(!(v==='result'&&view==='result')&&!(v==='story'&&view==='story'))listenStop();view=v;const fabOn=['result','mymap','settings','all'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v!=='result')stopVoice();if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();view=v;const fabOn=['result','mymap','settings','all'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -1883,7 +1884,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     $('btn-notthis').hidden=!(c.pos||c.img);
     $('btn-savephoto').hidden=true;$('btn-saverow').hidden=!(c.file||c.hasPhoto)||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;$('card-ask').hidden=!cfg.key||!!opt.partial;
-    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;listenStop();$('lrow').hidden=!!opt.partial||!!c.noAI||!canListen();pillSet($('btn-listen'),'idle');$('btn-prev').hidden=true;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent=t_('Compartir');$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
+    $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;if(!(active&&c.t&&active.src===c.t+'|card'))detachVoice();$('lrow').hidden=!!opt.partial||!!c.noAI||!canListen();pillSet($('btn-listen'),'idle');if(active&&c.t&&active.src===c.t+'|card'){const b=$('btn-listen');if(active.btn!==b)reattach(b);else if(!b.classList.contains('is-play'))reattach(b)}$('btn-prev').hidden=true;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent=t_('Compartir');$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     metaWhenReady(c);
     if(!opt.partial)renderAccordion(c);
     if(!opt.partial&&canListen()&&!c.noAI&&LV(c).ok&&c.what)setTimeout(()=>{if(cur===c)prepScript(cardText(c)).catch(()=>{})},1500);   // get the read-aloud text ready while you read
@@ -1891,8 +1892,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function openCard(c,fromHistory){
     const keepT=cur&&cur.t&&cur.file&&c.file===cur.file?cur.t:null; // "Not this?" on the same photo replaces the same entry
-    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory||!!c.fromGallery;stopVoice();paintCard(c);
-    if(!fromHistory){saveDiscovery();prefetchDeep(cur);{const me=cur;setTimeout(()=>verifyCard(me),1800)}if(cfg.autoListen&&canListen()&&!c.noAI){const me=cur;setTimeout(()=>{if(cur===me&&view==='result'&&!active)$('btn-listen').click()},350)}}
+    cur=c;if(keepT&&!c.t)cur.t=keepT;cur.revisit=!!fromHistory||!!c.fromGallery;detachVoice();paintCard(c);
+    if(!fromHistory){saveDiscovery();prefetchDeep(cur);{const me=cur;setTimeout(()=>verifyCard(me),1800)}if(cfg.autoListen&&canListen()&&!c.noAI){const me=cur;setTimeout(()=>{if(cur===me&&view==='result'&&!(active&&active.btn.isConnected))$('btn-listen').click()},350)}}
   }
   // ---------- Profundizar: accordion, every section starts closed; tap to open (loads if needed), tap again to close ----------
   const pendingDeep=new Map(); // "card time|name|topic" → answer on its way
@@ -2049,7 +2050,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // ---------- quick answer sheet ----------
   {const qs=$('qs'),bg=$('qs-bg');$('qs-body').appendChild($('q-answer'));
     window.openQS=()=>{if(!qs.hidden&&qs.classList.contains('on'))return;clearTimeout(qs._t);qs.hidden=false;bg.hidden=false;document.documentElement.classList.add('sheet-open');requestAnimationFrame(()=>{qs.classList.add('on');bg.classList.add('on')})};
-    window.closeQS=()=>{if(qs.hidden)return;if(active&&active.btn===$('q-listen'))listenStop();quickRun++;typeStop($('q-text'));qaSession=[];qs.classList.remove('on');bg.classList.remove('on');qs.style.transform='';document.documentElement.classList.remove('sheet-open');qs._t=setTimeout(()=>{qs.hidden=true;bg.hidden=true;$('q-answer').hidden=true},360)};
+    window.closeQS=()=>{if(qs.hidden)return;if(active&&active.btn===$('q-listen'))detachVoice();quickRun++;typeStop($('q-text'));qaSession=[];qs.classList.remove('on');bg.classList.remove('on');qs.style.transform='';document.documentElement.classList.remove('sheet-open');qs._t=setTimeout(()=>{qs.hidden=true;bg.hidden=true;$('q-answer').hidden=true},360)};
     bg.onclick=closeQS;$('q-close').onclick=closeQS;
     $('qs-form').onsubmit=e=>{e.preventDefault();const q=$('qs-input').value.trim();if(!q)return;unlockAudio();$('qs-input').value='';$('qs-input').blur();askQuestion(q,qsAbout);$('qs-body').scrollTop=0};
     let y0=null,dy=0;qs.addEventListener('touchstart',e=>{if(e.target.closest('input,button,a')||$('qs-body').scrollTop>0&&e.target.closest('.qs-body')){y0=null;return}y0=e.touches[0].clientY;dy=0},{passive:true});
@@ -2255,6 +2256,8 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
   $('ask-copy').onclick=()=>{if(copyAsk()){askFlash('ask-copy');said('ask-copy','Copiado')}};
 
   function stopVoice(){listenStop()}
+  function detachVoice(){if(!active||!active.btn||!active.btn.isConnected)return;const o=active.btn,p=document.createElement('button');p.className=o.className;p.innerHTML=o.innerHTML;p._title=o._title;p._img=o._img;p._label=o._label;p.onclick=()=>listen(p);active.btn=p;pillSet(o,'idle')}
+  function reattach(b){const p=active&&active.btn;if(!p||p===b)return;b._title=p._title;b._img=p._img;const w=(p.querySelector('.prog')||{style:{}}).style.width||'0';active.btn=b;pillSet(b,p.classList.contains('is-play')?'play':p.classList.contains('is-pause')?'pause':'load');progSet(b,w)}
 
   // ---------- mini bar: photo + name stay at hand while you read further down ----------
   function updateMinibar(){
@@ -2536,7 +2539,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
   async function openStory(k,list,label,scope){
     scope=scope||'day';const L=cfg.lang==='en';
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
-    const run=++storyRun;listenStop();
+    const run=++storyRun;
     const city=scope==='place'?(items[0].city||''):(mapCity&&mapCity!=='Sin ubicación'?mapCity:'');const C=storyCopy(items,scope==='place'?'day':scope,city);
     const LAY=[['sello','Sello'],['label','Etiqueta'],['mapa','Mapa']];
     const sh=$('sh2'),grid=$('sh2-car'),names=$('sh2-names'),inks=$('sh2-inks'),phs=$('sh2-photos'),tone=$('sh2-tone');
@@ -3486,7 +3489,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     try{const L=cfg.lang==='en'?'inglés':'español';const ex=cfg.lang==='en'?'«Zamek Królewski» → «Zah-mek Kroo-LEV-skee», «Łazienki» → «Wah-ZHEN-kee», «Wisła» → «VEES-wah», «Széchenyi» → «SAY-chen-yee»':'«Zamek Królewski» → «Sámek Krulévski», «Łazienki» → «Uazhiénki», «Wisła» → «Víssua», «Świętokrzyska» → «Shvientokshíska», «Széchenyi» → «Séchenyi»';
       const out=await gemini([{text:`Prepara este texto para que una voz sintética lo lea en voz alta en ${L}. NO cambies el contenido, ni el tono, ni el orden, ni añadas nada: solo reescribe lo que una voz leería mal.\n- Siglas: si es una sigla conocida que se dice como palabra (UNESCO, OTAN), déjala; si se deletrea, sustitúyela por el nombre completo si lo sabes con certeza, o si no escribe sus letras como se pronuncian en ${L}, separadas con guiones (p. ej. "pe-uve doble-ese").\n- Números romanos, siglos, abreviaturas (p. ej., aprox., s., km, m) y símbolos: escríbelos en palabras.\n${md==='say'?`- Nombres propios y palabras de otros idiomas (topónimos, personas, platos, calles): reescríbelos con la ortografía del ${L} para que una voz que solo sabe ${L} los diga como los dice la gente del lugar. Marca la sílaba tónica (con tilde en español, en MAYÚSCULAS en inglés). Ejemplos: ${ex}. Los nombres que ya suenan bien en ${L} déjalos.\n`:'- Nombres extranjeros: déjalos tal cual.\n'}- Mantén los saltos de línea y los títulos de sección (terminan en punto) tal cual.\nDevuelve JSON: {"script": "..."}\n\nTEXTO:\n${text}`}],{fast:true});
       const sc=(out&&out.script||'').trim();const cnt=(x,h)=>x.split(h).length-1;
-      const heads=[t_('Qué es'),t_('Un dato curioso'),...TOPICS.map(t=>t.label)].map(h=>h+'.');
+      const heads=[t_('Qué es'),t_('Un dato curioso'),...TOPICS.map(t=>t_(t.label))].map(h=>h+'.');
       const ok=sc.length>text.length*.6&&sc.length<text.length*1.8&&heads.every(h=>cnt(sc,h)<=cnt(text,h));return ok?sc:text}
     catch(e){return text}
   }
@@ -3558,7 +3561,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
       player.ontimeupdate=()=>{const A=active;if(!A||!A.segs||player.src===SILENT||!player.duration)return;const tot=A.segs.reduce((x,y)=>x+y.text.length,0);let done=0;for(let k=0;k<A.i;k++)done+=A.segs[k].text.length;
         progSet(A.btn,(100*(done+A.segs[A.i].text.length*player.currentTime/player.duration)/tot).toFixed(1)+'%')}}
     player.src=SILENT;player.play().catch(()=>{});   // iPhone: unlock audio inside the tap
-    const run=++listenRun;const A={btn:b,key:`audio4|${key}|${cfg.lang}|${cfg.voice==='gem'?gemKey():cfg.elVoice}`,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
+    const run=++listenRun;const A={src:String(key).split('|').slice(0,2).join('|'),btn:b,key:`audio4|${key}|${cfg.lang}|${cfg.voice==='gem'?gemKey():cfg.elVoice}`,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
     try{
       const script=await prepScript(text);if(run!==listenRun)return;
       let cs=chunks(script);if(cfg.voice==='gem'&&cs.length>1&&script.length<=1400)cs=[cs.join('\n\n')];else if(cfg.voice==='gem'&&cs.length>2){const head=cs[0]+'\n\n'+cs[1];let rest=cs.slice(2);const L=rest.join(' ').length;cs=[head];if(L>2400){const h=Math.ceil(rest.length/2);cs.push(rest.slice(0,h).join('\n\n'),rest.slice(h).join('\n\n'))}else cs.push(rest.join('\n\n'))}A.segs=cs.map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
@@ -3592,7 +3595,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function sysListen(b,text,key,fallback){
     const t=scriptMem.get('say|'+sayNumbers(text));const ready=t&&t.done?t.value:sayNumbers(text);   // never wait: use the cleaned text if it is already there
     const pend=new Set();let sents=[];ready.split(/\n+/).forEach(p=>{const ss=p.split(/(?<=[.!?…])\s+/).map(x=>x.trim()).filter(Boolean).filter(x=>!sents.length||x.toLowerCase()!==sents[sents.length-1].toLowerCase());if(ss.length){sents.push(...ss);pend.add(sents.length-1)}});
-    const A={btn:b,key:'sys|'+key,title:b._title||'',sys:true,sents,pend,i:0,tot:sents.reduce((x,y)=>x+y.length,0)};active=A;sysOn=true;
+    const A={src:String(key).split('|').slice(0,2).join('|'),btn:b,key:'sys|'+key,title:b._title||'',sys:true,sents,pend,i:0,tot:sents.reduce((x,y)=>x+y.length,0)};active=A;sysOn=true;
     if(fallback&&fallback!=='-')status(fallback,fallback!==t_('Voz de Gemini agotada por hoy: suena la del iPhone.'));
     sysSay(A,0)}
   function sysSay(A,i,natural){if(active!==A)return;if(!natural){try{speechSynthesis.cancel()}catch(e){}}sysOn=true;
@@ -3639,21 +3642,22 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function dockToggle(){if(!active||active.btn.classList.contains('is-load'))return;active.btn.click()}
   $('nd-pp').onclick=e=>{e.stopPropagation();dockToggle()};
   $('nd-back').onclick=e=>{e.stopPropagation();if(active&&(active.segs||active.sys))rewind(5)};
-  $('nd-mid').onclick=()=>{if(!active)return;const b=active.btn;if(!b||!b.isConnected||!b.offsetParent)return;const r=b.getBoundingClientRect();window.scrollTo({top:Math.max(0,window.scrollY+r.top-window.innerHeight*0.35),behavior:'smooth'})};
+  $('nd-mid').onclick=async()=>{if(!active)return;let b=active.btn;if(!b||!b.isConnected||!b.offsetParent){const t=(active.src||'').split('|')[0];const x=store.get('history',[]).find(y=>String(y.t)===t);if(!x)return;await openFromHistory(x,view==='mymap'?'mymap':null);if(active&&(active.src||'').split('|')[1]!=='card'){const it=$('acc-'+active.src.split('|')[1]);const bd=it&&it.querySelector('.acc-body');if(it&&bd&&!isOpen(bd))it.querySelector('.acc-head').click()}await wait(450);b=active&&active.btn;if(!b||!b.isConnected||!b.offsetParent)return}const r=b.getBoundingClientRect();window.scrollTo({top:Math.max(0,window.scrollY+r.top-window.innerHeight*0.35),behavior:'smooth'})};
   // swipe the dock down to stop listening
   {const d=$('ndock');let y0=null,dy=0;d.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;dy=0},{passive:true});
     d.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);if(dy>4){d.classList.add('drag');d.style.transform=`translateY(${dy}px)`;d.style.opacity=String(Math.max(.2,1-dy/120))}},{passive:true});
     d.addEventListener('touchend',()=>{if(y0===null)return;y0=null;d.classList.remove('drag');if(dy>44){d.style.transform='translateY(80px)';d.style.opacity='0';setTimeout(()=>listenStop(),260)}else{d.style.transform='';d.style.opacity=''}});}
   // lock screen / headphone buttons (audio voices)
-  function mediaState(st,title){if(!('mediaSession' in navigator))return;try{navigator.mediaSession.playbackState=st;if(st!=='none'&&title&&typeof MediaMetadata!=='undefined'&&(!navigator.mediaSession.metadata||navigator.mediaSession.metadata.title!==title))navigator.mediaSession.metadata=new MediaMetadata({title,artist:'manu-go'})}catch(e){}}
+  const APP_ART=()=>{const l=document.querySelector('link[rel=apple-touch-icon]');const u=l?new URL(l.getAttribute('href'),location.href).href:new URL('icon-512.png',location.href).href;return [{src:u,sizes:'180x180',type:'image/png'},{src:new URL('icon-512.png',location.href).href,sizes:'512x512',type:'image/png'}]};
+  function mediaState(st,title){if(!('mediaSession' in navigator))return;try{navigator.mediaSession.playbackState=st;if(st!=='none'&&title&&typeof MediaMetadata!=='undefined'&&(!navigator.mediaSession.metadata||navigator.mediaSession.metadata.title!==title))navigator.mediaSession.metadata=new MediaMetadata({title,artist:'manu-go',album:'manu-go',artwork:APP_ART()})}catch(e){}}
   if('mediaSession' in navigator){const h=(a,f)=>{try{navigator.mediaSession.setActionHandler(a,f)}catch(e){}};
     h('play',()=>{if(active&&active.btn.classList.contains('is-pause'))dockToggle()});h('pause',()=>{if(active&&active.btn.classList.contains('is-play'))dockToggle()});
     h('seekbackward',()=>{if(active)rewind(5)});h('stop',()=>listenStop())}
   $('mb-listen').onclick=e=>{e.stopPropagation();if(active)active.btn.click()};
   function deepListen(body,t,points){if(!canListen()||!points||!points.length)return;
-    const row=document.createElement('div');row.className='lrow';const b=document.createElement('button');b.className='lpill';b._label='Escuchar';b._title=t.label;row.appendChild(b);body.appendChild(row);pillSet(b,'idle');row.onclick=e=>e.stopPropagation();
-    if(active&&active.key.includes('|'+t.id+'|')&&active.key.includes('|'+(cur&&cur.t)+'|')){active.btn=b;if(active.sys)dockSet(active.paused?'pause':'play');pillSet(b,player&&!player.paused?'play':'pause')}
-    const txt=[t.label,...points].map(clean).join('\n\n');prepScript(txt).catch(()=>{});b.onclick=e=>{e.stopPropagation();b._img=cur&&cur.img||'';b._title=t.label+(cur?' · '+(LV(cur).name||''):'');listen(b,txt,(cur&&cur.t)+'|'+t.id)}}
+    const row=document.createElement('div');row.className='lrow';const b=document.createElement('button');b.className='lpill';b._label='Escuchar';b._title=t_(t.label);row.appendChild(b);body.appendChild(row);pillSet(b,'idle');row.onclick=e=>e.stopPropagation();
+    if(active&&cur&&active.src===cur.t+'|'+t.id)reattach(b);
+    const txt=[t_(t.label),...points].map(clean).join('\n\n');prepScript(txt).catch(()=>{});b.onclick=e=>{e.stopPropagation();b._img=cur&&cur.img||'';b._title=t_(t.label)+(cur?' · '+(LV(cur).name||''):'');listen(b,txt,(cur&&cur.t)+'|'+t.id)}}
   $('s-el-save').onclick=()=>{cfg.elKey=$('s-el-key').value.trim();cfg.elVoice=$('s-el-voice').value.trim()||DEFAULT_VOICE;store.set('elKey',cfg.elKey);store.set('elVoice',cfg.elVoice);$('s-el-voice').value=cfg.elVoice;
     const b=$('s-el-save');b.textContent=t_(cfg.elKey?'Guardada ✓':'Guardar');b.classList.toggle('ok',!!cfg.elKey);setTimeout(()=>{b.textContent=t_('Guardar');b.classList.remove('ok')},1600)};
   $('s-el-key').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-el-save').click();$('s-el-key').blur()}});
