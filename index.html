@@ -494,7 +494,7 @@ html.sheet-open,html.sheet-open body{overflow:hidden}
 .sh2-shape{flex:none;position:relative;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);display:grid;place-items:center;padding:0;transition:opacity .2s ease,transform .15s ease}
 .sh2-shape svg{width:18px;height:18px;transition:transform .3s ease}.sh2-shape:active{transform:scale(.9)}.sh2-shape.off{opacity:.25;pointer-events:none}
 .sh2-shape::after{content:'';position:absolute;inset:-5px}
-.sh2-inks{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));justify-items:center}
+.sh2-inks{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));justify-items:center}
 .sh2-inks .ink.real{background:#8a8378 center/cover no-repeat}
 .sh2-inks .ink{position:relative;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);padding:0;transition:box-shadow .2s ease}
 .sh2-inks .ink::after{content:'';position:absolute;inset:-7px}
@@ -902,6 +902,13 @@ body:not([data-view=home]) .top{display:none}
 /* the listen pill speaks the same quiet language as the player: ink, no neon */
 .lpill,.mb-listen{--live:var(--ink)}
 .lpill.is-play{background:transparent!important}
+
+/* undo notice: from the top, where nothing lives, instead of covering the camera and the bottom controls */
+.toast{top:calc(env(safe-area-inset-top,0px) + 10px)!important;bottom:auto!important;box-shadow:none!important;height:46px!important;border-radius:23px!important;padding:0 4px 0 18px!important;font-size:14px;animation:toastdown .28s cubic-bezier(.2,.7,.2,1) both!important;z-index:960}
+@keyframes toastdown{from{transform:translateY(-24px);opacity:0}}
+/* the small camera: the inner disc is centred by position, not by the button's own padding (iPhone adds some) */
+.fab{padding:0!important}
+.fab::after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
 </style>
 </head>
 <body>
@@ -1161,7 +1168,7 @@ body:not([data-view=home]) .top{display:none}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.52 · 18:05</p>
+    <p class="note small ver" translate="no">manu-go · v 3.53 · 18:40</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -2124,11 +2131,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);
     refreshLists(fromSwipe);
   }
-  function toastOut(){const el=$('toast');if(el.hidden)return;el.style.transition='transform .22s ease,opacity .22s ease';el.style.transform='translateY(140%)';el.style.opacity='0';
+  function toastOut(){const el=$('toast');if(el.hidden)return;el.style.transition='transform .22s ease,opacity .22s ease';el.style.transform='translateY(-140%)';el.style.opacity='0';
     setTimeout(()=>{el.hidden=true;el.style.transition='';el.style.transform='';el.style.opacity=''},230)}
   {const el=$('toast');let y0=null,dy=0;
     el.addEventListener('touchstart',e=>{if(e.target.closest('button'))return;y0=e.touches[0].clientY;dy=0;el.style.transition='none'},{passive:true});
-    el.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);el.style.transform=`translateY(${dy}px)`;el.style.opacity=String(Math.max(.2,1-dy/120))},{passive:true});
+    el.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,y0-e.touches[0].clientY);el.style.transform=`translateY(${-dy}px)`;el.style.opacity=String(Math.max(.2,1-dy/120))},{passive:true});
     el.addEventListener('touchend',()=>{if(y0===null)return;y0=null;if(dy>36){finishPendingDelete()}else{el.style.transition='transform .2s ease,opacity .2s ease';el.style.transform='';el.style.opacity=''}})}
   function finishPendingDelete(){
     clearTimeout(undoTimer);toastOut();
@@ -2305,14 +2312,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     return{city:city||(L?'Somewhere':'Algún lugar'),meta:meta.toLowerCase(),days,places:items.length,
       time:days>1?`${days} ${t_('días')}`:(span>=60?`${Math.floor(span/60)} h ${String(span%60).padStart(2,'0')}`:`${span} min`),dist:d>0.05?kmText(d):''}}
   let storyFrom=null;const INKED=['sello','portada','libro','label','collage','mapa','text'];const PHOTOED=['sello','portada','libro','label','collage','mapa'];
-  const INKNAME={auto:'Colores de la foto',color:'Color real',azul:'Azul',rojo:'Rojo',naranja:'Naranja',amarillo:'Amarillo',rosa:'Rosa',verde:'Verde',tinta:'Tinta negra'};
+  const INKNAME={azul:'Azul',rojo:'Rojo',naranja:'Naranja',amarillo:'Amarillo',rosa:'Rosa',verde:'Verde',tinta:'Tinta negra'};
   // one share sheet for everything: it rises over the screen you're on, shows every design at 9:16, and shares in one tap
   async function openStory(k,list,label,scope){
     scope=scope||'day';const L=cfg.lang==='en';
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
     const run=++storyRun;listenStop();
     const city=scope==='place'?(items[0].city||''):(mapCity&&mapCity!=='Sin ubicación'?mapCity:'');const C=storyCopy(items,scope==='place'?'day':scope,city);
-    const LAY=[['sello','Sello'],['portada','Portada'],['libro','Libro'],['label','Etiqueta'],['collage','Álbum'],['mapa','Mapa']];
+    const LAY=[['sello','Sello'],['portada','Portada'],['libro','Libro'],['label','Etiqueta'],['mapa','Mapa']];
     const sh=$('sh2'),grid=$('sh2-car'),names=$('sh2-names'),inks=$('sh2-inks'),phs=$('sh2-photos'),tone=$('sh2-tone');
     $('sh2-t').textContent=t_(scope==='place'?'Compartir lugar':scope==='city'?'Compartir viaje':'Compartir día');
     grid.innerHTML='';names.innerHTML='';LAY.forEach(([v,l])=>{const b=document.createElement('button');b.className='sh2-tile sh2-slide';b.dataset.v=v;b.innerHTML='<img alt="">';b.setAttribute('aria-label',t_(l));grid.appendChild(b);
@@ -2321,7 +2328,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     phs.innerHTML='';$('sh2-phrow').hidden=scope==='place';
     const D={items,C,scope};{const all=store.get('history',[]).slice().sort((a,b)=>a.t-b.t);const ix=all.findIndex(h=>h.t===items[0].t);D.no=ix>=0?ix+1:all.length+1;D.no0=D.no;const iz=all.findIndex(h=>h.t===items[items.length-1].t);D.no1=iz>=0?iz+1:D.no0+items.length-1}
     let layout=LAY[0][0];
-    let shape='rect';const shBtn=$('sh2-shape');const inkBy={};const inkOfLay=l=>inkBy[l]||'auto';let ink='auto',tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';
+    let shape='rect';const shBtn=$('sh2-shape');let inkG=INKNAME[store.get('shareInk','rojo')]?store.get('shareInk','rojo'):'rojo';const inkOfLay=l=>inkG;let ink='auto',tn=(document.documentElement.dataset.theme||store.get('theme','dark'))==='light'?'light':'dark';
     const firstCover=()=>{const f=items.find(i=>(i.hasPhoto||i.file)&&i.kind!=='thing')||items.find(i=>i.hasPhoto||i.file);return f&&f.t};D.cover=firstCover();
     const cache={},ready={};const keyOf=(lay,t)=>lay+'|'+(t||tn)+(lay==='sello'?'|'+shape:'')+(INKED.includes(lay)?'|'+inkOfLay(lay):'')+(PHOTOED.includes(lay)&&scope!=='place'?'|'+D.cover:'');
     const get=(lay,t)=>{const key=keyOf(lay,t);if(!cache[key]){const DD={...D,ink:inkOfLay(lay),shape};cache[key]=drawDay(lay,DD,t||tn,'story').then(async b=>{ready[key]=b;if((t||tn)==='clear'){try{ready[key+'#cut']=await cropAlpha(b)}catch(e){}}return b});cache[key].catch(()=>{delete cache[key]})}return cache[key]};
@@ -2341,10 +2348,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     grid.onclick=e=>{const b=e.target.closest('.sh2-slide');if(!b)return;if(b.dataset.v!==layout){goTo(b.dataset.v,true);return}const im=b.querySelector('img');if(im.src){$('viewer-img').src=im.src;$('viewer').hidden=false}};
     names.onclick=e=>{const b=e.target.closest('button');if(b)goTo(b.dataset.v,true)};
     shBtn.onclick=()=>{if(layout!=='sello')return;shape=SHAPES[(SHAPES.indexOf(shape)+1)%SHAPES.length];const sv=shBtn.querySelector('svg');sv.style.transform=`rotate(${(SHAPES.indexOf(shape))*72}deg)`;paint(v=>v==='sello')};
-    inks.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===inkOfLay(layout)||!INKED.includes(layout))return;inkBy[layout]=b.dataset.v;const cur0=layout;paint(v=>v===cur0)};
-    // the "real colour" swatch is a tiny crop of the photo itself: it says what it does without a word
-    const realSw=async()=>{const sw=inks.querySelector('.ink.real');if(!sw)return;const x=items.find(i=>String(i.t)===String(D.cover))||items.find(i=>i.hasPhoto||i.file);if(!x)return;try{const im=await phAsset(x,'small');if(!im)return;const c=document.createElement('canvas');c.width=c.height=64;const r=64/Math.min(im.width,im.height);c.getContext('2d').drawImage(im,(64-im.width*r)/2,(64-im.height*r)/2,im.width*r,im.height*r);sw.style.backgroundImage=`url(${c.toDataURL('image/jpeg',.8)})`}catch(e){}};realSw();
-    phs.onclick=e=>{const b=e.target.closest('button');if(!b||!PHOTOED.includes(layout))return;D.cover=+b.dataset.t;realSw();paint(v=>PHOTOED.includes(v))};
+    inks.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===inkG||!INKED.includes(layout))return;inkG=b.dataset.v;store.set('shareInk',inkG);paint(v=>INKED.includes(v))};   // one colour for every design: choose once
+    phs.onclick=e=>{const b=e.target.closest('button');if(!b||!PHOTOED.includes(layout))return;D.cover=+b.dataset.t;paint(v=>PHOTOED.includes(v))};
     tone.onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.v===tn)return;tn=b.dataset.v;paint()};
     const fname=`manu-go-${((scope==='place'?LV(items[0]).name:city)||'dia').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-').replace(/^-|-$/g,'')}.png`;
     async function shareBlob(blob){const f=new File([blob],fname,{type:'image/png'});
@@ -2842,7 +2847,11 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const E=new Float32Array(cw*ch);const vals=[];for(let y=1;y<ch-1;y++)for(let xx=1;xx<cw-1;xx++){const i=y*cw+xx;const gx=-L[i-cw-1]-2*L[i-1]-L[i+cw-1]+L[i-cw+1]+2*L[i+1]+L[i+cw+1],gy=-L[i-cw-1]-2*L[i-cw]-L[i-cw+1]+L[i+cw-1]+2*L[i+cw]+L[i+cw+1];E[i]=Math.hypot(gx,gy);vals.push(E[i])}
     vals.sort((a,b)=>a-b);const th=vals[Math.floor(vals.length*0.86)]||40,th2=vals[Math.floor(vals.length*0.95)]||80;const sL=Array.from(L).sort((a,b)=>a-b),dk=sL[Math.floor(sL.length*0.18)];
     const [ir,ig,ib]=[1,3,5].map(k=>parseInt(ink.slice(k,k+2),16));const inside=(xx,y)=>{const u=(xx-(cw-dw)/2)/dw,v=(y-(ch-dh)/2)/dh;return u>=0.025&&u<=0.975&&v>=0.025&&v<=0.975};
-    for(let y=0;y<ch;y++)for(let xx=0;xx<cw;xx++){const i=y*cw+xx,p=i*4;let a=0;if(inside(xx,y)){if(E[i]>th2)a=255;else if(E[i]>th)a=150;else if(L[i]<dk&&((xx+y)%5===0))a=170}d[p]=ir;d[p+1]=ig;d[p+2]=ib;d[p+3]=a}
+    // an engraving: horizontal lines that swell where the photo is dark (like a banknote or an old print), plus the strongest outlines
+    const lo=sL[Math.floor(sL.length*0.04)],hi=sL[Math.floor(sL.length*0.97)]||255,PER=3.4;
+    for(let y=0;y<ch;y++)for(let xx=0;xx<cw;xx++){const i=y*cw+xx,p=i*4;let a=0;if(inside(xx,y)){let v=1-(L[i]-lo)/Math.max(1,hi-lo);v=Math.min(1,Math.max(0,v));v=Math.pow(v,1.15)*0.92;
+      const yy=y+Math.sin(xx*0.045)*0.9,ph=((yy%PER)+PER)%PER/PER,dist=Math.abs(ph-0.5)*2;let cov=Math.min(1,Math.max(0,(v-dist)*2.2+0.15));if(v<0.06)cov=0;
+      if(E[i]>th2)cov=Math.max(cov,0.85);a=Math.round(cov*255)}d[p]=ir;d[p+1]=ig;d[p+2]=ib;d[p+3]=a}
     x.putImageData(id,0,0);return c}
   // ETIQUETA — a printed label: two columns of capitals set like old type, a pen drawing of the place in the middle, a small data box, a seal
   function posterLabel(g,D,bm,P){
