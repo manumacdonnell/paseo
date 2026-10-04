@@ -1233,6 +1233,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
         <p class="help" id="s-el-state">Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.</p>
       </div>
       <div class="srow" id="s-voice-row"><span id="s-voice-lab">Voz</span><select id="s-sys-voice-cur" class="vsel" aria-label="Voz"></select></div>
+      <p class="fl auto-help" id="s-voice-more" style="margin-top:8px">La que elijas en Accesibilidad › Contenido leído.</p>
       </div>
     </details>
 
@@ -1281,7 +1282,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.83 · 23:40</p>
+    <p class="note small ver" translate="no">manu-go · v 3.85 · 00:00</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -3584,7 +3585,8 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function sysVoices(L){if(!hasSys())return[];L=L||(cfg.lang==='en'?'en':'es');const all=speechSynthesis.getVoices().filter(v=>(v.lang||'').toLowerCase().startsWith(L));
     const nice=all.filter(v=>!NOVELTY.test(v.name+' '+v.voiceURI));return nice.length?nice:all}
   const vScore=v=>(/premium/i.test(v.voiceURI+v.name)?4:/enhanced|mejorad/i.test(v.voiceURI+v.name)?3:0)+(/diego/i.test(v.name)?2:0)+(/es[-_]AR/i.test(v.lang)?1:0);
-  function sysVoice(L){L=L||(cfg.lang==='en'?'en':'es');const id=(cfg.sysVoices||{})[L];if(!id)return null;return sysVoices(L).find(v=>v.voiceURI===id)||null}   // nothing chosen: the iPhone uses its own voice for that language
+  function sysLang(L){L=L||(cfg.lang==='en'?'en':'es');const id=(cfg.sysVoices||{})[L]||'';return id.startsWith('lang:')?id.slice(5):L==='en'?'en-GB':'es-ES'}
+  function sysVoice(L){L=L||(cfg.lang==='en'?'en':'es');const id=(cfg.sysVoices||{})[L];if(!id||id.startsWith('lang:'))return null;return sysVoices(L).find(v=>v.voiceURI===id)||null}   // nothing chosen: the iPhone uses its own voice for that language
   if(hasSys()){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{if(view==='settings')fillSysVoices()}}catch(e){}}
   function sysListen(b,text,key,fallback){
     const t=scriptMem.get(sayNumbers(text));const ready=t&&t.done?t.value:sayNumbers(text);   // never wait: use the cleaned text if it is already there
@@ -3594,7 +3596,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     sysSay(A,0)}
   function sysSay(A,i,natural){if(active!==A)return;if(!natural){try{speechSynthesis.cancel()}catch(e){}}sysOn=true;
     const tok=A.tok=(A.tok||0)+1;A.i=i;A.t0=Date.now();const u=new SpeechSynthesisUtterance(A.sents[i]);const v=sysVoice();
-    if(v){u.voice=v;u.lang=v.lang}else u.lang=cfg.lang==='en'?'en-GB':'es-ES';u.rate=.98;u.pitch=1;
+    if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang();u.rate=.98;u.pitch=1;
     const done=A.sents.slice(0,i).reduce((x,y)=>x+y.length,0),pg=()=>A.btn.querySelector('.prog');
     u.onstart=()=>{if(A.tok!==tok||active!==A)return;pillSet(A.btn,'play');progSet(A.btn,(100*done/A.tot).toFixed(1)+'%')};
     u.onboundary=e=>{if(A.tok!==tok||active!==A)return;progSet(A.btn,(100*(done+(e.charIndex||0))/A.tot).toFixed(1)+'%')};
@@ -3605,10 +3607,10 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function sysBack(){const A=active;if(!A)return;const j=(Date.now()-A.t0<2000&&A.i>0&&!A.paused)?A.i-1:A.i;sysSay(A,j)}
   const LANGN={'es-ES':'España','es-MX':'México','es-AR':'Argentina','es-CO':'Colombia','es-CL':'Chile','es-US':'EE. UU.','en-GB':'Reino Unido','en-US':'EE. UU.','en-AU':'Australia','en-IE':'Irlanda','en-IN':'India','en-ZA':'Sudáfrica','en-CA':'Canadá'};
   function fillSysVoices(){const L0=cfg.lang==='en'?'en':'es';['es','en'].forEach(L=>{const sel=L===L0?$('s-sys-voice-cur'):$('s-sys-voice-'+L);const vs=sysVoices(L).sort((a,b)=>vScore(b)-vScore(a)||a.name.localeCompare(b.name));const curV=sysVoice(L);
-    sel.innerHTML='';const d=document.createElement('option');d.value='';d.textContent=t_('La del iPhone');if(!curV)d.selected=true;sel.appendChild(d);
+    sel.innerHTML='';const curL=sysLang(L);Object.keys(LANGN).filter(k=>k.startsWith(L+'-')).forEach(k=>{const d=document.createElement('option');d.value='lang:'+k;d.textContent=`${t_('La del iPhone')} · ${t_(LANGN[k])}`;if(!curV&&k===curL)d.selected=true;sel.appendChild(d)});
     vs.forEach(v=>{const o=document.createElement('option');o.value=v.voiceURI;const reg=LANGN[(v.lang||'').replace('_','-')]||v.lang;o.textContent=`${v.name} · ${t_(reg)}`;if(curV&&v.voiceURI===curV.voiceURI)o.selected=true;sel.appendChild(o)})})}
   function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';$('s-gem-out').hidden=!(cfg.voice==='gem'&&outNow()&&elOut.day);if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
-    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices()}
+    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices();$('s-voice-more').hidden=$('s-voice-row').hidden||!!sysVoice()}
   $('s-auto-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.autoListen=v==='listen';store.set('autoListen',cfg.autoListen);voiceUI()};
   let gemTry=0;$('s-gem-save').onclick=async()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();elOut=null;store.set('voiceOut',null);$('s-gem-out').hidden=true;const st=$('s-gem-state'),btn=$('s-gem-save');const run=++gemTry;
     const say=(t,c)=>{st.textContent=t;st.style.color=c||'';clearTimeout(st._t)};const back=ms=>{st._t=setTimeout(()=>{if(run===gemTry)say(t_('Por ejemplo: «con acento rioplatense», «más lento», «más alegre».'))},ms)};
@@ -3621,7 +3623,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     finally{btn.disabled=false}};
   $('s-voice-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.voice=v;store.set('voice',v);listenStop();voiceUI()};
   $('s-sys-voice-cur').onchange=()=>{const L=cfg.lang==='en'?'en':'es';cfg.sysVoices={...(cfg.sysVoices||{}),[L]:$('s-sys-voice-cur').value};store.set('sysVoices',cfg.sysVoices);
-    if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}speechSynthesis.speak(u)}catch(e){}}};
+    if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang(L);speechSynthesis.speak(u)}catch(e){}}$('s-voice-more').hidden=!!sysVoice(L)};
   function unlockAudio(){if(!cfg.autoListen)return;
     try{if(useEL()){if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{})}
       else if(hasSys()){const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}}
