@@ -1233,7 +1233,6 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
         <p class="help" id="s-el-state">Suena mejor, pero gasta créditos de ElevenLabs. Cada audio se guarda para no gastar dos veces, y si se acaban los créditos suena la voz del iPhone.</p>
       </div>
       <div class="srow" id="s-voice-row"><span id="s-voice-lab">Voz</span><select id="s-sys-voice-cur" class="vsel" aria-label="Voz"></select></div>
-      <p class="fl auto-help" id="s-voice-more" style="margin-top:8px">Más voces en Ajustes › Accesibilidad › Contenido leído.</p>
       </div>
     </details>
 
@@ -1282,7 +1281,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.82 · 23:30</p>
+    <p class="note small ver" translate="no">manu-go · v 3.83 · 23:40</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -3609,7 +3608,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     sel.innerHTML='';const d=document.createElement('option');d.value='';d.textContent=t_('La del iPhone');if(!curV)d.selected=true;sel.appendChild(d);
     vs.forEach(v=>{const o=document.createElement('option');o.value=v.voiceURI;const reg=LANGN[(v.lang||'').replace('_','-')]||v.lang;o.textContent=`${v.name} · ${t_(reg)}`;if(curV&&v.voiceURI===curV.voiceURI)o.selected=true;sel.appendChild(o)})})}
   function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';$('s-gem-out').hidden=!(cfg.voice==='gem'&&outNow()&&elOut.day);if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
-    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();$('s-voice-more').hidden=$('s-voice-row').hidden;if(cfg.voice==='iphone')fillSysVoices()}
+    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices()}
   $('s-auto-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.autoListen=v==='listen';store.set('autoListen',cfg.autoListen);voiceUI()};
   let gemTry=0;$('s-gem-save').onclick=async()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();elOut=null;store.set('voiceOut',null);$('s-gem-out').hidden=true;const st=$('s-gem-state'),btn=$('s-gem-save');const run=++gemTry;
     const say=(t,c)=>{st.textContent=t;st.style.color=c||'';clearTimeout(st._t)};const back=ms=>{st._t=setTimeout(()=>{if(run===gemTry)say(t_('Por ejemplo: «con acento rioplatense», «más lento», «más alegre».'))},ms)};
