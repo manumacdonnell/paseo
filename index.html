@@ -500,7 +500,13 @@ button.dayhead[aria-expanded="true"] .chev{transform:rotate(90deg)}
 .daybody .rows{border-top:0}
 .dayexport{display:block;background:transparent;border:0;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 0 14px;min-height:36px;margin-top:-6px}
 
-.daytop{display:flex;align-items:center;gap:14px}
+.daytop{display:flex;align-items:center;gap:6px}
+.dayshare{flex:none;display:inline-flex;align-items:center;gap:7px;height:38px;max-width:0;padding:0;margin:0;overflow:hidden;white-space:nowrap;border-radius:999px;border:1px solid transparent;background:transparent;color:var(--ink);font-family:var(--sans);font-size:13px;opacity:0;visibility:hidden;transition:max-width .3s cubic-bezier(.2,.7,.2,1),padding .3s cubic-bezier(.2,.7,.2,1),opacity .2s ease,border-color .3s ease,visibility 0s linear .3s;-webkit-tap-highlight-color:transparent}
+.dayshare svg{width:15px;height:15px;flex:none}
+.daytop.isopen .dayshare{max-width:160px;padding:0 13px;margin-right:2px;border-color:var(--line);opacity:1;visibility:visible;transition:max-width .3s cubic-bezier(.2,.7,.2,1),padding .3s cubic-bezier(.2,.7,.2,1),opacity .25s ease .08s,border-color .3s ease,visibility 0s}
+.daytop.isopen .dayshare:active{opacity:.6}
+.daytop .cnt{white-space:nowrap}
+button.dayhead .day{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .daytop .dayhead{flex:1;min-width:0}
 button.dayhead .cnt{transition:opacity .2s ease}.daytop.isopen .cnt{opacity:0}
 .daybody,.acc-body{display:flow-root}
@@ -900,7 +906,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.13 · 02:00</p>
+    <p class="note small ver" translate="no">manu-go · v 3.14 · 02:20</p>
   </section>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
   <div class="ndock" id="ndock" role="region" aria-label="Narración"><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span class="eq"><i></i><i></i><i></i></span><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
@@ -1971,24 +1977,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   // Mi mapa below the map: what you added last (it may be an old photo), then a diary by the day you saw things,
   // one day open at a time so the list never becomes endless
   const openDays=new Set();
+  const SHARE_I='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg>';
   function drawDays(items){
     if([...document.querySelectorAll('.daybody')].some(b=>b._slideT&&b.style.transition)){clearTimeout(drawDays._t);drawDays._t=setTimeout(()=>drawDays(items),320);return}
     const box=$('days');box.innerHTML='';
     if(!items.length){box.innerHTML='<p class="empty">Todavía no hay descubrimientos.</p>';return}
     const when=x=>x.takenAt||x.t;
     const dayKey=ts=>{const d=new Date(ts);return d.getFullYear()*10000+d.getMonth()*100+d.getDate()};
-    const dayLabel=ts=>new Date(ts).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long'});
-    // recently added
-    if(items.length>3){
-      const added=items.slice().sort((a,b)=>b.t-a.t).slice(0,3);
-      const h=document.createElement('p');h.className='day sect';h.textContent='Recién añadidos';box.appendChild(h);
-      const ul=document.createElement('ul');ul.className='rows';
-      added.forEach(x=>{const r=row(x,()=>openFromHistory(x,'mymap'),true);
-        if(x.takenAt&&dayKey(x.takenAt)!==dayKey(x.t)){const w=r.querySelector('.when');if(w)w.textContent=new Date(x.takenAt).toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.','')}
-        ul.appendChild(r)});
-      box.appendChild(ul);
-      const d=document.createElement('p');d.className='day sect';d.textContent='Por día';box.appendChild(d);
-    }
+    const dayLabel=ts=>new Date(ts).toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'short'}).replace(/\.$/,'');
     // diary
     const groups=new Map();
     items.slice().sort((a,b)=>dayKey(when(b))-dayKey(when(a))||when(a)-when(b)).forEach(x=>{const k=dayKey(when(x));if(!groups.has(k))groups.set(k,[]);groups.get(k).push(x)});
@@ -2002,13 +1998,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       head.innerHTML=`<span class="day"></span><span class="cnt"></span>`;head.querySelector('.day').textContent=label;head.querySelector('.cnt').textContent=list.length===1?'1 lugar':`${list.length} lugares`;
       const body=document.createElement('div');body.className='daybody';body.hidden=!openDays.has(k);
       const ul=document.createElement('ul');ul.className='rows';list.forEach(x=>ul.appendChild(row(x,()=>openFromHistory(x,'mymap'),true)));
-      const ex=document.createElement('button');ex.className='dayexport';ex.textContent=t_('Compartir este día');ex.onclick=()=>{if(list.some(x=>!x.noAI))openStory(k,list,label,'day');else exportPlaces(list,`${mapCity} · ${label}`)};
-      body.append(ex,ul);
+      const ex=document.createElement('button');ex.className='dayshare';ex.innerHTML=SHARE_I+'<span></span>';ex.querySelector('span').textContent=t_('Compartir');ex.setAttribute('aria-label',t_('Compartir este día'));ex.onclick=e=>{e.stopPropagation();if(list.some(x=>!x.noAI))openStory(k,list,label,'day');else exportPlaces(list,`${mapCity} · ${label}`)};
+      body.append(ul);
       const cv=document.createElement('button');cv.className='daychev';cv.setAttribute('aria-label','Abrir o cerrar');cv.innerHTML=chev;
       const tog=()=>{const open=!isOpen(body);slide(body,open);top.classList.toggle('isopen',open);head.setAttribute('aria-expanded',open?'true':'false');open?openDays.add(k):openDays.delete(k)};
       head.onclick=tog;cv.onclick=tog;
       top.classList.toggle('isopen',openDays.has(k));
-      top.append(head,cv);wrap.append(top,body);box.appendChild(wrap);
+      top.append(head,ex,cv);wrap.append(top,body);box.appendChild(wrap);
     });
   }
 
@@ -2121,7 +2117,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     const {W,H,M}=POSTER;const hy=head(g,D,P,POSTER.big?124:104);
     const pts=D.items.map((x,i)=>[x,i]).filter(([x])=>x.pos);const n=pts.length,np=pts.filter(([x])=>bm[x.t]).length;
     const top=hy+(POSTER.big?70:48),bot=H-M-70,L=M,R=W-M;const A=(R-L)*(bot-top);
-    let w=Math.max(60,Math.min(W*0.36,Math.sqrt(A*(np>12?0.34:0.24)/Math.max(1,np)*1.5)));
+    const nDays=new Set(pts.map(([x])=>dayKeyOf(x.takenAt||x.t))).size,walk=nDays===1&&n>=2;   // one day: it must read as a walk, so photos step aside from the line
+    let w=Math.max(60,Math.min(walk?W*0.27:W*0.36,Math.sqrt(A*(walk?0.15:(np>12?0.34:0.24))/Math.max(1,np)*1.5)));
     const k=Math.cos(pts[0][0].pos.lat*Math.PI/180);const xs=pts.map(([x])=>x.pos.lon*k),ys=pts.map(([x])=>-x.pos.lat);
     const mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);const sw=Math.max(mxx-mnx,1e-6),sh=Math.max(mxy-mny,1e-6);
     let XY,B,sc,ox,oy;
@@ -2132,23 +2129,31 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
       XY=pts.map((_,i)=>[ox+(xs[i]-mnx)*scx,oy+(ys[i]-mny)*scy]);sc=scx;
       // seed overlapping stacks in a small spiral so identical spots fan out evenly
       B=[];pts.forEach(([x],j)=>{if(!bm[x.t])return;const same=B.filter(b=>Math.hypot(b.ax-XY[j][0],b.ay-XY[j][1])<w*0.3).length;const a=same*2.4,r=same?w*0.35*Math.sqrt(same):0;
-        B.push({j,ax:XY[j][0],ay:XY[j][1],x:XY[j][0]-w/2+Math.cos(a)*r,y:XY[j][1]-h/2+Math.sin(a)*r,w,h})});
+        let ox2=Math.cos(a)*r,oy2=Math.sin(a)*r;
+        if(walk){const p0=XY[Math.max(0,j-1)],p1=XY[Math.min(XY.length-1,j+1)];let tx=p1[0]-p0[0],ty=p1[1]-p0[1];const L2=Math.hypot(tx,ty)||1;const sd=(B.length%2?1:-1);ox2=-ty/L2*sd*(w*0.75);oy2=tx/L2*sd*(h*0.9)}
+        B.push({j,ax:XY[j][0],ay:XY[j][1],x:XY[j][0]-w/2+ox2,y:XY[j][1]-h/2+oy2,w,h,sx:ox2,sy:oy2})});
+      // the walk itself is an obstacle: sample the line and every dot
+      const OB=[];if(walk){const st=Math.max(8,w*0.12);XY.forEach((p,q)=>{OB.push(p);const nx=XY[q+1];if(nx){const d=Math.hypot(nx[0]-p[0],nx[1]-p[1]);for(let u=st;u<d;u+=st)OB.push([p[0]+(nx[0]-p[0])*u/d,p[1]+(nx[1]-p[1])*u/d])}})}
+      const RO=12;
       const G=Math.max(6,w*0.06);let over=0;
       for(let it=0;it<500;it++){over=0;
         for(let a=0;a<B.length;a++)for(let b=a+1;b<B.length;b++){const p=B[a],q=B[b];const o1=Math.min(p.x+w,q.x+w)-Math.max(p.x,q.x)+G,o2=Math.min(p.y+h,q.y+h)-Math.max(p.y,q.y)+G;
           if(o1>0&&o2>0){over+=Math.min(o1,o2);if(o1/w<o2/h){const d=(p.x<q.x||(p.x===q.x&&a<b)?-1:1)*o1/2;p.x+=d;q.x-=d}else{const d=(p.y<q.y||(p.y===q.y&&a<b)?-1:1)*o2/2;p.y+=d;q.y-=d}}}
-        B.forEach(p=>{p.x+=(p.ax-w/2-p.x)*0.015;p.y+=(p.ay-h/2-p.y)*0.015;p.x=Math.min(R-w,Math.max(L,p.x));p.y=Math.min(bot-h,Math.max(top,p.y))});
+        if(walk)B.forEach(p=>{OB.forEach(([ox3,oy3])=>{const o1=Math.min(p.x+w,ox3+RO)-Math.max(p.x,ox3-RO),o2=Math.min(p.y+h,oy3+RO)-Math.max(p.y,oy3-RO);if(o1>0&&o2>0){over+=Math.min(o1,o2)*0.5;if(o1<o2*1.3)p.x+=(p.x+w/2<ox3?-1:1)*o1;else p.y+=(p.y+h/2<oy3?-1:1)*o2}})});
+        B.forEach(p=>{const tx2=walk?p.ax-w/2+p.sx:p.ax-w/2,ty2=walk?p.ay-h/2+p.sy:p.ay-h/2;p.x+=(tx2-p.x)*0.015;p.y+=(ty2-p.y)*0.015;p.x=Math.min(R-w,Math.max(L,p.x));p.y=Math.min(bot-h,Math.max(top,p.y))});
         if(over<0.5&&it>40)break}
       if(over<w*0.4)break;w*=0.88}
     const h=w/1.5;
     // the walk, one hairline per day, through the true spots
     const byDay=[];pts.forEach(([x],i)=>{const dk=dayKeyOf(x.takenAt||x.t);if(!byDay.length||byDay[byDay.length-1].dk!==dk)byDay.push({dk,idx:[]});byDay[byDay.length-1].idx.push(i)});
-    g.lineCap='round';g.lineJoin='round';g.strokeStyle=P.mut;g.lineWidth=2;g.globalAlpha=.55;
+    g.lineCap='round';g.lineJoin='round';g.strokeStyle=walk?P.ink:P.mut;g.lineWidth=walk?3:2;g.globalAlpha=walk?.9:.55;
     byDay.forEach(d=>{const p=d.idx.map(i=>XY[i]);if(p.length<2)return;g.beginPath();g.moveTo(p[0][0],p[0][1]);
       for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;g.bezierCurveTo(p1[0]+(p2[0]-p0[0])/6,p1[1]+(p2[1]-p0[1])/6,p2[0]-(p3[0]-p1[0])/6,p2[1]-(p3[1]-p1[1])/6,p2[0],p2[1])}g.stroke()});g.globalAlpha=1;
     // a hairline from each photo back to its spot when it had to move aside
-    g.strokeStyle=P.mut;g.lineWidth=1.2;B.forEach(b=>{const tx=Math.min(Math.max(b.ax,b.x),b.x+w),ty=Math.min(Math.max(b.ay,b.y),b.y+h);if(Math.hypot(tx-b.ax,ty-b.ay)<3)return;g.beginPath();g.moveTo(b.ax,b.ay);g.lineTo(tx,ty);g.stroke()});
-    const r=n>40?3.5:5;XY.forEach(([x,y])=>{g.fillStyle=P.ink;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()});
+    g.strokeStyle=P.mut;g.lineWidth=1.2;if(walk)g.setLineDash([3,5]);B.forEach(b=>{const tx=Math.min(Math.max(b.ax,b.x),b.x+w),ty=Math.min(Math.max(b.ay,b.y),b.y+h);if(Math.hypot(tx-b.ax,ty-b.ay)<3)return;g.beginPath();g.moveTo(b.ax,b.ay);g.lineTo(tx,ty);g.stroke()});
+    g.setLineDash([]);const r=walk?6:n>40?3.5:5;XY.forEach(([x,y])=>{g.fillStyle=P.ink;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()});
+    // where the walk starts: an open ring, so the direction reads at a glance
+    if(walk){const [sx0,sy0]=XY[0];g.fillStyle=P.bg;g.beginPath();g.arc(sx0,sy0,13,0,Math.PI*2);g.fill();g.strokeStyle=P.ink;g.lineWidth=3;g.beginPath();g.arc(sx0,sy0,11,0,Math.PI*2);g.stroke()}
     const nf=Math.round(Math.max(13,Math.min(POSTER.big?22:20,w*0.1)));
     // places without a photo keep their number next to the dot
     g.font=`400 ${nf}px ${MONO}`;g.fillStyle=P.mut;pts.forEach(([x,i],j)=>{if(bm[x.t])return;const [px,py]=XY[j];const right=px<W-M-60;g.textAlign=right?'left':'right';g.fillText(String(i+1),px+(right?r+6:-r-6),py-r-2)});g.textAlign='left';
