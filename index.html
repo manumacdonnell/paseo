@@ -1234,8 +1234,6 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
       </div>
       <div class="srow" id="s-voice-row"><span id="s-voice-lab">Acento</span><select id="s-sys-voice-cur" class="vsel" aria-label="Acento"></select></div>
       <p class="fl auto-help" id="s-voice-more" style="margin-top:8px">La que elijas en Accesibilidad › Contenido leído.</p>
-      <div id="s-rate-box" style="display:flex;flex-direction:column;gap:10px"><p class="fl" style="margin-top:22px">Ritmo</p>
-      <div class="seg" id="s-rate-seg" role="group" aria-label="Ritmo"><button data-v="slow">Pausado</button><button data-v="norm">Normal</button><button data-v="fast">Ágil</button></div></div>
       </div>
     </details>
 
@@ -1284,7 +1282,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.86 · 00:10</p>
+    <p class="note small ver" translate="no">manu-go · v 3.87 · 00:20</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1324,7 +1322,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
   };
   const DEFAULT_MODEL='gemini-2.5-flash';
   const DEFAULT_VOICE='oaGwHLz3csUaSnc2NBD4';
-  const cfg={key:store.get('key',''),lang:store.get('lang','es'),model:store.get('model',DEFAULT_MODEL),elKey:store.get('elKey',''),elVoice:store.get('elVoice',DEFAULT_VOICE),voice:store.get('voice','iphone'),autoListen:store.get('autoListen',false),sysVoices:store.get('sysVoices',{}),sysRate:store.get('sysRate','norm')};
+  const cfg={key:store.get('key',''),lang:store.get('lang','es'),model:store.get('model',DEFAULT_MODEL),elKey:store.get('elKey',''),elVoice:store.get('elVoice',DEFAULT_VOICE),voice:store.get('voice','iphone'),autoListen:store.get('autoListen',false),sysVoices:store.get('sysVoices',{})};
   const LANG=()=>cfg.lang==='en'?'English':'español de España';
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
@@ -3481,14 +3479,15 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   // turn the card text into something a voice reads well: acronyms, roman numerals, abbreviations and symbols in words
   const scriptMem=new Map();
   const needsScript=t=>/\b[A-ZÁÉÍÓÚÑ]{2,}\b|\b(?:p\. ?ej|aprox|s|ss|km|kg|n\.?º|nº|av|c\/|etc)\.|[%°ºª&@#]|\d+\s?(?:m|km|m²|kg|cm)\b/.test(t);
-  function prepScript(text){text=sayNumbers(text);if(!cfg.key||!text||!needsScript(text))return Promise.resolve(text);
-    if(!scriptMem.has(text)){const p=speakable(text);scriptMem.set(text,p);p.then(r=>{if(r===text)scriptMem.delete(text);else{p.done=true;p.value=r}})}return scriptMem.get(text)}
-  async function speakable(text){
-    try{const L=cfg.lang==='en'?'inglés':'español';
-      const out=await gemini([{text:`Prepara este texto para que una voz sintética lo lea en voz alta en ${L}. NO cambies el contenido, ni el tono, ni el orden, ni añadas nada: solo reescribe lo que una voz leería mal.\n- Siglas: si es una sigla conocida que se dice como palabra (UNESCO, OTAN), déjala; si se deletrea, sustitúyela por el nombre completo si lo sabes con certeza, o si no escribe sus letras como se pronuncian en ${L}, separadas con guiones (p. ej. "pe-uve doble-ese").\n- Números romanos, siglos, abreviaturas (p. ej., aprox., s., km, m) y símbolos: escríbelos en palabras.\n- Nombres extranjeros difíciles: déjalos tal cual.\n- Mantén los saltos de línea y los títulos de sección (terminan en punto) tal cual.\nDevuelve JSON: {"script": "..."}\n\nTEXTO:\n${text}`}],{fast:true});
+  const scriptMode=()=>cfg.voice==='gem'&&useEL()?'gem':'say';   // Gemini's voice knows how names sound; the iPhone and ElevenLabs read with the rules of one language
+  function prepScript(text){text=sayNumbers(text);const md=scriptMode();if(!cfg.key||!text||(md==='gem'&&!needsScript(text)))return Promise.resolve(text);
+    const k=md+'|'+text;if(!scriptMem.has(k)){const p=speakable(text,md);scriptMem.set(k,p);p.then(r=>{if(r===text)scriptMem.delete(k);else{p.done=true;p.value=r}})}return scriptMem.get(k)}
+  async function speakable(text,md){
+    try{const L=cfg.lang==='en'?'inglés':'español';const ex=cfg.lang==='en'?'«Zamek Królewski» → «Zah-mek Kroo-LEV-skee», «Łazienki» → «Wah-ZHEN-kee», «Wisła» → «VEES-wah», «Széchenyi» → «SAY-chen-yee»':'«Zamek Królewski» → «Sámek Krulévski», «Łazienki» → «Uazhiénki», «Wisła» → «Víssua», «Świętokrzyska» → «Shvientokshíska», «Széchenyi» → «Séchenyi»';
+      const out=await gemini([{text:`Prepara este texto para que una voz sintética lo lea en voz alta en ${L}. NO cambies el contenido, ni el tono, ni el orden, ni añadas nada: solo reescribe lo que una voz leería mal.\n- Siglas: si es una sigla conocida que se dice como palabra (UNESCO, OTAN), déjala; si se deletrea, sustitúyela por el nombre completo si lo sabes con certeza, o si no escribe sus letras como se pronuncian en ${L}, separadas con guiones (p. ej. "pe-uve doble-ese").\n- Números romanos, siglos, abreviaturas (p. ej., aprox., s., km, m) y símbolos: escríbelos en palabras.\n${md==='say'?`- Nombres propios y palabras de otros idiomas (topónimos, personas, platos, calles): reescríbelos con la ortografía del ${L} para que una voz que solo sabe ${L} los diga como los dice la gente del lugar. Marca la sílaba tónica (con tilde en español, en MAYÚSCULAS en inglés). Ejemplos: ${ex}. Los nombres que ya suenan bien en ${L} déjalos.\n`:'- Nombres extranjeros: déjalos tal cual.\n'}- Mantén los saltos de línea y los títulos de sección (terminan en punto) tal cual.\nDevuelve JSON: {"script": "..."}\n\nTEXTO:\n${text}`}],{fast:true});
       const sc=(out&&out.script||'').trim();const cnt=(x,h)=>x.split(h).length-1;
       const heads=[t_('Qué es'),t_('Un dato curioso'),...TOPICS.map(t=>t.label)].map(h=>h+'.');
-      const ok=sc.length>text.length*.6&&sc.length<text.length*1.6&&heads.every(h=>cnt(sc,h)<=cnt(text,h));return ok?sc:text}
+      const ok=sc.length>text.length*.6&&sc.length<text.length*1.8&&heads.every(h=>cnt(sc,h)<=cnt(text,h));return ok?sc:text}
     catch(e){return text}
   }
   // ---- numbers, years and roman numerals read as words, on the phone, instantly ----
@@ -3553,7 +3552,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
       if(b.classList.contains('is-pause')){player.play().then(()=>pillSet(b,'play')).catch(()=>{});return}
       listenStop();return}
     listenStop();if(!text)return;
-    if(!useEL()){sysListen(b,text,key,!outNow()?'':elOut.day?outNote():elOut.why+' '+t_('Suena la voz del iPhone hasta dentro de un rato.'));return}
+    if(!useEL()){const pr=prepScript(text);if(!pr.done&&scriptMem.get('say|'+sayNumbers(text))){const run=++listenRun;active={btn:b};pillSet(b,'load');await Promise.race([pr.catch(()=>{}),wait(4000)]);if(run!==listenRun)return;active=null}sysListen(b,text,key,!outNow()?'':elOut.day?outNote():elOut.why+' '+t_('Suena la voz del iPhone hasta dentro de un rato.'));return}
     if(!player||!player._h){if(!player){player=new Audio();player.playsInline=true}player._h=1;
       player.onended=()=>{const A=active;if(player.src===SILENT||!A||!A.segs)return;const n=A.i+1;if(A.segs[n])playSeg(A,n).catch(e=>{if(active===A&&A.fail)A.fail(e,n)});else listenStop()};
       player.ontimeupdate=()=>{const A=active;if(!A||!A.segs||player.src===SILENT||!player.duration)return;const tot=A.segs.reduce((x,y)=>x+y.text.length,0);let done=0;for(let k=0;k<A.i;k++)done+=A.segs[k].text.length;
@@ -3587,23 +3586,22 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function sysVoices(L){if(!hasSys())return[];L=L||(cfg.lang==='en'?'en':'es');const all=speechSynthesis.getVoices().filter(v=>(v.lang||'').toLowerCase().startsWith(L));
     const nice=all.filter(v=>!NOVELTY.test(v.name+' '+v.voiceURI));return nice.length?nice:all}
   const vScore=v=>(/premium/i.test(v.voiceURI+v.name)?4:/enhanced|mejorad/i.test(v.voiceURI+v.name)?3:0)+(/diego/i.test(v.name)?2:0)+(/es[-_]AR/i.test(v.lang)?1:0);
-  const sysRate=()=>({slow:.84,fast:1.02}[cfg.sysRate]||.93);
   function sysLang(L){L=L||(cfg.lang==='en'?'en':'es');const id=(cfg.sysVoices||{})[L]||'';return id.startsWith('lang:')?id.slice(5):L==='en'?'en-GB':'es-ES'}
   function sysVoice(L){L=L||(cfg.lang==='en'?'en':'es');const id=(cfg.sysVoices||{})[L];if(!id||id.startsWith('lang:'))return null;return sysVoices(L).find(v=>v.voiceURI===id)||null}   // nothing chosen: the iPhone uses its own voice for that language
   if(hasSys()){try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{if(view==='settings')fillSysVoices()}}catch(e){}}
   function sysListen(b,text,key,fallback){
-    const t=scriptMem.get(sayNumbers(text));const ready=t&&t.done?t.value:sayNumbers(text);   // never wait: use the cleaned text if it is already there
+    const t=scriptMem.get('say|'+sayNumbers(text));const ready=t&&t.done?t.value:sayNumbers(text);   // never wait: use the cleaned text if it is already there
     const pend=new Set();let sents=[];ready.split(/\n+/).forEach(p=>{const ss=p.split(/(?<=[.!?…])\s+/).map(x=>x.trim()).filter(Boolean).filter(x=>!sents.length||x.toLowerCase()!==sents[sents.length-1].toLowerCase());if(ss.length){sents.push(...ss);pend.add(sents.length-1)}});
     const A={btn:b,key:'sys|'+key,title:b._title||'',sys:true,sents,pend,i:0,tot:sents.reduce((x,y)=>x+y.length,0)};active=A;sysOn=true;
     if(fallback&&fallback!=='-')status(fallback,fallback!==t_('Voz de Gemini agotada por hoy: suena la del iPhone.'));
     sysSay(A,0)}
   function sysSay(A,i,natural){if(active!==A)return;if(!natural){try{speechSynthesis.cancel()}catch(e){}}sysOn=true;
     const tok=A.tok=(A.tok||0)+1;A.i=i;A.t0=Date.now();const u=new SpeechSynthesisUtterance(A.sents[i]);const v=sysVoice();
-    if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang();u.rate=sysRate();u.pitch=1;
+    if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang();u.rate=.98;u.pitch=1;
     const done=A.sents.slice(0,i).reduce((x,y)=>x+y.length,0),pg=()=>A.btn.querySelector('.prog');
     u.onstart=()=>{if(A.tok!==tok||active!==A)return;pillSet(A.btn,'play');progSet(A.btn,(100*done/A.tot).toFixed(1)+'%')};
     u.onboundary=e=>{if(A.tok!==tok||active!==A)return;progSet(A.btn,(100*(done+(e.charIndex||0))/A.tot).toFixed(1)+'%')};
-    let ended=false;u.onend=()=>{if(ended||A.tok!==tok||active!==A||A.paused)return;ended=true;if(i+1<A.sents.length)setTimeout(()=>{if(A.tok===tok&&active===A&&!A.paused)sysSay(A,i+1,true)},(A.pend&&A.pend.has(i)?620:240)*(cfg.sysRate==='fast'?.6:cfg.sysRate==='slow'?1.3:1));else listenStop()};
+    let ended=false;u.onend=()=>{if(ended||A.tok!==tok||active!==A||A.paused)return;ended=true;if(i+1<A.sents.length)setTimeout(()=>{if(A.tok===tok&&active===A&&!A.paused)sysSay(A,i+1,true)},(A.pend&&A.pend.has(i)?620:240));else listenStop()};
     u.onerror=u.onend;A.paused=false;
     pillSet(A.btn,'play');speechSynthesis.speak(u)}
   function sysPause(){const A=active;if(!A)return;A.paused=true;A.tok++;try{speechSynthesis.cancel()}catch(e){}pillSet(A.btn,'pause')}   // resume restarts the sentence: reliable on iPhone
@@ -3613,7 +3611,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     sel.innerHTML='';const curL=sysLang(L);Object.keys(LANGN).filter(k=>k.startsWith(L+'-')).forEach(k=>{const d=document.createElement('option');d.value='lang:'+k;d.textContent=`${t_('La del iPhone')} · ${t_(LANGN[k])}`;if(!curV&&k===curL)d.selected=true;sel.appendChild(d)});
     if(curV){const o=document.createElement('option');o.value=curV.voiceURI;o.textContent=curV.name;o.selected=true;sel.appendChild(o)}})}
   function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';$('s-gem-out').hidden=!(cfg.voice==='gem'&&outNow()&&elOut.day);if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
-    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices();$('s-voice-more').hidden=$('s-voice-row').hidden||!!sysVoice();$('s-rate-box').hidden=$('s-voice-row').hidden;segSet('s-rate-seg',cfg.sysRate||'norm')}
+    $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices();$('s-voice-more').hidden=$('s-voice-row').hidden||!!sysVoice()}
   $('s-auto-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.autoListen=v==='listen';store.set('autoListen',cfg.autoListen);voiceUI()};
   let gemTry=0;$('s-gem-save').onclick=async()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();elOut=null;store.set('voiceOut',null);$('s-gem-out').hidden=true;const st=$('s-gem-state'),btn=$('s-gem-save');const run=++gemTry;
     const say=(t,c)=>{st.textContent=t;st.style.color=c||'';clearTimeout(st._t)};const back=ms=>{st._t=setTimeout(()=>{if(run===gemTry)say(t_('Por ejemplo: «con acento rioplatense», «más lento», «más alegre».'))},ms)};
@@ -3625,10 +3623,8 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     catch(e){if(run===gemTry){say(voiceWhy(e),'var(--danger,#c0392b)');back(9000)}}
     finally{btn.disabled=false}};
   $('s-voice-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.voice=v;store.set('voice',v);listenStop();voiceUI()};
-  $('s-rate-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.sysRate=v;store.set('sysRate',v);segSet('s-rate-seg',v);listenStop();
-    if(hasSys()){try{speechSynthesis.cancel();const L=cfg.lang==='en'?'en':'es';const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const vv=sysVoice(L);if(vv){u.voice=vv;u.lang=vv.lang}else u.lang=sysLang(L);u.rate=sysRate();speechSynthesis.speak(u)}catch(e){}}};
   $('s-sys-voice-cur').onchange=()=>{const L=cfg.lang==='en'?'en':'es';cfg.sysVoices={...(cfg.sysVoices||{}),[L]:$('s-sys-voice-cur').value};store.set('sysVoices',cfg.sysVoices);
-    if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang(L);u.rate=sysRate();speechSynthesis.speak(u)}catch(e){}}$('s-voice-more').hidden=!!sysVoice(L)};
+    if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang(L);speechSynthesis.speak(u)}catch(e){}}$('s-voice-more').hidden=!!sysVoice(L)};
   function unlockAudio(){if(!cfg.autoListen)return;
     try{if(useEL()){if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{})}
       else if(hasSys()){const u=new SpeechSynthesisUtterance(' ');u.volume=0;speechSynthesis.speak(u)}}catch(e){}}
