@@ -1280,7 +1280,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.rows img
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.79 · 05:50</p>
+    <p class="note small ver" translate="no">manu-go · v 3.80 · 06:20</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -3428,8 +3428,18 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   const GEM_VOICE='Charon';let gemTTSModel=null;
   const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a travel documentary narrator: warm, deep, unhurried, with quiet wonder, natural, never theatrical':'narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.');
   const gemKey=()=>{const t=gemStyle()+'|v2';let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
-  async function gemTTSName(){if(gemTTSModel)return gemTTSModel;try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=300',{headers:{'x-goog-api-key':cfg.key}});const j=await r.json();
-      const ns=(j.models||[]).map(m=>m.name.replace('models/','')).filter(n=>/tts/.test(n)&&/flash/.test(n));const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};ns.sort((a,b)=>ver(b)-ver(a)||(/preview/.test(a)?1:0)-(/preview/.test(b)?1:0));gemTTSModel=ns[0]||'gemini-2.5-flash-preview-tts'}catch(e){gemTTSModel='gemini-2.5-flash-preview-tts'}return gemTTSModel}
+  const gemBad=new Set();
+  async function gemTTSName(){if(gemTTSModel)return gemTTSModel;const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
+    try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=300',{headers:{'x-goog-api-key':cfg.key}});const j=await r.json();
+      const ns=(j.models||[]).filter(m=>/tts/.test(m.name)&&(m.supportedGenerationMethods||['generateContent']).includes('generateContent')).map(m=>m.name.replace('models/','')).filter(n=>!gemBad.has(n));
+      const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};const rank=n=>(/flash/.test(n)?0:2)+(/lite/.test(n)?1:0);   // flash first (fast), lite and pro last
+      ns.sort((a,b)=>rank(a)-rank(b)||ver(b)-ver(a)||(/preview/.test(a)?1:0)-(/preview/.test(b)?1:0));gemTTSModel=ns[0]||FB[0]}catch(e){gemTTSModel=FB[0]}
+    return gemTTSModel||'gemini-2.5-flash-preview-tts'}
+  function gemErr(status,j){const er=(j&&j.error)||{},m=String(er.message||''),det=er.details||[];
+    const ri=det.find(d=>/RetryInfo/.test(d['@type']||''));let w=ri?parseFloat(ri.retryDelay)||0:0;if(!w){const x=m.match(/retry in ([\d.]+)\s*s/i);if(x)w=+x[1]}
+    const qf=det.find(d=>/QuotaFailure/.test(d['@type']||''));const qid=qf?(qf.violations||[]).map(v=>v.quotaId||'').join(' '):'';
+    const e=new Error(m||('HTTP '+status));e.status=status;e.wait=w;
+    e.kind=status===429?(/limit:\s*0\b/.test(m)?'paid':(/PerDay/i.test(qid)||/per day|daily/i.test(m))?'quota':'busy'):(status===401||status===403||/API key/i.test(m))?'key':status===404?'model':status>=500?'server':'other';return e}
   function pcmToWav(b64,rate){let bin=atob(b64);{const N=bin.length>>1;const smp=i=>{let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);return v>32767?v-65536:v};
       const win=Math.round(rate*0.02),loud=1400;let a=0,z=N;const energy=i=>{let m=0;for(let k=i;k<Math.min(N,i+win);k++){const v=Math.abs(smp(k));if(v>m)m=v}return m};
       for(let i=0;i<N;i+=win){if(energy(i)>loud){a=Math.max(0,i-Math.round(rate*0.08));break}}for(let i=N-win;i>0;i-=win){if(energy(i)>loud){z=Math.min(N,i+win+Math.round(rate*0.22));break}}
@@ -3437,14 +3447,25 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     const n=bin.length,buf=new ArrayBuffer(44+n),v=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
     w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n,true);
     const u=new Uint8Array(buf,44);for(let i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([buf],{type:'audio/wav'})}
-  async function gemTTS(text){const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),25000);
+  async function gemTTS1(text,plain){const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
     const style=`### DIRECTOR'S NOTES\nStyle: ${gemStyle()}\nLanguage: ${cfg.lang==='en'?'English':'Spanish'}. Read only the transcript, word for word; never read these notes.\n\n#### TRANSCRIPT\n`;   // Google's format: everything above TRANSCRIPT directs the voice and is not spoken
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
-      body:JSON.stringify({contents:[{parts:[{text:style+text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:GEM_VOICE}}}}})});
-    clearTimeout(tm);if(!r.ok){let m='';try{m=(await r.json()).error.message||''}catch(e){}const e=new Error(m);e.kind=r.status===429?(/quota|exhaust/i.test(m)?'quota':'busy'):(r.status===403||/API key/i.test(m))?'key':'other';throw e}
-    const j=await r.json();const part=((((j.candidates||[])[0]||{}).content||{}).parts||[]).find(p=>p.inlineData||p.inline_data);const d=part&&(part.inlineData||part.inline_data);if(!d||!d.data)throw Object.assign(new Error('no audio'),{kind:'other'});
+    let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+      body:JSON.stringify({contents:[{parts:[{text:(plain?'':style)+text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:GEM_VOICE}}}}})})}
+    catch(e){clearTimeout(tm);throw Object.assign(new Error(e.name==='AbortError'?'tardó demasiado':'sin conexión'),{kind:e.name==='AbortError'?'slow':'net'})}
+    let j=null;try{j=await r.json()}catch(e){}clearTimeout(tm);
+    if(!r.ok){const e=gemErr(r.status,j);e.model=model;throw e}
+    const c=((j||{}).candidates||[])[0]||{};const part=((c.content||{}).parts||[]).find(p=>p.inlineData||p.inline_data);const d=part&&(part.inlineData||part.inline_data);
+    if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
     const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate)}
-  async function ttsBlob(text,prev,next){if(cfg.voice==='gem')return gemTTS(text);
+  // retries what Google says is temporary, so the voice does not switch on a hiccup
+  async function gemTTS(text,onWait){let plain=false;
+    for(let t=0;;t++){try{return await gemTTS1(text,plain)}catch(e){if(t>=3)throw e;
+      if(e.kind==='model'){gemBad.add(e.model);gemTTSModel=null;continue}
+      if(e.kind==='server'||e.kind==='noaudio'||e.kind==='other'){plain=e.kind!=='server'||t>0;await wait(700);continue}   // a rejected or silent answer: once more with the bare text
+      if(e.kind==='slow'&&t===0)continue;
+      if(e.kind==='busy'&&(e.wait||5)<=30){onWait&&onWait(Math.ceil(e.wait||5));await wait((e.wait||5)*1000+400);continue}
+      throw e}}}
+  async function ttsBlob(text,prev,next,onWait){if(cfg.voice==='gem')return gemTTS(text,onWait);
     const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),15000);
     const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(cfg.elVoice||DEFAULT_VOICE)}?output_format=mp3_44100_64`,{method:'POST',signal:ac.signal,
       headers:{'xi-api-key':cfg.elKey,'Content-Type':'application/json','Accept':'audio/mpeg'},
@@ -3507,7 +3528,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     return out}
   function segKey(base,txt){let h=0;for(let i=0;i<txt.length;i++)h=(h*31+txt.charCodeAt(i))|0;return base+'|'+h}
   function segBlob(A,i){const sg=A.segs[i];if(!sg.p){sg.p=(async()=>{const k=segKey(A.key,sg.text);let b=audioMem.get(k)||await getPhoto(k);
-      if(!b){try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text)}catch(e){if(e.kind!=='busy')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
+      if(!b){const ow=n=>{if(active===A&&A.i>=i-1)status(t_('Gemini pide esperar')+` ${n} s…`)};try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text,ow)}catch(e){if(e.kind!=='busy'||cfg.voice==='gem')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
       audioMem.set(k,b);return b})();sg.p.catch(()=>{sg.p=null})}return sg.p}
   async function playSeg(A,i,at){
     const run=listenRun;const sg=A.segs[i];if(!sg)return;
@@ -3515,7 +3536,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     const b=await segBlob(A,i);sg.blobReady=true;if(run!==listenRun||active!==A)return;
     A.i=i;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(b);player.src=player._url;
     player.onloadedmetadata=()=>{sg.dur=player.duration;if(at)player.currentTime=Math.max(0,Math.min(at,player.duration-.05))};
-    await player.play();if(run===listenRun&&active===A)pillSet(A.btn,'play');
+    await player.play();if(run===listenRun&&active===A){pillSet(A.btn,'play');if($('status').textContent.startsWith(t_('Gemini pide esperar')))status('')}
     if(A.segs[i+1])segBlob(A,i+1).then(()=>A.segs[i+1].blobReady=true).catch(()=>{});if(A.segs[i+2]&&A.segs[i+1].blobReady)segBlob(A,i+2).catch(()=>{});
   }
   function rewind(sec){const A=active;if(!A)return;if(A.sys){sysBack();return}const t=player.currentTime;
@@ -3528,8 +3549,8 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
       if(b.classList.contains('is-pause')){player.play().then(()=>pillSet(b,'play')).catch(()=>{});return}
       listenStop();return}
     listenStop();if(!text)return;
-    if(!useEL()){sysListen(b,text,key);return}
-    if(!player){player=new Audio();player.playsInline=true;
+    if(!useEL()){sysListen(b,text,key,outNow()?elOut.why+' '+t_('Suena la voz del iPhone hasta dentro de un rato.'):'');return}
+    if(!player||!player._h){if(!player){player=new Audio();player.playsInline=true}player._h=1;
       player.onended=()=>{const A=active;if(player.src===SILENT||!A||!A.segs)return;const n=A.i+1;if(A.segs[n])playSeg(A,n).catch(e=>{if(active===A&&A.fail)A.fail(e,n)});else listenStop()};
       player.ontimeupdate=()=>{const A=active;if(!A||!A.segs||player.src===SILENT||!player.duration)return;const tot=A.segs.reduce((x,y)=>x+y.text.length,0);let done=0;for(let k=0;k<A.i;k++)done+=A.segs[k].text.length;
         progSet(A.btn,(100*(done+A.segs[A.i].text.length*player.currentTime/player.duration)/tot).toFixed(1)+'%')}}
@@ -3537,18 +3558,24 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     const run=++listenRun;const A={btn:b,key:`audio4|${key}|${cfg.lang}|${cfg.voice==='gem'?gemKey():cfg.elVoice}`,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
     try{
       const script=await prepScript(text);if(run!==listenRun)return;
-      A.segs=chunks(script).map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
+      let cs=chunks(script);if(cfg.voice==='gem'&&cs.length>2){const head=cs[0]+'\n\n'+cs[1];let rest=cs.slice(2);const L=rest.join(' ').length;cs=[head];if(L>2400){const h=Math.ceil(rest.length/2);cs.push(rest.slice(0,h).join('\n\n'),rest.slice(h).join('\n\n'))}else cs.push(rest.join('\n\n'))}A.segs=cs.map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
       await playSeg(A,0);
     }catch(e){fail(e)}
     function fail(e,at){if(active!==A)return;
-      if(hasSys()&&!(e&&e.name==='NotAllowedError'&&!at)){if(e&&e.kind==='quota')elOut=Date.now();const rest=A.segs&&at?A.segs.slice(at).map(x=>x.text).join('\n\n'):text;listenStop();sysListen(b,rest,key+(at?'|'+at:''),e&&e.kind==='quota'?'quota':'off');return}
+      if(hasSys()&&!(e&&e.name==='NotAllowedError'&&!at)){const k=e&&e.kind,gem=cfg.voice==='gem';const why=voiceWhy(e);
+        if(k==='quota'||k==='paid'||(gem&&k==='key'))elOut={v:cfg.voice,t:Date.now(),why};
+        const rest=A.segs&&at?A.segs.slice(at).map(x=>x.text).join('\n\n'):text;listenStop();sysListen(b,rest,key+(at?'|'+at:''),why+' '+t_('Sigue la voz del iPhone.'));return}
       listenStop();
       status(t_({key:'La clave de ElevenLabs no funciona. Revísala en Ajustes.',quota:'Se acabaron los créditos de este mes en ElevenLabs.',paid:'ElevenLabs solo deja usar voces de su librería con un plan de pago (desde 6 $/mes).',voice:'No encuentro esa voz. Revisa el ID en Ajustes.',busy:'ElevenLabs va saturado. Prueba otra vez en un momento.'}[e&&e.kind]||'No pude generar el audio. Prueba otra vez.'),true)}
   }
   // ---- free voice: the one installed on the phone ----
   var sysOn=false;
   const hasSys=()=>'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';
-  var elOut=0;const useEL=()=>((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!(elOut&&Date.now()-elOut<3600e3);   // out of credits: the iPhone voice for the next hour, no waiting on a failing call
+  var elOut=null;const outNow=()=>elOut&&elOut.v===cfg.voice&&Date.now()-elOut.t<3600e3;
+  const useEL=()=>((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!outNow();
+  function voiceWhy(e){const k=e&&e.kind,m=String(e&&e.message||'').split(/[\n.]/)[0].slice(0,90);
+    if(cfg.voice==='gem')return t_({quota:'Gemini: se acabó el cupo gratis de voz de hoy.',paid:'Tu clave de Gemini no incluye la voz gratis: hace falta activar la facturación.',key:'Tu clave de Gemini no deja usar la voz.',busy:'Gemini: demasiadas narraciones por minuto.',slow:'La voz de Gemini tardó demasiado.',net:'Sin conexión con Gemini.'}[k]||'La voz de Gemini falló')+(k&&!['quota','paid','busy','slow','net'].includes(k)&&m?' ('+m+').':'');
+    return t_({quota:'Sin créditos de ElevenLabs.',key:'La clave de ElevenLabs no funciona.',paid:'ElevenLabs pide un plan de pago para esa voz.',voice:'No encuentro esa voz de ElevenLabs.'}[k]||'ElevenLabs no respondió.')}   // out of credits: the iPhone voice for the next hour, no waiting on a failing call
   const canListen=()=>useEL()||hasSys();
   const NOVELTY=/eloquence|novelty|bells|bad news|bahh|boing|bubbles|cellos|jester|organ|superstar|trinoids|whisper|wobble|zarvox|albert|fred|junior|ralph|kathy|grandma|grandpa|rocko|shelley|flo\b|eddy|reed|sandy/i;
   function sysVoices(L){if(!hasSys())return[];L=L||(cfg.lang==='en'?'en':'es');const all=speechSynthesis.getVoices().filter(v=>(v.lang||'').toLowerCase().startsWith(L));
@@ -3560,7 +3587,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     const t=scriptMem.get(sayNumbers(text));const ready=t&&t.done?t.value:sayNumbers(text);   // never wait: use the cleaned text if it is already there
     const sents=ready.split(/\n{2,}/).flatMap(p=>p.replace(/\n/g,' ').split(/(?<=[.!?…])\s+/)).map(x=>x.trim()).filter(Boolean).filter((x,i,a)=>i===0||x.toLowerCase()!==a[i-1].toLowerCase());
     const A={btn:b,key:'sys|'+key,title:b._title||'',sys:true,sents,i:0,tot:sents.reduce((x,y)=>x+y.length,0)};active=A;sysOn=true;
-    if(fallback)status(t_(cfg.voice==='gem'?'La voz de Gemini no respondió: sigue la del iPhone.':fallback==='quota'?'Sin créditos de ElevenLabs: suena la voz del iPhone.':'ElevenLabs no respondió: sigue la voz del iPhone.'));
+    if(fallback)status(fallback,true);
     sysSay(A,0)}
   function sysSay(A,i,natural){if(active!==A)return;if(!natural){try{speechSynthesis.cancel()}catch(e){}}sysOn=true;
     const tok=A.tok=(A.tok||0)+1;A.i=i;A.t0=Date.now();const u=new SpeechSynthesisUtterance(A.sents[i]);const v=sysVoice();
@@ -3580,7 +3607,15 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
     $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices()}
   $('s-auto-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.autoListen=v==='listen';store.set('autoListen',cfg.autoListen);voiceUI()};
-  $('s-gem-save').onclick=()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();const st=$('s-gem-state');st.textContent=t_('Guardado. La próxima narración ya suena así.');st.style.color='var(--live)';clearTimeout(st._t);st._t=setTimeout(()=>{st.textContent=t_('Por ejemplo: «con acento rioplatense», «más lento», «más alegre».');st.style.color=''},2600)};
+  let gemTry=0;$('s-gem-save').onclick=async()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();elOut=null;const st=$('s-gem-state'),btn=$('s-gem-save');const run=++gemTry;
+    const say=(t,c)=>{st.textContent=t;st.style.color=c||'';clearTimeout(st._t)};const back=ms=>{st._t=setTimeout(()=>{if(run===gemTry)say(t_('Por ejemplo: «con acento rioplatense», «más lento», «más alegre».'))},ms)};
+    if(!cfg.key){say(t_('Guardado. Falta tu clave de Gemini en Más ajustes.'));back(3200);return}
+    if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap
+    say(t_('Guardado. Probando la voz…'));btn.disabled=true;
+    try{const bl=await gemTTS(t_('Así suena ahora la voz que te cuenta los lugares.'),n=>{if(run===gemTry)say(t_('Gemini pide esperar')+` ${n} s…`)});if(run!==gemTry)return;
+      if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play();say(t_('Guardado. Así suena.'),'var(--live)');back(3000)}
+    catch(e){if(run===gemTry){say(voiceWhy(e),'var(--danger,#c0392b)');back(9000)}}
+    finally{btn.disabled=false}};
   $('s-voice-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.voice=v;store.set('voice',v);listenStop();voiceUI()};
   $('s-sys-voice-cur').onchange=()=>{const L=cfg.lang==='en'?'en':'es';cfg.sysVoices={...(cfg.sysVoices||{}),[L]:$('s-sys-voice-cur').value};store.set('sysVoices',cfg.sysVoices);
     if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}speechSynthesis.speak(u)}catch(e){}}};
