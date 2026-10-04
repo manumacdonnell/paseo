@@ -261,6 +261,7 @@ p{margin:0}
 .profile{display:flex;align-items:center;gap:18px;padding-top:6px}
 .avatar{position:relative;flex:none;width:76px;height:76px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);padding:0;overflow:hidden;display:grid;place-items:center}
 .avatar svg{width:34px;height:34px}.avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.profile .pstats{margin:0 0 6px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.5}
 .profile .pname{margin:0 0 2px;font-family:var(--serif);font-size:24px;color:var(--ink)}
 .profile .plain{padding:6px 0;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--faint);background:transparent;border:0}
 #btn-settings .me{width:30px;height:30px;border-radius:50%;object-fit:cover;border:1px solid var(--line);display:block}
@@ -768,6 +769,9 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:none!import
 #homemeta{display:none!important}
 .dockside .badge{display:none!important}
 .home .quick{margin-bottom:6px}
+.home .rows li:last-child>button{border-bottom:0}
+.home>.history:not([hidden])~.quick{margin-top:30px}
+.top h1{cursor:pointer}
 
 .topicons{display:flex;align-items:center;gap:2px}
 /* in the dark you see the sun (tap for day); in the day you see the moon */
@@ -990,7 +994,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     <h2>Ajustes</h2>
     <div class="sgroup profile">
       <button class="avatar" id="s-avatar" aria-label="Tu foto de perfil"><img id="s-avatar-img" alt="" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c1.4-3.6 4-5.2 7-5.2s5.6 1.6 7 5.2"/></svg></button>
-      <div class="ptext"><p class="pname">Tu perfil</p><button class="plain" id="s-avatar-btn">Añadir foto</button></div>
+      <div class="ptext"><p class="pname">Tu perfil</p><p class="pstats" id="s-stats" hidden></p><button class="plain" id="s-avatar-btn">Añadir foto</button></div>
       <input type="file" id="s-avatar-file" accept="image/*" hidden>
     </div>
 
@@ -1083,7 +1087,7 @@ body,.app{transition:background-color .3s ease,color .3s ease}
     </details>
 
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
-    <p class="note small ver" translate="no">manu-go · v 3.43 · 22:50</p>
+    <p class="note small ver" translate="no">manu-go · v 3.44 · 14:50</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1135,10 +1139,11 @@ body,.app{transition:background-color .3s ease,color .3s ease}
   let cur=null; // the card on screen
   let view='home';
   var scrollMem={},goBack=false,pendY=null;
-  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(!(v==='result'&&view==='result')&&!(v==='story'&&view==='story'))listenStop();view=v;const fabOn=['result','alts','mymap','settings'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v!=='result')stopVoice();if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(!(v==='result'&&view==='result')&&!(v==='story'&&view==='story'))listenStop();view=v;const fabOn=['result','alts','mymap','settings'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v!=='result')stopVoice();if(v==='home')renderHome();if(v==='settings'&&typeof renderStats==='function')renderStats();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
+  {const lg=document.querySelector('.top h1');lg.setAttribute('role','link');lg.setAttribute('aria-label','manu-go · Inicio');lg.onclick=()=>{if(!$('sh2').hidden)closeShare();if(view==='home'){window.scrollTo({top:0,behavior:'smooth'});return}show('home')}}
   $('btn-back').onclick=()=>{if(!$('sh2').hidden){closeShare();return}status('');goBack=true;if(view==='story'&&storyFrom==='card'){storyFrom=null;show('result');return}if(view==='alts'&&cur&&cur.name){show('result');return}if(view==='result'&&backTo==='mymap'){backTo=null;openMyMap();return}if(view==='result'&&backTo==='story'){backTo=null;show('story');return}if(view==='story'){openMyMap(true);return}show('home')};
   $('btn-settings').onclick=openSettings;
 
@@ -1661,7 +1666,7 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     }
     $('r-src').hidden=!c.url;if(c.url)$('r-src').innerHTML=`<a href="${c.url}" target="_blank" rel="noopener">Ver en Wikipedia</a>`;
     $('btn-notthis').hidden=!(c.pos||c.img);
-    $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!c.fromGallery||!!opt.partial;
+    $('btn-savephoto').hidden=!(c.file||c.hasPhoto)||!!opt.partial;
     $('btn-deeper').hidden=!!c.noAI||!cfg.key||!!opt.partial;
     $('btn-route').hidden=!c.pos||!c.revisit||!!opt.partial;if(c.pos)$('btn-route').href=routeURL(c);$('btn-delete').hidden=!!opt.partial;$('btn-copyplace').hidden=false;listenStop();$('lrow').hidden=!!opt.partial||!!c.noAI||!canListen();pillSet($('btn-listen'),'idle');$('btn-prev').hidden=true;if(c.prev){$('btn-prev').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span></span>';$('btn-prev').querySelector('span').textContent=`Volver a «${c.prev.name}»`}$('copyplace-label').textContent=t_('Compartir');$('btn-copyplace').classList.remove('done','copied');clearTimeout($('btn-copyplace')._t1);clearTimeout($('btn-copyplace')._t2);$('copyplace-label').classList.remove('swap');$('btn-ask').hidden=true;$('ask-panel').hidden=!!opt.partial;askMsg('Te copio el contexto: solo pega.');$('ask-text').hidden=true;
     metaWhenReady(c);
@@ -2005,13 +2010,14 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     if((!item.city||(item.pos&&!item.address))&&geoPos&&!geoPending.has(item.t)){const t=item.t;geoPending.add(t);placeInfo(geoPos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address;if(view==='result')setMeta(cur)}}).finally(()=>geoPending.delete(t))}
   }
   function fmtWhen(t){return new Date(t).toLocaleString(LOCALE(),{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
+  function smartWhen(t){const d=new Date(t),n=new Date();return d.toDateString()===n.toDateString()?d.toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.','')}
   function row(x,onOpen,timeOnly){
     const li=document.createElement('li'),b=document.createElement('button');
     const bg=document.createElement('div');bg.className='del-bg';bg.textContent='Borrar';li.appendChild(bg);
     const im=document.createElement('img');im.className='th';im.alt='';
     if(x.hasPhoto)photoURL(x.t).then(u=>{if(u)im.src=u});
     const n=document.createElement('span');n.className='nm';n.textContent=LV(x).name||x.name;
-    const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
+    const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly==='smart'?smartWhen(when):timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
     b.append(im,n,w);li.appendChild(b);
     // swipe left to delete
     // horizontal drag only: vertical scrolling stays with the page, the rest of the list doesn't move
@@ -2090,9 +2096,8 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
     // the home screen is just the camera and a question; your discoveries live in Mi mapa
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');const prevT=renderHome._shown||null;const h0=ul.offsetHeight;ul.innerHTML='';
-    h.slice(0,3).forEach(x=>{const li=row(x,()=>openFromHistory(x));if(prevT&&!prevT.has(x.t))li.classList.add('rowin');ul.appendChild(li)});
+    h.slice(0,3).forEach(x=>{const li=row(x,()=>openFromHistory(x),'smart');if(prevT&&!prevT.has(x.t))li.classList.add('rowin');ul.appendChild(li)});
     renderHome._shown=new Set(h.slice(0,3).map(x=>x.t));
-    if(h.length&&!store.get('swipeHinted',false)){const hint=document.createElement('li');hint.className='hint';hint.textContent='Desliza a la izquierda para borrar';ul.appendChild(hint)}
     if(prevT&&view==='home'){const h1=ul.offsetHeight;if(h0&&h1&&h0!==h1){ul.style.overflow='hidden';ul.style.height=h0+'px';void ul.offsetHeight;ul.style.transition='height .34s cubic-bezier(.2,.7,.2,1)';ul.style.height=h1+'px';clearTimeout(ul._ht);ul._ht=setTimeout(()=>{ul.style.height='';ul.style.overflow='';ul.style.transition=''},360)}}
     $('home-pending').hidden=!(photosPending>0);
     {const n=qList().length;const el=$('home-queue');el.hidden=!n;if(n)el.innerHTML=(qBusy&&navigator.onLine?'<span class="spin"></span>':'<span class="qdot"></span>')+t_(qBusy&&navigator.onLine?(n===1?'Mirando la foto que guardaste…':'Mirando las fotos que guardaste…'):(n===1?'1 foto esperando conexión':`${n} fotos esperando conexión`))}
@@ -2276,9 +2281,16 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   }
   function closeShare(){const sh=$('sh2');if(sh.hidden)return;storyRun++;sh.classList.remove('on');$('sh2-bg').classList.remove('on');sh.style.transform='';document.documentElement.classList.remove('sheet-open');clearTimeout(closeShare._t);closeShare._t=setTimeout(()=>{sh.hidden=true;$('sh2-bg').hidden=true},340)}
   $('sh2-x').onclick=closeShare;$('sh2-bg').onclick=closeShare;
-  {const sh=$('sh2'),hd=sh.querySelector('.sh2-head');let y0=null,dy=0;hd.addEventListener('touchstart',e=>{y0=e.touches[0].clientY;dy=0},{passive:true});
-    hd.addEventListener('touchmove',e=>{if(y0===null)return;dy=Math.max(0,e.touches[0].clientY-y0);if(dy>4){sh.classList.add('drag');sh.style.transform=`translateY(${dy}px)`}},{passive:true});
-    hd.addEventListener('touchend',()=>{if(y0===null)return;y0=null;sh.classList.remove('drag');if(dy>90)closeShare();else sh.style.transform=''})}
+  // swipe down anywhere on the sheet to close it: a short, decisive pull is enough
+  {const sh=$('sh2');let x0=null,y0=null,t0=0,dy=0,mode=null,lastY=0,lastT=0,vy=0;
+    sh.addEventListener('touchstart',e=>{if(e.touches.length>1){x0=null;return}x0=e.touches[0].clientX;y0=lastY=e.touches[0].clientY;t0=lastT=performance.now();dy=0;vy=0;mode=null},{passive:true});
+    sh.addEventListener('touchmove',e=>{if(x0===null)return;const t=e.touches[0],ddx=t.clientX-x0,ddy=t.clientY-y0;
+      if(!mode){if(Math.abs(ddx)<8&&Math.abs(ddy)<8)return;mode=(ddy>0&&Math.abs(ddy)>Math.abs(ddx)*1.2)?'drag':'other';if(mode==='drag'){y0=t.clientY;sh.classList.add('drag')}}
+      if(mode!=='drag')return;const now=performance.now();vy=(t.clientY-lastY)/Math.max(1,now-lastT);lastY=t.clientY;lastT=now;
+      dy=Math.max(0,t.clientY-y0);sh.style.transform=`translateY(${dy}px)`;$('sh2-bg').style.opacity=String(Math.max(.25,1-dy/(sh.offsetHeight||700)))},{passive:true});
+    const end=()=>{if(x0===null)return;x0=null;if(mode!=='drag'){mode=null;return}mode=null;sh.classList.remove('drag');
+      const h=sh.offsetHeight||700;const bg=$('sh2-bg');bg.style.transition='opacity .3s ease';setTimeout(()=>{bg.style.transition='';bg.style.opacity=''},360);if(dy>Math.min(110,h*.15)||(vy>.45&&dy>24)){bg.style.opacity='0';closeShare()}else{sh.style.transform='';bg.style.opacity=''}};
+    sh.addEventListener('touchend',end,{passive:true});sh.addEventListener('touchcancel',end,{passive:true})}
   // ---- bottom sheet ----
   function openSheet(title,opts){const sh=$('sheet'),bg=$('sheet-bg'),list=sh.querySelector('.sh-list');sh.querySelector('.sh-t').textContent=title;list.innerHTML='';
     opts.forEach(o=>{if(o.sep){const h=document.createElement('hr');list.appendChild(h);return}const b=document.createElement('button');b.className='sh-opt';b.innerHTML='<span class="a"><b></b><small></small></span><i></i>';
@@ -3022,6 +3034,13 @@ Los valores de NAME, WHAT y COOL van en ${LANG()}.`;
   $('s-el-voice').addEventListener('change',()=>{cfg.elVoice=$('s-el-voice').value.trim()||DEFAULT_VOICE;store.set('elVoice',cfg.elVoice);$('s-el-voice').value=cfg.elVoice});
   $('s-el-voice').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('s-el-save').click();$('s-el-voice').blur()}});
   // ---- profile photo: stored with the photos, so it stays on this phone ----
+  // a quiet line of what you've gathered: personal, like a passport page, without repeating where you are
+  function renderStats(){const h=store.get('history',[]),el=$('s-stats');if(!h.length){el.hidden=true;return}
+    const cities=new Set(h.map(x=>x.city).filter(Boolean)).size,days=new Set(h.map(x=>new Date(x.takenAt||x.t).toDateString())).size;
+    const first=new Date(Math.min(...h.map(x=>x.takenAt||x.t))),EN=cfg.lang==='en';
+    const since=first.toLocaleDateString(LOCALE(),{month:'short',year:'numeric'}).replace('.','').replace(' de ',' ');
+    const pl=(n,a,b)=>n+' '+(n===1?a:b);
+    el.textContent=[pl(h.length,EN?'place':'lugar',EN?'places':'lugares'),pl(cities,EN?'city':'ciudad',EN?'cities':'ciudades'),pl(days,EN?'day':'día',EN?'days':'días'),(EN?'since ':'desde ')+since].join(' · ');el.hidden=false}
   async function loadAvatar(){const b=await getPhoto('profile');const has=!!b;const u=has?URL.createObjectURL(b):'';
     const im=$('s-avatar-img');im.hidden=!has;if(has)im.src=u;$('s-avatar').querySelector('svg').style.display=has?'none':'';$('s-avatar-btn').textContent=t_(has?'Cambiar foto':'Añadir foto');
     const bt=$('btn-settings');let me=bt.querySelector('.me');if(has){bt.querySelector('svg')&&(bt.querySelector('svg').style.display='none');if(!me){me=document.createElement('img');me.className='me';me.alt='';bt.appendChild(me)}me.src=u}else{if(me)me.remove();const sv=bt.querySelector('svg');if(sv)sv.style.display=''}}
