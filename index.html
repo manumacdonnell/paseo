@@ -941,7 +941,7 @@ html.photo-print :is(#r-img,#prep-img,#alts-thumb,#minibar-img,.nd-art,.hn-art,.
 .loc-line.ok .dot{background:var(--live);border-color:var(--live)}.loc-line.bad .dot{border-color:var(--danger)}
 
 .hist-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}.hist-head h2{margin:0!important}
-.hist-all{background:transparent;border:0;padding:6px 0 6px 12px;color:var(--muted);font-size:13px}
+.hist-all{display:flex;align-items:center;gap:6px;width:100%;min-height:48px;margin-top:2px;background:transparent;border:0;padding:12px 0;color:var(--muted);font-size:15px;text-align:left;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease}.hist-all:active{opacity:.55}.hist-all svg{width:15px;height:15px;flex:none}
 .hist-all[hidden]{display:none}
 .allv h2{font-size:46px;margin:0}.allv .day{margin:26px 0 4px}.allv .alls-search{margin:16px 0 4px}
 
@@ -1023,15 +1023,15 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 .tm-bar b{position:absolute;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--live);box-shadow:0 0 0 3px color-mix(in srgb,var(--live) 22%,transparent)}
 .tm-e{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tl{display:flex;flex-direction:column;max-height:62svh;overflow:auto;padding-bottom:6px}
-.tl-era{display:grid;grid-template-columns:84px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.tl-era:first-child{border-top:0}
-.tl-yr{font-family:var(--mono);font-size:12px;color:var(--muted);padding-top:2px}.tl-tx b{display:block;font-size:16px;font-weight:600;color:var(--ink)}.tl-tx p{margin:3px 0 0;font-size:14px;line-height:1.4;color:var(--body)}
-.tl-pl{font-family:var(--mono);font-size:12px!important;color:var(--muted)!important;margin-top:6px!important}.tl-pl::before{content:'●';margin-right:6px;font-size:9px;vertical-align:1px}.tl-pl.me{color:var(--ink)!important}
-.tl{max-height:64vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
-.tl-era.now{position:relative}.tl-era.now::before{content:"";position:absolute;left:-12px;top:12px;bottom:12px;width:2px;border-radius:1px;background:var(--live)}
-.tl-era.now .tl-yr{color:var(--live)}
-.tl-here{display:flex;align-items:center;gap:8px;margin:14px 0 0;font-family:var(--mono);font-size:11px!important;letter-spacing:.14em;text-transform:uppercase;color:var(--live)!important;line-height:1.2!important}
-.tl-here i{width:8px;height:8px;border-radius:50%;background:var(--live);flex:none;animation:live 2.4s ease-out infinite}
-.tl-here+.tl-pl.me{margin-top:4px!important;font-family:inherit;font-size:15px!important;font-weight:500}.tl-here+.tl-pl.me::before{display:none}
+.tl{max-height:64vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px 6px}
+.tl-top{display:flex;align-items:baseline;gap:12px;padding:6px 0 16px}.tl-top b{font-family:var(--serif,Georgia,serif);font-size:44px;font-weight:400;line-height:1;color:var(--ink);letter-spacing:-.01em}.tl-top span{font-size:15px;color:var(--muted)}
+.tl-era{position:relative;display:grid;grid-template-columns:92px 1fr;gap:12px;padding:8px 0;align-items:baseline}
+.tl-yr{font-family:var(--mono);font-size:12px;color:var(--faint)}.tl-tx b{display:block;font-size:15px;font-weight:400;color:var(--muted)}
+.tl-era.now{padding:12px 0}.tl-era.now::before{content:"";position:absolute;left:-12px;top:12px;bottom:12px;width:2px;border-radius:1px;background:var(--live)}
+.tl-era.now .tl-yr{color:var(--live)}.tl-era.now .tl-tx b{color:var(--ink);font-weight:600;font-size:16px}
+.tl-here{display:flex;align-items:center;gap:8px;margin:6px 0 0;font-size:14px;color:var(--live)}
+.tl-here i{width:7px;height:7px;border-radius:50%;background:var(--live);flex:none;animation:live 2.4s ease-out infinite}
+.tl-pl{margin:4px 0 0;font-family:var(--mono);font-size:12px;color:var(--muted)}.tl-pl::before{content:'●';margin-right:6px;font-size:8px;vertical-align:1px}
 #r-what .lead{color:var(--ink)}
 </style>
 </head>
@@ -1068,8 +1068,9 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
       <div class="hn"><img class="hn-art" id="hn-art" alt=""><button class="hn-mid" id="hn-mid"><span class="hn-t" id="hn-t"></span><span class="hn-s" id="hn-s"></span></button><button class="hn-pp" id="hn-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><span class="hn-prog"><i id="hn-prog"></i></span></div>
     </div>
     <div class="history" id="history" hidden>
-      <div class="hist-head"><h2>Recientes</h2><button class="hist-all" id="hist-all" hidden>Ver todos</button></div>
+      <div class="hist-head"><h2>Recientes</h2></div>
       <ul class="rows" id="history-list"></ul>
+      <button class="hist-all" id="hist-all" hidden><span id="hist-all-t">Ver todos</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
     </div>
     <p class="home-pending" id="home-pending" hidden><span class="spin"></span>Averiguando qué es tu foto…</p>
     <p class="home-pending queued" id="home-queue" hidden></p>
@@ -1345,7 +1346,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.06 · 15:25</p>
+    <p class="note small ver" translate="no">manu-go · v 4.10 · 16:00</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1414,7 +1415,8 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   let dbp=null;
   function idb(){if(!dbp)dbp=new Promise((res,rej)=>{try{const r=indexedDB.open('paseo',1);r.onupgradeneeded=()=>r.result.createObjectStore('photos');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});return dbp}
   async function putPhoto(t,blob){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').put(blob,t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
-  async function getPhoto(t){try{const d=await idb();return await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){return null}}
+  const memPhoto=new Map();   // photos still being written to disk: never open a card without its photo
+  async function getPhoto(t){let r=null;try{const d=await idb();r=await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){}return r||memPhoto.get(t)||null}
   async function delPhoto(t){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').delete(t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
   async function clearPhotos(){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').clear();tx.oncomplete=res;tx.onerror=res})}catch(e){}}
   const urlCache=new Map();
@@ -1614,7 +1616,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     if(e instanceof TypeError)return'Sin conexión. Revisa los datos móviles.';
     console.warn(e);return'Algo no salió bien. Prueba otra vez.';
   }
-  const RULES=()=>`Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. NUNCA describas lo que se ve en la foto (materiales, colores, postura, objetos, gente): la persona ya lo está viendo. Cuenta QUÉ ES y algo sobre ello. ✗ "Una estatua de bronce de una mujer con una espada en alto." ✓ "La Sirenita de Varsovia, la Syrenka: está en el escudo de la ciudad desde el siglo XIV y la leyenda dice que defiende a quien vive junto al Vístula." REGLA DE ORO: esto es una app para VIAJAR, no una enciclopedia ni una guía de biología. Quien saca una foto aquí te está pidiendo, sin decirlo, que relaciones ESO con el lugar donde está: sea un edificio, una hoja, una hormiga, un plato o una señal, tu trabajo es encontrar el vínculo real con este país, esta ciudad o su historia. Todo lo que digas está anclado en ESTE lugar concreto: este país, esta ciudad, este barrio, esta calle, este local, y en este momento del año. La persona no quiere lo que le diría un buscador, quiere lo que tiene que ver con dónde está. PRUEBA: si una frase se podría escribir igual en cualquier otro país, sobra; cámbiala por algo de aquí. El vínculo con el lugar va desde la primera tarjeta, no se guarda para después. Nunca cuentes la historia general de algo (cómo se fundó una cadena en otro país, el origen de un estilo en otra parte, qué es algo en abstracto); como mucho media frase, y solo si lo conectas con aquí. Si es una cadena o algo global: qué pasa con eso AQUÍ (cuándo llegó a esta ciudad o país, qué tiene este local, qué hubo antes en este edificio o esta calle, qué significa aquí). Si es un detalle (una baldosa, una farola, una puerta, un estilo): por qué está en esta ciudad y qué cuenta de ella. Si no sabes nada seguro de este sitio exacto, habla del edificio, la calle o el barrio donde está. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Escribe siempre los años, siglos y fechas con cifras (1944, siglo XVI), nunca en letras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho, va al grano y tiene gracia: informa primero, y cuando salga natural, una pizca de ironía, un contraste inesperado o un remate que haga sonreír (nunca chistes forzados ni exclamaciones); cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Si lo que cuenta recuerda a víctimas o una tragedia, el tono es sobrio y respetuoso: sin humor, sin ironía, sin remates. Nunca pongas en palabras la situación de la persona (dónde está parada, qué está haciendo, si está cerca de algo, «estás pisando…», «a dos pasos de…»): usa su ubicación solo para saber de qué hablar, nunca para contárselo. Escribe en ${LANG()}.`;
+  const RULES=()=>`Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. Lo que sabes puede ser anterior a esta fecha: nunca digas que una fecha, un precio, un ticket o un evento es erróneo o "del futuro" solo porque sea posterior a lo que conoces. NUNCA describas lo que se ve en la foto (materiales, colores, postura, objetos, gente): la persona ya lo está viendo. Cuenta QUÉ ES y algo sobre ello. ✗ "Una estatua de bronce de una mujer con una espada en alto." ✓ "La Sirenita de Varsovia, la Syrenka: está en el escudo de la ciudad desde el siglo XIV y la leyenda dice que defiende a quien vive junto al Vístula." Esto vale también para el NOMBRE y la 1.ª frase: nada de lo que la persona ya sabe con solo mirar (al aire libre, exterior, de piedra, de ladrillo, verde, grande, antiguo, con flores, en la calle). El NOMBRE es el nombre propio y corto, sin adjetivos que se ven: ✗ "Galería de esculturas al aire libre de X" ✓ "Taller de X"; ✗ "Iglesia de ladrillo rojo de Santa Ana" ✓ "Iglesia de Santa Ana". La 1.ª frase cuenta lo que NO se ve (quién, cuándo, por qué está aquí): ✗ "El taller exterior y jardín escultórico del artista X junto a la muralla." ✓ "Aquí trabajó durante décadas X, insurgente de 1944, y aquí siguen sus piedras." PRUEBA: si una palabra la podría decir cualquiera que mira la foto sin saber nada, bórrala. REGLA DE ORO: esto es una app para VIAJAR, no una enciclopedia ni una guía de biología. Quien saca una foto aquí te está pidiendo, sin decirlo, que relaciones ESO con el lugar donde está: sea un edificio, una hoja, una hormiga, un plato o una señal, tu trabajo es encontrar el vínculo real con este país, esta ciudad o su historia. Todo lo que digas está anclado en ESTE lugar concreto: este país, esta ciudad, este barrio, esta calle, este local, y en este momento del año. La persona no quiere lo que le diría un buscador, quiere lo que tiene que ver con dónde está. PRUEBA: si una frase se podría escribir igual en cualquier otro país, sobra; cámbiala por algo de aquí. El vínculo con el lugar va desde la primera tarjeta, no se guarda para después. Nunca cuentes la historia general de algo (cómo se fundó una cadena en otro país, el origen de un estilo en otra parte, qué es algo en abstracto); como mucho media frase, y solo si lo conectas con aquí. Si es una cadena o algo global: qué pasa con eso AQUÍ (cuándo llegó a esta ciudad o país, qué tiene este local, qué hubo antes en este edificio o esta calle, qué significa aquí). Si es un detalle (una baldosa, una farola, una puerta, un estilo): por qué está en esta ciudad y qué cuenta de ella. Si no sabes nada seguro de este sitio exacto, habla del edificio, la calle o el barrio donde está. Reglas: solo hechos que conozcas con seguridad; si algo es leyenda o rumor, dilo. No inventes fechas, nombres ni cifras. Escribe siempre los años, siglos y fechas con cifras (1944, siglo XVI), nunca en letras. Nada de tono enciclopédico ni frases de relleno ("es un importante ejemplo de…"): habla como un amigo que sabe mucho, va al grano y tiene gracia: informa primero, y cuando salga natural, una pizca de ironía, un contraste inesperado o un remate que haga sonreír (nunca chistes forzados ni exclamaciones); cada frase aporta algo concreto, sin muletillas ("Ves…", "Cabe destacar", "Curiosamente") ni exclamaciones. Si lo que cuenta recuerda a víctimas o una tragedia, el tono es sobrio y respetuoso: sin humor, sin ironía, sin remates. Nunca pongas en palabras la situación de la persona (dónde está parada, qué está haciendo, si está cerca de algo, «estás pisando…», «a dos pasos de…»): usa su ubicación solo para saber de qué hablar, nunca para contárselo. Escribe en ${LANG()}.`;
   // plain lines instead of JSON so the card can fill in while the answer is still arriving
   const CARD_FORMAT=()=>`Responde EXACTAMENTE con estas 9 líneas, en este orden, sin nada más (sin JSON, sin markdown, sin comillas):
 NAME: si es un sitio, su nombre propio exacto (genérico solo si SOURCE es generic); si es una cosa (SOURCE thing), lo que es, concreto y bien dicho (p. ej. "Tarta de zanahoria", "Pierogi ruskie"), NUNCA el nombre del local donde está
@@ -1706,9 +1708,10 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     const x=store.get('history',[]).find(y=>y.city&&y.pos&&km(p,y.pos)<12);return x?x.city:''}
   // ---------- no signal: keep the photo and look at it when the connection is back ----------
   const qList=()=>store.get('queue',[]);
-  async function queuePhoto(f,fromGallery,hint,pos){
+  async function queuePhoto(f,fromGallery,hint,pos,silent){
     const t=Date.now();const blob=await resize(f,1400,'blob').catch(()=>f);await putPhoto('q|'+t,blob);
     const q=qList();q.push({t,fromGallery:!!fromGallery,hint:hint||'',pos:pos?{lat:pos.lat,lon:pos.lon,acc:pos.acc||30}:null,takenAt:fromGallery?await photoDate(f):t});store.set('queue',q);
+    if(silent){if(view==='home')renderHome();setTimeout(runQueue,8000);return}
     show('home');status(t_('Sin conexión: guardé la foto y la miro en cuanto vuelva la señal.'));renderHome()}
   let qBusy=false;
   async function runQueue(){
@@ -1753,7 +1756,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
       const base={__seq:seq,img,file:f,pos,near,osm,deep:{},fromGallery,city:pos?cityNear(pos):'',takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});mark('done');store.set('lastTiming',{...window._tm,model:lastModel});
     }catch(err){
-      if(!mine()||(view!=='loading'&&view!=='result'))return;
+      if(!mine()||(view!=='loading'&&view!=='result')){if(err.message!=='LIMIT'&&!/key|API_KEY|PERMISSION|403|400/i.test(err.message||''))await queuePhoto(f,fromGallery,hint,pos,true);return}   // you left while it failed: keep it and try again, never lose it
       if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};showAlts(true,errText(err)+' Mientras, elige lo que estás mirando y te enseño Wikipedia.');return}
       if(err instanceof TypeError&&!navigator.onLine){await queuePhoto(f,fromGallery,hint,pos);return}
       show('home');status(errText(err),true);
@@ -1807,7 +1810,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
         shown=true;window._mark&&window._tm&&!window._tm.first&&window._mark('first');cur={...base};typeStop($('r-what'));typeStop($('r-cool'));$('r-what').textContent='';$('r-cool').textContent='';paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true});$('r-name').classList.remove('appear');void $('r-name').offsetWidth;$('r-name').classList.add('appear')}
       $('r-name').textContent=o.NAME||'';if(cur)cur.name=o.NAME;
       const loc=o.LOCAL&&o.LOCAL.toLowerCase()!==(o.NAME||'').toLowerCase()?o.LOCAL:'';$('r-local').textContent=loc;$('r-local').hidden=!loc;
-      $('r-unsure').hidden=!(o.SURE&&/^no/i.test(o.SURE));
+      $('r-unsure').hidden=!!base.confirmed||!(o.SURE&&/^no/i.test(o.SURE));
       if(o.WHAT)typeTo($('r-what'),o.WHAT);
       if(o.COOL&&$('r-what').textContent.length>=(o.WHAT||'').length-1){$('r-cool-wrap').hidden=false;typeTo($('r-cool'),o.COOL)}
     };
@@ -1815,7 +1818,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     const {o}=parseCard(txt);
     let name=o.NAME||'',sure=!/^no/i.test(o.SURE||'');
     const isThing=/thing/i.test(o.SOURCE||'')||/^(food|drink|object|art|nature|animal|person|activity)$/i.test((o.CATEGORY||'').trim());
-    if(isThing)sure=true;
+    if(isThing||base.confirmed)sure=true;
     let srcTag=isThing?'thing':((o.SOURCE||'').trim().toLowerCase().split(/\s/)[0]||'');
     if(!isThing&&ctx&&ctx.osm&&(/generic/i.test(o.SOURCE||'')||!name)){
       const want={cafe:['cafe','coffee'],restaurant:['restaurant','fast_food'],bar:['bar','pub'],pub:['pub','bar'],bakery:['bakery','pastry','confectionery'],
@@ -1944,7 +1947,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     const V=LV(c);
     if(!opt.partial&&!V.ok){translateCard(c).then(()=>{if(cur===c&&view==='result'){paintCard(c);const a=document.querySelector('#v-result .card');a.classList.remove('swap');void a.offsetWidth;a.classList.add('swap')}}).catch(()=>{})}
     $('r-photo').hidden=!c.img;if(c.img)$('r-img').src=c.img;$('btn-savephoto').classList.remove('done');
-    $('r-unsure').hidden=c.sure!==false;
+    $('r-unsure').hidden=c.sure!==false||!!c.confirmed;
     $('r-confirm').hidden=!!opt.partial||!!c.noAI||!!c.confirmed||!(c.prev||c.sure===false);
     $('r-name').textContent=V.name||(opt.partial?'…':t_('Algo por descubrir'));
     const loc=c.local&&c.local.toLowerCase()!==(V.name||'').toLowerCase()?c.local:'';
@@ -2074,20 +2077,23 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     erasMem[k]=gemini([{text:`Las grandes épocas de la historia de ${city}, para que alguien que pasea ubique cualquier año. Entre 5 y 8 épocas consecutivas, sin huecos, desde que la ciudad empieza a importar hasta hoy (${new Date().getFullYear()}). Cada una: "from" y "to" (años, números; la última termina en ${new Date().getFullYear()}), "name" (2 a 4 palabras, como se la conoce, p. ej. "Capital del reino", "Segunda Guerra Mundial", "Polonia comunista") y "line" (una frase de máximo 14 palabras: qué cambió en la ciudad). Hechos seguros, en ${LANG()}.\nDevuelve JSON: {"eras":[{"from":0,"to":0,"name":"","line":""}]}`}],{fast:true}).then(o=>{const e=((o&&o.eras)||[]).filter(x=>isFinite(+x.from)&&isFinite(+x.to)&&+x.to>=+x.from&&x.name).map(x=>({from:+x.from,to:+x.to,name:String(x.name),line:String(x.line||'')})).sort((a,b)=>a.from-b.from);if(e.length>=3){store.set(k,e);return e}delete erasMem[k];return null}).catch(()=>{delete erasMem[k];return null});return erasMem[k]}
   const eraOf=(eras,y)=>eras.findIndex((e,i)=>y>=e.from&&(y<e.to||(y===e.to&&i===eras.length-1)||(y<=e.to&&!(eras[i+1]&&eras[i+1].from===y))));
   // the strip on the card: the eras as equal steps, a dot where this thing falls; one glance, no reading
+  function agoTxt(y){const n=new Date().getFullYear()-y,en=cfg.lang==='en';if(n<=0)return en?'this year':'este año';if(n===1)return en?'last year':'el año pasado';return en?`${n} years ago`:`hace ${n} años`}
   function paintTime(c,again){const el=$('r-time');el.hidden=true;el.innerHTML='';if(!c||!c.year||c.noAI)return;const me=c;const city=c.city||quickCity();if(!city){if(!again)setTimeout(()=>{if(cur===me)paintTime(me,true)},2500);return}
     cityEras(city).then(eras=>{if(cur!==me||!eras)return;let y=c.year,i=eraOf(eras,y);if(i<0){i=y<eras[0].from?0:eras.length-1}
       const e=eras[i],n=eras.length,f=Math.max(0,Math.min(1,(y-e.from)/Math.max(1,e.to-e.from))),x=((i+f)/n)*100;
       el.innerHTML=`<span class="tm-y"></span><span class="tm-bar">${eras.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}<b style="left:${x.toFixed(1)}%"></b></span><span class="tm-e"></span>`;
-      el.querySelector('.tm-y').textContent=String(y);el.querySelector('.tm-e').textContent=`${e.name} · ${e.from}–${i===n-1?t_('hoy'):e.to}`;el.hidden=false;el.onclick=()=>timeSheet(c,eras,city)})}
+      el.querySelector('.tm-y').textContent=String(y);el.querySelector('.tm-e').textContent=`${e.name} · ${agoTxt(y)}`;el.hidden=false;el.onclick=()=>timeSheet(c,eras,city)})}
   // the whole line of the city, with today's places on it
-  function timeSheet(c,eras,city){const day=dayKeyOf(c.takenAt||c.t);const mine=store.get('history',[]).filter(h=>h.year&&(h.city||city)===city&&dayKeyOf(h.takenAt||h.t)===day).sort((a,b)=>a.year-b.year);
+  function timeSheet(c,eras,city){const day=dayKeyOf(c.takenAt||c.t);const mine=store.get('history',[]).filter(h=>h.year&&(h.city||city)===city&&dayKeyOf(h.takenAt||h.t)===day&&h.t!==c.t);
     openSheet(city,[]);const list=$('sheet').querySelector('.sh-list');const box=document.createElement('div');box.className='tl';
-    eras.forEach((e,k)=>{const row=document.createElement('div');row.className='tl-era';const yr=document.createElement('span');yr.className='tl-yr';yr.textContent=`${e.from}–${k===eras.length-1?t_('hoy'):e.to}`;
-      const tx=document.createElement('div');tx.className='tl-tx';const nm=document.createElement('b');nm.textContent=e.name;const ln=document.createElement('p');ln.textContent=e.line;tx.append(nm,ln);
-      const inEra=y=>{let i=eraOf(eras,y);if(i<0)i=y<eras[0].from?0:eras.length-1;return i===k};const here=inEra(c.year);if(here)row.classList.add('now');
-      const list_=mine.some(h=>h.t===c.t)?mine:mine.concat([c]).sort((a,b)=>a.year-b.year);list_.filter(h=>inEra(h.year)).forEach(h=>{const me=h.t===c.t;if(me){const hr=document.createElement('p');hr.className='tl-here';hr.innerHTML='<i></i><span></span>';hr.querySelector('span').textContent=t_('Estás aquí');tx.appendChild(hr)}const pl=document.createElement('p');pl.className='tl-pl'+(me?' me':'');pl.textContent=`${h.year} · ${LV(h).name||h.name}`;tx.appendChild(pl)});
+    const top=document.createElement('div');top.className='tl-top';top.innerHTML='<b></b><span></span>';top.querySelector('b').textContent=String(c.year);top.querySelector('span').textContent=agoTxt(c.year);box.appendChild(top);
+    const eraIx=y=>{let i=eraOf(eras,y);if(i<0)i=y<eras[0].from?0:eras.length-1;return i};const ci=eraIx(c.year);
+    eras.forEach((e,k)=>{const row=document.createElement('div');row.className='tl-era'+(k===ci?' now':'');const yr=document.createElement('span');yr.className='tl-yr';yr.textContent=`${e.from}–${k===eras.length-1?t_('hoy'):e.to}`;
+      const tx=document.createElement('div');tx.className='tl-tx';const nm=document.createElement('b');nm.textContent=e.name;tx.appendChild(nm);
+      if(k===ci){const hr=document.createElement('p');hr.className='tl-here';hr.innerHTML='<i></i><span></span>';hr.querySelector('span').textContent=`${c.year} · ${LV(c).name||c.name}`;tx.appendChild(hr)}
+      mine.filter(h=>eraIx(h.year)===k).forEach(h=>{const pl=document.createElement('p');pl.className='tl-pl';pl.textContent=`${h.year} · ${LV(h).name||h.name}`;tx.appendChild(pl)});
       row.append(yr,tx);box.appendChild(row)});list.appendChild(box);
-    const now=box.querySelector('.tl-era.now');if(now)requestAnimationFrame(()=>{box.scrollTop=Math.max(0,now.offsetTop-box.offsetTop-box.clientHeight*.3)})}
+    const now=box.querySelector('.tl-era.now');if(now)requestAnimationFrame(()=>{if(now.offsetTop-box.offsetTop>box.clientHeight*.6)box.scrollTop=now.offsetTop-box.offsetTop-box.clientHeight*.35})}
   function mapsURL(c){if(!c||!c.pos||c.noAI)return null;if(/^(street|nature|animal|person|activity|other|object|art)$/.test(c.cat||''))return null;const isPlace=c.kind==='place'||(!c.kind&&(c.url||c.local));const who=isPlace?(c.local||c.name):c.local;if(!who||(isPlace&&c.sure===false))return null;
     const near=(c.address||'').split(',').slice(0,2).join(',')||c.city||'';return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([who,near].filter(Boolean).join(', '))}
   function routeURL(c){
@@ -2292,7 +2298,7 @@ Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
     else s=await summary(n.lang,n.title);
     }
     const prev=cur.name?{name:cur.name,local:cur.local||'',sure:cur.sure,what:cur.what,cool:cur.cool,url:cur.url||null,wiki:cur.wiki||null,deep:cur.deep||{},noAI:!!cur.noAI}:null;
-    const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,address:cur.address,takenAt:cur.takenAt,fromGallery:cur.fromGallery,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},prev,url:s&&s.url,wiki:s&&s.text};
+    const base={img:cur.img,file:cur.file,hasPhoto:cur.hasPhoto,t:cur.t,city:cur.city,address:cur.address,takenAt:cur.takenAt,fromGallery:cur.fromGallery,pos:cur.pos,near:cur.near,osm:cur.osm,deep:{},prev,url:s&&s.url,wiki:s&&s.text,confirmed:!n.retry};
     const plain=()=>{const sentences=((s&&s.text)||'').match(/[^.!?]+[.!?]+/g)||[(s&&s.text)||''];
       return{...base,lang:cfg.lang,noAI:true,name:(s&&s.title)||n.title,sure:true,what:sentences.slice(0,2).join(' ').trim()||(n.kind?`${n.kind[0].toUpperCase()+n.kind.slice(1)} a ${n.dist} m.`:''),cool:''}};
     if(cur.noAI||!cfg.key){openCard(plain());return}
@@ -2419,7 +2425,7 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     if(update&&i>=0&&h[i].name!==item.name)return; // an answer for a version you already replaced
     if(i>=0){if(update){item.deep={...(h[i].deep||{}),...item.deep};const ot=h[i].tr||{};Object.keys(ot).forEach(L=>{item.tr[L]={...ot[L],...(item.tr[L]||{}),deep:{...(ot[L].deep||{}),...((item.tr[L]||{}).deep||{})}}})}item.prev=card.prev||h[i].prev||null;item.city=item.city||h[i].city||'';item.address=item.address||h[i].address||'';h[i]=item}else{item.prev=card.prev||null;h.unshift(item)}
     store.set('history',h.slice(0,500));
-    if(card.file&&!card.photoSaved){card.photoSaved=true;resize(card.file,1400,'blob').then(b=>b&&putPhoto(card.t,b)).catch(()=>{})}
+    if(card.file&&!card.photoSaved){card.photoSaved=true;const t=card.t,f=card.file;memPhoto.set(t,f);resize(f,1400,'blob').then(b=>putPhoto(t,b||f)).catch(()=>putPhoto(t,f)).finally(()=>setTimeout(()=>memPhoto.delete(t),60000))}
     const geoPos=item.pos||card.cityPos;
     if((!item.city||(item.pos&&!item.address))&&geoPos&&!geoPending.has(item.t)){const t=item.t;geoPending.add(t);placeInfo(geoPos).then(({city,address})=>{if(!city&&!address)return;const hh=store.get('history',[]);const x=hh.find(y=>y.t===t);if(x){x.city=x.city||city||'';x.address=address||'';store.set('history',hh)}if(cur&&cur.t===t){cur.city=cur.city||city;cur.address=address;if(view==='result')setMeta(cur)}}).finally(()=>geoPending.delete(t))}
   }
@@ -2515,7 +2521,7 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     const h=store.get('history',[]);$('history').hidden=!h.length;
     const ul=$('history-list');const prevT=renderHome._shown||null;const h0=ul.offsetHeight;ul.innerHTML='';
     h.slice(0,3).forEach(x=>{const li=row(x,()=>openFromHistory(x),'smart');if(prevT&&!prevT.has(x.t))li.classList.add('rowin');ul.appendChild(li)});
-    renderHome._shown=new Set(h.slice(0,3).map(x=>x.t));$('hist-all').hidden=h.length<=3;
+    renderHome._shown=new Set(h.slice(0,3).map(x=>x.t));$('hist-all').hidden=h.length<=3;$('hist-all-t').textContent=cfg.lang==='en'?`See all ${h.length}`:`Ver los ${h.length}`;
     if(prevT&&view==='home'){const h1=ul.offsetHeight;if(h0&&h1&&h0!==h1){ul.style.overflow='hidden';ul.style.height=h0+'px';void ul.offsetHeight;ul.style.transition='height .34s cubic-bezier(.2,.7,.2,1)';ul.style.height=h1+'px';clearTimeout(ul._ht);ul._ht=setTimeout(()=>{ul.style.height='';ul.style.overflow='';ul.style.transition=''},360)}}
     $('home-pending').hidden=!(photosPending>0);
     {const n=qList().length;const el=$('home-queue');el.hidden=!n;if(n)el.innerHTML=(qBusy&&navigator.onLine?'<span class="spin"></span>':'<span class="qdot"></span>')+t_(qBusy&&navigator.onLine?(n===1?'Mirando la foto que guardaste…':'Mirando las fotos que guardaste…'):(n===1?'1 foto esperando conexión':`${n} fotos esperando conexión`))}
