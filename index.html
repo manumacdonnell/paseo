@@ -1043,11 +1043,10 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 .inmem{display:flex;align-items:center;gap:6px;margin:0 0 6px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}.inmem svg{width:15px;height:15px}.inmem[hidden]{display:none}
 .loading-hint{position:absolute;left:24px;right:24px;bottom:calc(env(safe-area-inset-bottom,0px) + 104px);text-align:center;color:var(--faint);font-size:13px;margin:0}
 .ask-row .sub{white-space:normal;margin-top:3px}.ask-row>a:has(.sub),.ask-row>button:has(.sub){padding:12px 0!important}
-.rtime{display:grid;grid-template-columns:auto 1fr auto;column-gap:14px;row-gap:10px;align-items:center;width:100%;margin:20px 0 0;padding:4px 0 2px;border:0;background:transparent;color:var(--ink);text-align:left;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease;animation:rowin .4s cubic-bezier(.2,.7,.2,1) both}.rtime[hidden]{display:none}.rtime:active{opacity:.55}
-.tm-y{font-family:var(--serif);font-size:34px;line-height:.9;color:var(--ink);letter-spacing:-.01em}
-.tm-txt{display:flex;flex-direction:column;gap:3px;min-width:0}.tm-txt b{font-weight:500;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tm-txt em{font-style:normal;font-size:13px;color:var(--muted)}
-.tm-go{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.tm-go svg{width:14px;height:14px}
-.tm-rule{grid-column:1/-1;position:relative;height:9px;border-bottom:1px solid var(--faint)}.tm-rule i{position:absolute;bottom:0;width:1px;height:5px;background:var(--faint)}.tm-rule b{position:absolute;bottom:-1px;width:2px;height:11px;margin-left:-1px;background:var(--ink)}
+.rtime{display:flex;align-items:center;gap:12px;width:100%;margin:14px 0 0;padding:0;border:0;background:transparent;color:var(--ink);text-align:left;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease;animation:rowin .4s cubic-bezier(.2,.7,.2,1) both}.rtime[hidden]{display:none}.rtime:active{opacity:.55}
+.tm-y{font-family:var(--serif);font-size:30px;line-height:1;color:var(--ink);letter-spacing:-.01em;flex:none}
+.tm-txt{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;line-height:1.25}.tm-txt b{font-weight:400;font-size:14px;color:var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tm-txt em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.tm-go{display:flex;color:var(--faint);flex:none}.tm-go span{display:none}.tm-go svg{width:16px;height:16px}.tm-rule{display:none}
 .tl{display:flex;flex-direction:column;max-height:62svh;overflow:auto;padding-bottom:6px}
 .tl{max-height:64vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px 6px}
 .tl-top{display:flex;align-items:baseline;gap:12px;padding:6px 0 16px}.tl-top b{font-family:var(--serif,Georgia,serif);font-size:44px;font-weight:400;line-height:1;color:var(--ink);letter-spacing:-.01em}.tl-top span{font-size:15px;color:var(--muted)}
@@ -1171,7 +1170,6 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
         <p class="label">Qué es</p>
         <p id="r-what"></p>
         <button class="rtime" id="r-time" hidden aria-label="La ciudad en el tiempo"></button>
-        <a class="gmaps" id="r-gmaps" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg><span>Fotos y reseñas en Google Maps</span></a>
       </div>
       <div class="block cool" id="r-cool-wrap">
         <p class="label">Un dato curioso</p>
@@ -1191,6 +1189,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div class="ask askbottom" id="ask-panel" hidden>
         <button class="more-head" id="more-head" aria-expanded="false"><span>Más</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         <div class="more-body" id="more-body" hidden><div class="ask-row">
+          <a class="route" id="r-gmaps" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab">Fotos y reseñas</span><span class="sub">En Google Maps.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
           <a class="route" id="btn-route" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab" id="route-label">Cómo llegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></a>
           <button id="btn-saverow" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="txt"><span class="lab">Guardar la foto</span></span></button>
           <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab">Preguntar a ChatGPT</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
@@ -1381,7 +1380,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.18 · 13:00</p>
+    <p class="note small ver" translate="no">manu-go · v 4.19 · 13:10</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
