@@ -352,6 +352,7 @@ body{font-size:17px;line-height:1.5;letter-spacing:0}
 /* home dock: the shutter is the hero, gallery sits beside it like a camera app */
 .homemeta{text-align:center;margin-bottom:-4px}
 .dock{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:4px 0 0}
+.ld-moment{margin-top:22px;font-size:12px!important}.ld-moment[hidden]{display:none}
 .camode{display:flex;justify-content:center;gap:22px;margin:4px 0 2px}.camode button{background:transparent;border:0;padding:6px 2px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);transition:color .2s ease}.camode button.on{color:var(--ink)}
 .big .shutter::after{transition:background-color .25s ease,transform .25s cubic-bezier(.2,.7,.2,1)}.big.moment .shutter::after{background:var(--danger)!important;transform:scale(.62)}
 .big{padding:0}
@@ -1122,7 +1123,6 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
       </form>
     </div>
     <p class="homemeta" id="homemeta"></p>
-    <div class="camode" id="camode" role="group" aria-label="Modo de la cámara"><button data-v="look" class="on">Mirar</button><button data-v="moment">Momento</button></div>
     <div class="dock">
       <button class="dockside" id="btn-upload" aria-label="Subir una foto que ya tienes"><i class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13v4.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2H11"/><circle cx="8.5" cy="10" r="1.5"/><path d="M20.5 16l-4.5-4.5-8 8"/><path d="M18 9V2.5M15.2 5.2 18 2.5l2.8 2.7"/></svg></i><span>Subir foto</span></button>
       <button class="big" id="btn-photo" aria-label="¿Qué estoy mirando? Sacar una foto"><span class="shutter" aria-hidden="true"></span></button>
@@ -1147,6 +1147,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p id="loading-text">Mirando la foto…</p>
     <p class="scan" id="loading-scan" aria-hidden="true"></p>
     <p class="loading-hint">Puedes sacar otra foto mientras se procesa esta.</p>
+    <button class="jn-b ld-moment" id="ld-moment" hidden>Solo guardarla para mi diario</button>
   </section>
 
   <!-- CARD -->
@@ -1385,7 +1386,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.22 · 20:30</p>
+    <p class="note small ver" translate="no">manu-go · v 4.23 · 20:40</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1780,8 +1781,9 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
 
   // ---------- photo flow ----------
   // MOMENTO: a photo just for your diary, no looking it up; it opens straight on its diary page
-  let camMode='look';function camSet(v){camMode=v;$('camode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('btn-photo').classList.toggle('moment',v==='moment');$('btn-photo').setAttribute('aria-label',v==='moment'?t_('Sacar una foto para tu diario'):t_('¿Qué estoy mirando? Sacar una foto'))}
-  $('camode').onclick=e=>{const b=e.target.closest('button');if(b)camSet(b.dataset.v)};
+  let camMode='look';const camSet=v=>{camMode=v};
+  const cancelSeq=new Set();let lastShot=null;
+  $('ld-moment').onclick=()=>{const L=lastShot;if(!L||L.seq!==photoSeq)return;cancelSeq.add(L.seq);$('ld-moment').hidden=true;saveMoment(L.f)};
   async function saveMoment(f){camSet('look');let pos=null;try{if(!posPromise||Date.now()-posAt>30000)locate();pos=await Promise.race([posPromise,wait(2500).then(()=>lastKnown)])}catch(e){}
     const img=await resize(f,800,'dataurl').catch(()=>null);const t=Date.now(),hm=new Date(t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'});
     const card={t,lang:cfg.lang,tr:{},name:`${t_('Momento')} · ${hm}`,kind:'moment',cat:'moment',sure:true,what:'',cool:'',img,file:f,hasPhoto:true,pos:pos?{lat:pos.lat,lon:pos.lon,acc:pos.acc||30}:null,city:pos?cityNear(pos):'',takenAt:t,deep:{}};
@@ -1872,7 +1874,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
   async function processPhotoNow(f,fromGallery,hint,queued){
     if(!queued&&navigator.onLine===false){if(!posPromise||Date.now()-posAt>30000)locate();let p=null;if(!fromGallery)p=await Promise.race([posPromise,wait(4000).then(()=>lastKnown)]);await queuePhoto(f,fromGallery,hint,p);return}
     if(queued){return processQueued(f,queued)}
-    const seq=++photoSeq;const mine=()=>seq===photoSeq;const setL=t=>{if(mine()&&view==='loading')$('loading-text').textContent=t};
+    const seq=++photoSeq;const mine=()=>seq===photoSeq&&!cancelSeq.has(seq);lastShot={seq,f,fromGallery};$('ld-moment').hidden=false;const setL=t=>{if(mine()&&view==='loading')$('loading-text').textContent=t};
     const T0=performance.now();window._tm={};const mark=k=>{window._tm[k]=((performance.now()-T0)/1000).toFixed(1)};window._mark=mark;
     status('');show('loading');$('loading-text').textContent='Mirando la foto…';$('loading-scan').textContent='';$('loading-scan').style.opacity='';clearInterval(scanPlaces.t);backTo=null;
     let img=null,pos=null,near=[],osm=[],note='';
@@ -1898,6 +1900,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
       const base={__seq:seq,img,file:f,pos,near,osm,deep:{},fromGallery,city:pos?cityNear(pos):'',takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});mark('done');store.set('lastTiming',{...window._tm,model:lastModel});
     }catch(err){
+      if(cancelSeq.has(seq))return;
       if(!mine()||(view!=='loading'&&view!=='result')){if(err.message!=='LIMIT'&&!/key|API_KEY|PERMISSION|403|400/i.test(err.message||''))await queuePhoto(f,fromGallery,hint,pos,true);return}   // you left while it failed: keep it and try again, never lose it
       if(err.message==='LIMIT'&&pos){cur={img,file:f,pos,near,osm,noAI:true,deep:{},fromGallery};showAlts(true,errText(err)+' Mientras, elige lo que estás mirando y te enseño Wikipedia.');return}
       if(err instanceof TypeError&&!navigator.onLine){await queuePhoto(f,fromGallery,hint,pos);return}
@@ -1944,7 +1947,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
   // fills the card as the words arrive, then applies the "nearest café" safety net and saves it to the map
   async function streamCard(parts,base,ctx){
     let shown=false;const myRun=base._bg?-1:++runId;
-    const here=()=>!base._bg&&(base.__seq?base.__seq===photoSeq:runId===myRun)&&(view==='result'||view==='loading');
+    const here=()=>!base._bg&&!(base.__seq&&cancelSeq.has(base.__seq))&&(base.__seq?base.__seq===photoSeq:runId===myRun)&&(view==='result'||view==='loading');
     const onText=txt=>{
       if(!here())return;
       const {o,done}=parseCard(txt);
@@ -1979,6 +1982,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     if(!(o.COOL||'').trim()&&(o.WHAT||'').trim()){   // a curious fact always has its place on the card
       try{const out=await gemini([{text:`Esto es "${name}". Ya se dijo: "${o.WHAT}". Escribe 1 frase (máximo 25 palabras) con el dato más sorprendente o menos conocido sobre esto EN ESTE PAÍS O CIUDAD, distinto de lo anterior. Si no sabes nada seguro de este sitio en concreto, cuenta algo cierto y concreto de su barrio, su calle o de lo que es (p. ej. de ese plato o esa costumbre aquí). Empieza directamente por el dato. ${RULES()}\nDevuelve JSON: {"cool": "..."}`}],{fast:true});if(out&&out.cool)o.COOL=out.cool}catch(e){}
     }
+    if(base.__seq&&cancelSeq.has(base.__seq))return;   // kept as a diary moment instead
     delete base._bg;const card={...base,lang:cfg.lang,tr:{},name,local:o.LOCAL,sure,src:srcTag,kind:isThing?'thing':'place',what:o.WHAT||'',cool:o.COOL||'',cat:(o.CATEGORY||'').trim().toLowerCase(),year:/^(food|drink|object|nature|animal|person|activity|other)$/.test((o.CATEGORY||'').trim().toLowerCase())?0:(()=>{const m=String(o.YEAR||'').match(/-?\d{3,4}/);const y=m?+m[0]:0;return y>-3000&&y<=new Date().getFullYear()?y:0})(),terms:(o.TERMS||'').split('|').map(x=>x.trim().replace(/^["«“]|["»”.]$/g,'')).filter(x=>x&&x.length<40&&x.toLowerCase()!==name.toLowerCase()).slice(0,3),alsos:(o.ALSO||'').split('|').map(x=>x.trim().replace(/^["«“]|["»”.]$/g,'')).filter(x=>x&&x.length<48&&x.toLowerCase()!==name.toLowerCase()).slice(0,3)};
     if(here()){card._typed=shown;openCard(card);return}
     // you went somewhere else meanwhile: keep it in Recientes / Mi mapa without pulling you back
