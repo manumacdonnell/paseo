@@ -423,18 +423,16 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .diary{display:flex;flex-direction:column;gap:22px;padding-top:6px}
 .dy-head{display:flex;gap:14px;align-items:center}.dy-th{width:58px;height:58px;border-radius:10px;object-fit:cover;flex:none;background:var(--raise)}.dy-th[hidden]{display:none}
 .dy-k{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.dy-head h2{font-size:30px;line-height:1.02}
-.dy-rec{display:flex;flex-direction:column;align-items:center;gap:14px;padding:30px 0 24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.dy-rec[hidden]{display:none}
-.dy-mic{width:92px;height:92px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;transition:transform .15s ease}.dy-mic:active{transform:scale(.94)}.dy-mic svg{width:34px;height:34px}
 .dy-hint{margin:0;max-width:290px;text-align:center;color:var(--muted);font-size:15px;line-height:1.45}.dy-write{font-size:12px!important}
-.diary .recbar,.diary .jcomp{margin-top:0}
-.recbar{display:flex;align-items:center;gap:12px;margin-top:14px;height:48px;padding:0 6px 0 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface);animation:rowin .3s cubic-bezier(.2,.7,.2,1) both}.recbar[hidden]{display:none}
+.dy-empty{margin:0;padding:22px 0 0;border-top:1px solid var(--line);color:var(--muted);font-size:16px;line-height:1.5;max-width:330px}.dy-empty[hidden]{display:none}
+.diary .journal{border-top:1px solid var(--line);padding-top:18px}.diary .journal[hidden]{display:none}.dy-write{align-self:flex-start;margin-top:-6px}
+.dyfab{position:fixed;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);width:58px;height:58px;border-radius:50%;border:0;background:var(--ink);color:var(--bg);display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.55);z-index:700;transition:transform .15s ease}.dyfab[hidden]{display:none}.dyfab:active{transform:scale(.94)}.dyfab svg{width:24px;height:24px}
+.jn-t.editing{outline:none;border-bottom:1px solid var(--muted);padding-bottom:4px}.jn-t:empty::before{content:attr(data-ph);color:var(--faint)}
+.recbar{position:fixed;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);z-index:760;max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;height:58px;box-shadow:0 8px 24px rgba(0,0,0,.45);padding:0 6px 0 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface);animation:rowin .3s cubic-bezier(.2,.7,.2,1) both}.recbar[hidden]{display:none}
 .rdot{width:9px;height:9px;border-radius:50%;background:var(--danger);flex:none;animation:recp 1.2s ease-in-out infinite}@keyframes recp{50%{opacity:.25}}
 .rec-t{font-family:var(--mono);font-size:13px;color:var(--ink);min-width:36px}.rlev{flex:1;height:3px;border-radius:2px;background:var(--line);overflow:hidden}.rlev b{display:block;height:100%;background:var(--ink);transform-origin:left;transform:scaleX(.04);transition:transform .08s linear}
 .rec-x,.rec-w{background:transparent;border:0;color:var(--muted);font-size:14px;padding:0 6px;display:grid;place-items:center;height:36px}.rec-x svg,.rec-w svg{width:19px;height:19px}.jcomp .rec-x{font-size:14px}.rec-ok{height:36px;padding:0 16px;border-radius:999px;border:0;background:var(--ink);color:var(--bg);font-size:14px;font-weight:600}
 .placetools .jwrite{width:36px;padding:0!important;justify-content:center}.placetools .jwrite svg{margin:0}
-.jcomp{margin-top:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:12px 12px 10px 16px;animation:rowin .3s cubic-bezier(.2,.7,.2,1) both}.jcomp[hidden]{display:none}
-.jcomp textarea{width:100%;border:0;background:transparent;color:var(--ink);font-family:var(--serif);font-size:20px;line-height:1.35;resize:none;outline:none;padding:0;min-height:84px}
-.jcomp-b{display:flex;justify-content:flex-end;align-items:center;gap:14px;margin-top:6px}
 .journal .jn{padding:16px 0;border-top:1px solid var(--line)}.journal .jn:first-of-type{border-top:0;padding-top:0}
 .jn-b[hidden]{display:none}.jn-h{display:flex;align-items:center;gap:14px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}.jn-h span{flex:1}
 .jn-b{background:transparent;border:0;padding:4px 0;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-decoration:underline;text-underline-offset:3px;text-decoration-color:color-mix(in srgb,currentColor 40%,transparent)}
@@ -1224,11 +1222,12 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   <!-- DIARIO: its own page, so the card stays clean -->
   <section class="diary" id="v-diary" hidden>
     <div class="dy-head"><img class="dy-th" id="dy-th" alt=""><div class="dy-ht"><p class="dy-k" id="dy-k">Diario</p><h2 id="dy-name"></h2></div></div>
-    <div class="dy-rec" id="dy-rec"><button class="dy-mic" id="dy-mic" aria-label="Grabar una nota"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button><p class="dy-hint">Toca y cuenta lo que ves, lo que piensas o lo que te pasó aquí. Se guarda con tus palabras.</p><button class="jn-b dy-write" id="dy-write">O escríbelo</button></div>
-    <div class="recbar" id="recbar" hidden><i class="rdot"></i><span class="rec-t" id="rec-t">0:00</span><span class="rlev"><b id="rec-lev"></b></span><button class="rec-w" id="rec-w" aria-label="Mejor escribirlo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button><button class="rec-x" id="rec-x" aria-label="Descartar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><button class="rec-ok" id="rec-ok">Listo</button></div>
-    <div class="jcomp" id="jcomp" hidden><textarea id="jcomp-t" rows="3" placeholder="Lo que quieras contar de esto…"></textarea><div class="jcomp-b"><button class="rec-x" id="jcomp-x" style="width:auto">Cancelar</button><button class="rec-ok" id="jcomp-ok">Guardar</button></div></div>
+    <p class="dy-empty" id="dy-empty">Toca el micrófono y cuéntalo como te salga. Se guarda con tus palabras.</p>
     <div class="journal" id="r-journal" hidden><div id="r-notes"></div></div>
+    <button class="jn-b dy-write" id="dy-write">O escríbelo</button>
   </section>
+  <button class="dyfab" id="dyfab" hidden aria-label="Grabar una nota"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg></button>
+  <div class="recbar" id="recbar" hidden><i class="rdot"></i><span class="rec-t" id="rec-t">0:00</span><span class="rlev"><b id="rec-lev"></b></span><button class="rec-w" id="rec-w" aria-label="Mejor escribirlo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></button><button class="rec-x" id="rec-x" aria-label="Descartar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><button class="rec-ok" id="rec-ok">Listo</button></div>
   <section class="alts" id="v-alts" hidden>
     <div class="fix-ctx" id="alts-ctx" hidden><img id="alts-thumb" alt=""><div><p class="fix-k">Lo identifiqué como</p><p class="fix-was" id="alts-was"></p></div></div>
     <h2 id="alts-title">¿Qué es, entonces?</h2>
@@ -1380,7 +1379,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.19 · 13:10</p>
+    <p class="note small ver" translate="no">manu-go · v 4.20 · 13:35</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1437,7 +1436,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   let cur=null; // the card on screen
   let view='home';
   var scrollMem={},goBack=false,pendY=null;
-  function show(v){if(rec&&v!=='diary')recStop(true);if(v!=='diary'&&jEdit)closeComposer();document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();if(prev==='result'&&v!=='result'&&!['ask','alts','story'].includes(v))resetCardUI();view=v;const fabOn=['result','mymap','settings','all','loading'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
+  function show(v){if(rec&&v!=='diary')recStop(true);if(v!=='diary'&&jEdit&&document.activeElement)document.activeElement.blur();$('dyfab').hidden=v!=='diary'||!!rec;document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();if(prev==='result'&&v!=='result'&&!['ask','alts','story'].includes(v))resetCardUI();view=v;const fabOn=['result','mymap','settings','all','loading'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -1456,27 +1455,33 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     const f=TINTS.map(([ink,pap],k)=>{const a=hx(ink),b=hx(pap);const tv=ch=>Array.from({length:N},(_,i)=>{const c=curve(i/(N-1));return (a[ch]+c*(b[ch]-a[ch])).toFixed(3)}).join(' ');
       return `<filter id="tint${k}" color-interpolation-filters="sRGB" x="0" y="0" width="100%" height="100%"><feColorMatrix in="SourceGraphic" type="matrix" values="0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0.2126 0.7152 0.0722 0 0 0 0 0 1 0" result="l"/><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/><feColorMatrix in="n" type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 0 1" result="nl"/><feComposite in="l" in2="nl" operator="arithmetic" k1="0" k2="1" k3="0.16" k4="-0.08" result="g"/><feComponentTransfer in="g" result="c"><feFuncR type="table" tableValues="${tv(0)}"/><feFuncG type="table" tableValues="${tv(1)}"/><feFuncB type="table" tableValues="${tv(2)}"/></feComponentTransfer><feComposite in="c" in2="SourceAlpha" operator="in"/></filter>`}).join('');
     const d=document.createElement('div');d.innerHTML=`<svg width="0" height="0" style="position:absolute" aria-hidden="true">${f}</svg>`;document.body.appendChild(d.firstChild)})();
-  // ---------- Diario: talk instead of typing. Each note is kept as audio and as your own words, on the place's card ----------
+  // ---------- Diario: talk instead of typing. Each note is kept as audio and as your own words, on the place ----------
+  // Nothing you say is ever lost: the audio is written to the phone every second while you talk, and every note that
+  // still needs its text is retried on its own — when you come back to the app, when the signal returns, at start-up.
   const jGet=t=>(store.get('journal',{})[t]||[]);const jSet=(t,arr)=>{const J=store.get('journal',{});if(arr.length)J[t]=arr;else delete J[t];store.set('journal',J)};
-  let rec=null;const jBusy=new Set();
-  const MIC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/></svg>';
+  const jPatch=(t,id,patch)=>jSet(t,jGet(t).map(n=>n.id===id?{...n,...patch}:n));
+  let rec=null,jEdit=null;const jBusy=new Set();
+  function jRefresh(t){if(cur&&cur.t==t){if(view==='diary')paintJournal(cur);noteLabel(cur)}}
+  function flash(msg){status(msg);clearTimeout(flash._t);flash._t=setTimeout(()=>{if($('status').textContent===msg)status('')},3000)}
   function pickMime(){for(const m of ['audio/mp4','audio/webm;codecs=opus','audio/webm','audio/ogg']){try{if(MediaRecorder.isTypeSupported(m))return m}catch(e){}}return ''}
-  async function recStart(){if(rec||!cur||cur.noAI)return;
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){status(t_('Este navegador no deja grabar audio: escríbelo.'),true);openComposer(cur);return}
-    if(!cur.t)saveDiscovery(false,cur);const card=cur;
-    let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(e){status(t_('Sin permiso para el micrófono: escríbelo aquí. Para grabar, actívalo en Ajustes del iPhone › Safari › Micrófono.'),true);openComposer(card);return}
+  async function recStart(){if(rec||!cur||cur.noAI)return;if(!cur.t)saveDiscovery(false,cur);const card=cur;
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder){status(t_('Este navegador no deja grabar audio: escríbelo.'),true);newTextNote(card);return}
+    let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(e){status(t_('Sin permiso para el micrófono: escríbelo. Para grabar, actívalo en Ajustes del iPhone › Safari › Micrófono.'),true);newTextNote(card);return}
     try{stopVoice()}catch(e){}if(jAudio){jAudio.pause();jAudio=null}
-    const mime=pickMime();let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)}catch(e){mr=new MediaRecorder(stream)}const chunks=[];mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+    const mime=pickMime();let mr;try{mr=new MediaRecorder(stream,mime?{mimeType:mime}:undefined)}catch(e){mr=new MediaRecorder(stream)}const mt=((mr.mimeType||mime||'audio/mp4').split(';')[0]);
+    const id=Date.now(),t=card.t;jSet(t,[...jGet(t),{id,at:id,dur:0,text:'',st:'rec'}]);const chunks=[];
+    mr.ondataavailable=e=>{if(e.data&&e.data.size){chunks.push(e.data);putPhoto('aud|'+id,new Blob(chunks,{type:mt}))}};   // saved as you speak
     let ac=null,an=null,buf=null;try{ac=new (window.AudioContext||window.webkitAudioContext)();const src=ac.createMediaStreamSource(stream);an=ac.createAnalyser();an.fftSize=512;src.connect(an);buf=new Uint8Array(an.fftSize)}catch(e){}
-    rec={mr,stream,chunks,ac,an,buf,t0:Date.now(),card,mime:mr.mimeType||mime};mr.start(1000);
-    $('recbar').hidden=false;$('dy-rec').hidden=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}
+    rec={mr,stream,chunks,ac,an,buf,t0:Date.now(),card,mt,id,t};mr.start(1000);$('recbar').hidden=false;$('dyfab').hidden=true;try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}jRefresh(t);
     const tick=()=>{if(!rec)return;const s=Math.floor((Date.now()-rec.t0)/1000);$('rec-t').textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
       if(an){an.getByteTimeDomainData(buf);let m=0;for(let i=0;i<buf.length;i++)m=Math.max(m,Math.abs(buf[i]-128));$('rec-lev').style.transform=`scaleX(${Math.max(.04,Math.min(1,m/60)).toFixed(2)})`}
       if(s>=300){recStop(true);return}rec.raf=requestAnimationFrame(tick)};tick()}
-  function recStop(keep){const r=rec;if(!r)return;rec=null;cancelAnimationFrame(r.raf);$('recbar').hidden=true;$('dy-rec').hidden=false;
-    r.mr.onstop=async()=>{try{r.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{r.ac&&r.ac.close()}catch(e){}if(!keep)return;
-      const blob=new Blob(r.chunks,{type:(r.mime||'audio/mp4').split(';')[0]});const dur=Math.round((Date.now()-r.t0)/1000);if(blob.size<1200||Date.now()-r.t0<900){status(t_('Muy corto. Habla al menos un segundo.'));return}
-      const id=Date.now();await putPhoto('aud|'+id,blob);const t=r.card.t;jSet(t,[...jGet(t),{id,at:id,dur,text:'',st:'wait'}]);status(t_('Guardado en tu diario. Lo paso a texto…'));if(cur&&cur.t===t){paintJournal(cur);noteLabel(cur)}transcribe(t,id)};
+  function recStop(keep,then){const r=rec;if(!r)return;rec=null;cancelAnimationFrame(r.raf);$('recbar').hidden=true;$('dyfab').hidden=view!=='diary';
+    r.mr.onstop=async()=>{try{r.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{r.ac&&r.ac.close()}catch(e){}const dur=Math.round((Date.now()-r.t0)/1000);
+      const drop=()=>{jSet(r.t,jGet(r.t).filter(n=>n.id!==r.id));delPhoto('aud|'+r.id);jRefresh(r.t)};
+      if(!keep){drop();then&&then();return}
+      const blob=new Blob(r.chunks,{type:r.mt});if(blob.size<1200||Date.now()-r.t0<900){drop();flash(t_('Muy corto. Habla al menos un segundo.'));return}
+      await putPhoto('aud|'+r.id,blob);jPatch(r.t,r.id,{st:'wait',dur});jRefresh(r.t);flash(t_('Guardado. Lo paso a texto…'));transcribe(r.t,r.id)};
     try{r.mr.state!=='inactive'?r.mr.stop():r.mr.onstop()}catch(e){r.mr.onstop()}}
   // Gemini reads plain 16 kHz WAV everywhere; the phone's own recording is kept for listening back
   async function toWav16(blob){const ab=await blob.arrayBuffer();const tmp=new (window.AudioContext||window.webkitAudioContext)();let au;
@@ -1486,41 +1491,55 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     const ab2=new ArrayBuffer(44+d.length*2),v=new DataView(ab2),w=(o,s2)=>{for(let i=0;i<s2.length;i++)v.setUint8(o+i,s2.charCodeAt(i))};
     w(0,'RIFF');v.setUint32(4,36+d.length*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,d.length*2,true);
     for(let i=0;i<d.length;i++){const x=Math.max(-1,Math.min(1,d[i]));v.setInt16(44+i*2,x<0?x*0x8000:x*0x7FFF,true)}return new Blob([ab2],{type:'audio/wav'})}
-  async function transcribe(t,id){if(jBusy.has(id))return;jBusy.add(id);const set=patch=>{jSet(t,jGet(t).map(n=>n.id===id?{...n,...patch}:n));if(cur&&cur.t===t){if(view==='diary')paintJournal(cur);noteLabel(cur)}};
+  async function transcribe(t,id){if(jBusy.has(id))return;jBusy.add(id);const t0=Date.now();let again=false;
     try{if(!cfg.key)throw new Error('KEY');const raw=await getPhoto('aud|'+id);if(!raw)throw new Error('noaudio');let b=raw,mt=(raw.type||'audio/mp4').split(';')[0];
       try{b=await toWav16(raw);mt='audio/wav'}catch(e){}
-      const data=(await blobToDataURL(b)).split(',')[1];const h=store.get('history',[]).find(x=>x.t===t)||{};const nm=LV(h).name||h.name||'';
+      const data=(await blobToDataURL(b)).split(',')[1];const h=store.get('history',[]).find(x=>x.t==t)||{};const nm=LV(h).name||h.name||'';
       const out=await gemini([{inline_data:{mime_type:mt,data}},{text:`Transcribe esta nota de voz. La graba alguien caminando por la calle${nm?`, delante de "${nm}"`:''}${h.city?`, en ${h.city}`:''}.
 Escribe lo que dice con SUS palabras, en su orden y con su forma de hablar: voseo, modismos, palabras en inglés tal cual las dice. Solo quita muletillas y titubeos ("eh", "este", "o sea" repetido, palabras dichas dos veces por error) y pon puntuación y párrafos donde respira.
 No resumas, no mejores el estilo, no traduzcas, no agregues ni una palabra. Escribe bien los nombres propios de lugares${nm?` (p. ej. "${nm}")`:''}. Si no se entiende nada, text vacío.
 Devuelve JSON: {"text": "..."}`}],{fast:true});
-      const tx=String(out&&out.text||'').trim();set({st:tx?'ok':'empty',text:tx})}
-    catch(e){set({st:'err',why:e.message==='KEY'?'key':''})}finally{jBusy.delete(id)}}
+      const tx=String(out&&out.text||'').trim();jPatch(t,id,{st:tx?'ok':'empty',text:tx,tries:0})}
+    catch(e){const n=jGet(t).find(x=>x.id===id);const tries=(n&&n.tries||0)+1;
+      if(e.message==='noaudio'&&n&&n.dur===0)jSet(t,jGet(t).filter(x=>x.id!==id));                 // a recording that never got any sound
+      else if(e.message==='KEY')jPatch(t,id,{st:'err',why:'key'});
+      else if(cutByLeaving(e,t0)||!navigator.onLine||e instanceof TypeError||tries<4){jPatch(t,id,{st:'wait',tries});again=true}   // left the app or lost signal: it stays in line
+      else jPatch(t,id,{st:'err',why:'',tries})}
+    finally{jBusy.delete(id);jRefresh(t)}if(again){const n=jGet(t).find(x=>x.id===id);clearTimeout(jRetry._t);jRetry._t=setTimeout(jRetry,Math.min(60000,8000*((n&&n.tries)||1)))}}
+  function jRetry(){if(document.hidden||!navigator.onLine||!cfg.key)return;const J=store.get('journal',{});
+    Object.keys(J).forEach(k=>J[k].forEach(n=>{if(n.st==='rec'&&!(rec&&rec.id===n.id))jPatch(k,n.id,{st:'wait'});if((n.st==='wait'||n.st==='rec')&&!(rec&&rec.id===n.id)&&!jBusy.has(n.id))transcribe(isNaN(+k)?k:+k,n.id)}))}
+  setTimeout(jRetry,3000);window.addEventListener('online',()=>setTimeout(jRetry,1500));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){if(rec)recStop(true)}else setTimeout(jRetry,1500)});   // the phone locks or you switch app: keep what you said
   let jAudio=null;
   async function playNote(id,btn){if(jAudio&&jAudio._id===id){jAudio.pause();jAudio=null;btn.textContent=t_('Escuchar');return}if(jAudio){jAudio.pause();jAudio=null}
     const b=await getPhoto('aud|'+id);if(!b){btn.textContent=t_('Sin audio');return}try{stopVoice()}catch(e){}const u=URL.createObjectURL(b);const a=new Audio(u);a._id=id;jAudio=a;btn.textContent=t_('Parar');
     a.onended=a.onpause=()=>{btn.textContent=t_('Escuchar');if(jAudio===a)jAudio=null;setTimeout(()=>URL.revokeObjectURL(u),1000)};a.play().catch(()=>{btn.textContent=t_('Escuchar')})}
-  function paintJournal(c){const box=$('r-journal'),list=$('r-notes');const ns=c&&c.t?jGet(c.t):[];box.hidden=!ns.length;list.innerHTML='';
+  const caretEnd=el=>{try{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r)}catch(e){}};
+  // edit right on the text: tap «Editar», type, tap «Listo» (or anywhere else)
+  function editInline(c,n,p,ed){if(p.isContentEditable){p.blur();return}p.contentEditable='true';p.classList.add('editing');ed.textContent=t_('Listo');jEdit={t:c.t,id:n.id};p.focus();caretEnd(p);
+    p.onblur=()=>{p.contentEditable='false';p.classList.remove('editing');ed.textContent=t_('Editar');jEdit=null;const v=p.innerText.trim();if(v&&v!==n.text){jPatch(c.t,n.id,{text:v,st:'ok',edited:1});flash(t_('Guardado.'))}else p.textContent=n.text}}
+  function newTextNote(c){if(!c)return;if(!c.t)saveDiscovery(false,c);if(view!=='diary'){openDiary();}
+    const list=$('r-notes');$('r-journal').hidden=false;$('dy-empty').hidden=true;const el=document.createElement('div');el.className='jn';const hd=document.createElement('div');hd.className='jn-h';const tm=document.createElement('span');tm.textContent=new Date().toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'});hd.appendChild(tm);
+    const p=document.createElement('p');p.className='jn-t editing';p.dataset.ph=t_('Escribe lo que quieras…');p.contentEditable='true';el.append(hd,p);list.appendChild(el);jEdit={t:c.t,id:0};p.focus();el.scrollIntoView({block:'center',behavior:'smooth'});
+    p.onblur=()=>{jEdit=null;const v=p.innerText.trim();if(v){const id=Date.now();jSet(c.t,[...jGet(c.t),{id,at:id,text:v,st:'ok',typed:1}]);flash(t_('Guardado.'))}paintJournal(c);noteLabel(c)}}
+  function paintJournal(c){const list=$('r-notes');const ns=c&&c.t?jGet(c.t):[];$('r-journal').hidden=!ns.length;$('dy-empty').hidden=!!ns.length;$('dy-write').textContent=t_(ns.length?'Escribir una nota':'O escríbelo');list.innerHTML='';
     ns.forEach(n=>{const el=document.createElement('div');el.className='jn';const hd=document.createElement('div');hd.className='jn-h';
       const tm=document.createElement('span');tm.textContent=new Date(n.at).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'})+(n.dur?`  ·  ${n.dur<60?n.dur+' s':Math.floor(n.dur/60)+' min '+String(n.dur%60).padStart(2,'0')}`:'');
-      const play=document.createElement('button');play.className='jn-b';play.textContent=t_('Escuchar');play.onclick=()=>playNote(n.id,play);play.hidden=!!n.typed;const ed=document.createElement('button');ed.className='jn-b';ed.textContent=t_('Editar');ed.onclick=()=>openComposer(c,n);ed.hidden=n.st!=='ok';
-      const del=document.createElement('button');del.className='jn-b';del.textContent=t_('Borrar');del.onclick=()=>{if(del.dataset.sure){jSet(c.t,jGet(c.t).filter(x=>x.id!==n.id));delPhoto('aud|'+n.id);paintJournal(c);noteLabel(c);return}del.dataset.sure='1';del.textContent=t_('¿Seguro?');setTimeout(()=>{if(del.isConnected){delete del.dataset.sure;del.textContent=t_('Borrar')}},2600)};
-      hd.append(tm,play,ed,del);const p=document.createElement('p');p.className='jn-t';
-      if(n.st==='wait'){p.textContent=t_('Transcribiendo…');p.classList.add('wait');if(!jBusy.has(n.id))transcribe(c.t,n.id)}
-      else if(n.st==='err'){p.classList.add('wait');p.textContent=t_(n.why==='key'?'Falta la clave de Gemini para transcribir. El audio está guardado.':'No pude transcribirlo. El audio está guardado. ');const r=document.createElement('button');r.className='jn-b';r.textContent=t_('Reintentar');r.onclick=()=>{jSet(c.t,jGet(c.t).map(x=>x.id===n.id?{...x,st:'wait'}:x));paintJournal(c)};p.appendChild(r)}
+      const p=document.createElement('p');p.className='jn-t';
+      const play=document.createElement('button');play.className='jn-b';play.textContent=t_('Escuchar');play.onclick=()=>playNote(n.id,play);play.hidden=!!n.typed||n.st==='rec';
+      const ed=document.createElement('button');ed.className='jn-b';ed.textContent=t_('Editar');ed.onmousedown=e=>e.preventDefault();ed.onclick=()=>editInline(c,n,p,ed);ed.hidden=n.st!=='ok';
+      const del=document.createElement('button');del.className='jn-b';del.textContent=t_('Borrar');del.hidden=n.st==='rec';del.onclick=()=>{if(del.dataset.sure){jSet(c.t,jGet(c.t).filter(x=>x.id!==n.id));delPhoto('aud|'+n.id);paintJournal(c);noteLabel(c);return}del.dataset.sure='1';del.textContent=t_('¿Seguro?');setTimeout(()=>{if(del.isConnected){delete del.dataset.sure;del.textContent=t_('Borrar')}},2600)};
+      hd.append(tm,play,ed,del);
+      if(n.st==='rec'&&rec&&rec.id===n.id){p.textContent=t_('Grabando…');p.classList.add('wait')}
+      else if(n.st==='wait'||n.st==='rec'){p.textContent=t_('Pasando a texto… El audio ya está guardado.');p.classList.add('wait')}
+      else if(n.st==='err'){p.classList.add('wait');p.textContent=t_(n.why==='key'?'Falta la clave de Gemini para pasarlo a texto. El audio está guardado.':'No pude pasarlo a texto. El audio está guardado. ');const r=document.createElement('button');r.className='jn-b';r.textContent=t_('Reintentar');r.onclick=()=>{jPatch(c.t,n.id,{st:'wait',tries:0});paintJournal(c);transcribe(c.t,n.id)};p.appendChild(r)}
       else if(n.st==='empty'){p.classList.add('wait');p.textContent=t_('No se oyó nada.')}else p.textContent=n.text;
       el.append(hd,p);list.appendChild(el)})}
-  let jEdit=null;
-  function openComposer(c,note){if(rec)return;if(!c)return;if(!c.t)saveDiscovery(false,c);jEdit={t:c.t,id:note?note.id:null};$('jcomp').hidden=false;$('dy-rec').hidden=true;const ta=$('jcomp-t');ta.value=note?note.text:'';setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},60)}
-  function closeComposer(){jEdit=null;$('jcomp').hidden=true;$('jcomp-t').blur();if(!rec)$('dy-rec').hidden=false}
-  $('btn-write').onclick=()=>openComposer(cur);$('jcomp-x').onclick=closeComposer;
-  $('jcomp-ok').onclick=()=>{const v=$('jcomp-t').value.trim();const e=jEdit;if(!e){closeComposer();return}if(v){if(e.id)jSet(e.t,jGet(e.t).map(n=>n.id===e.id?{...n,text:v,st:'ok',edited:1}:n));else{const id=Date.now();jSet(e.t,[...jGet(e.t),{id,at:id,text:v,st:'ok',typed:1}])}}closeComposer();if(cur&&cur.t===e.t){paintJournal(cur);noteLabel(cur)}if(v)status(t_('Guardado en tu diario.'))};
-  $('rec-w').onclick=()=>{const c=rec&&rec.card;recStop(false);setTimeout(()=>openComposer(c||cur),60)};
+  $('rec-ok').onclick=()=>recStop(true);$('rec-x').onclick=()=>recStop(false);$('rec-w').onclick=()=>{const c=rec&&rec.card;recStop(false,()=>newTextNote(c||cur))};
   function noteLabel(c){const n=c&&c.t?jGet(c.t).length:0;$('btn-note').querySelector('span').textContent=n?`${t_('Diario')} · ${n}`:t_('Contar')}
   function openDiary(){if(!cur||cur.noAI)return;if(!cur.t)saveDiscovery(false,cur);const V=LV(cur);$('dy-name').textContent=V.name||cur.name||'';$('dy-k').textContent=[t_('Diario'),cur.city].filter(Boolean).join('  ·  ');
-    const th=$('dy-th');th.hidden=!cur.img;if(cur.img){th.src=cur.img;th.dataset.tint=tintOf(cur.t)}paintJournal(cur);show('diary')}
-  $('btn-note').onclick=openDiary;$('dy-mic').onclick=()=>recStart();$('dy-write').onclick=()=>openComposer(cur);$('rec-ok').onclick=()=>recStop(true);$('rec-x').onclick=()=>recStop(false);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&rec)recStop(true)});   // the phone locks or you switch app: keep what you said
+    const th=$('dy-th');th.hidden=!cur.img;if(cur.img){th.src=cur.img;th.dataset.tint=tintOf(cur.t)}paintJournal(cur);show('diary');setTimeout(jRetry,600)}
+  $('btn-note').onclick=openDiary;$('dyfab').onclick=()=>recStart();$('dy-write').onclick=()=>newTextNote(cur);
   const memPhoto=new Map();   // photos still being written to disk: never open a card without its photo
   async function getPhoto(t){let r=null;try{const d=await idb();r=await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){}return r||memPhoto.get(t)||null}
   async function delPhoto(t){try{const d=await idb();await new Promise(res=>{const tx=d.transaction('photos','readwrite');tx.objectStore('photos').delete(t);tx.oncomplete=res;tx.onerror=res})}catch(e){}}
