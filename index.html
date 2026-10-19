@@ -431,6 +431,9 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .dy-k{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.dy-head h2{font-size:30px;line-height:1.02}
 .dy-hint{margin:0;max-width:290px;text-align:center;color:var(--muted);font-size:15px;line-height:1.45}.dy-write{font-size:12px!important}
 .eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps h2{font-size:34px;line-height:1.02}
+.eps-ideas .eps-ih{margin:0}.eps-ideas:not(.open) .eps-sug{display:none}.eps-ideas:not(.open) .eps-ih::after{transform:rotate(45deg) translate(-2px,-2px)}.eps-ideas.open .eps-ih{margin-bottom:12px}.eps-ideas[hidden]{display:none}
+.eps-ok{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;display:flex;flex-direction:column;gap:6px}.eps-ok[hidden]{display:none}.eps-okk{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.eps-okt{margin:0;font-family:var(--serif);font-size:26px;line-height:1.1;color:var(--ink)}
+.eps-okb{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.eps-okb .gem-save{padding:9px 16px}.eps-opts{display:flex;flex-direction:column;margin-top:4px}.eps-opts button{border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;font-family:var(--serif);font-size:22px;line-height:1.15;padding:12px 0;transition:opacity .15s ease}.eps-opts button:active{opacity:.55}
 .eps-sug{display:flex;flex-wrap:wrap;gap:8px}.eps-sug button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:14px;text-align:left;transition:opacity .15s ease}.eps-sug button:active{opacity:.55}.eps-wait{color:var(--muted);font-size:14px}
 .eps-list{display:flex;flex-direction:column}.epi{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}.epi:first-child{border-top:0}
 .epi-main{flex:1;min-width:0;display:flex;align-items:center;gap:14px;padding:12px 0;border:0;background:transparent;color:var(--ink);text-align:left;transition:opacity .15s ease}.epi-main:active{opacity:.55}
@@ -1216,6 +1219,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div class="ask askbottom" id="ask-panel" hidden>
         <button class="more-head" id="more-head" aria-expanded="false"><span>Más</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         <div class="more-body" id="more-body" hidden><div class="ask-row">
+          <button id="btn-epcard" hidden><span class="txt"><span class="lab">Escuchar un episodio</span><span class="sub">La historia de fondo, unos 20 minutos.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg></button>
           <a class="route" id="r-gmaps" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab">Fotos y reseñas</span><span class="sub">En Google Maps.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></a>
           <a class="route" id="btn-route" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab" id="route-label">Cómo llegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></a>
           <button id="btn-saverow" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="txt"><span class="lab">Guardar la foto</span></span></button>
@@ -1252,8 +1256,9 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   <!-- EPISODIOS -->
   <section class="eps" id="v-eps" hidden>
     <div><p class="dy-k" id="eps-k">Episodios</p><h2>Para escuchar caminando</h2></div>
-    <form class="q-form eps-form" id="eps-form" autocomplete="off"><input id="eps-input" enterkeyhint="go" placeholder="¿De qué quieres que te cuente?" aria-label="Tema del episodio"><button type="submit" aria-label="Crear el episodio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
-    <div class="eps-sug" id="eps-sug"></div>
+    <form class="q-form eps-form" id="eps-form" autocomplete="off"><input id="eps-input" enterkeyhint="go" placeholder="Un lugar, una época, alguien…" aria-label="Tema del episodio"><button type="submit" aria-label="Crear el episodio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
+    <div class="eps-ok" id="eps-ok" hidden></div>
+    <div class="eps-ideas" id="eps-ideas"><button class="ep-ch eps-ih" id="eps-ih"><span id="eps-iht">Ideas</span></button><div class="eps-sug" id="eps-sug"></div></div>
     <div id="eps-mine" hidden><p class="label">Tus episodios</p><div class="eps-list" id="eps-list"></div></div>
   </section>
   <section class="ep" id="v-ep" hidden>
@@ -1425,7 +1430,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.36 · 14:05</p>
+    <p class="note small ver" translate="no">manu-go · v 4.37 · 14:30</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1601,7 +1606,7 @@ Devuelve JSON: {"text": "..."}`}],{fast:true});
   const epN=ep=>ep.outline?ep.outline.chapters.length:6;
   const epMins=ep=>{const w=(ep.chapters||[]).filter(Boolean).join(' ').split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round((ep.st==='ok'?w:epN(ep)*430)/140))};
   const EP_OPEN=['una escena concreta, en presente, como si pasara ahora (un lugar, una hora, alguien haciendo algo)','una persona: quién era y qué estaba por pasarle','un dato que descoloca y obliga a seguir escuchando','el narrador presentando el tema a su manera, con la pregunta grande que lo vuelve inevitable (p. ej. "El tema que les traigo hoy es de esos que hielan la sangre, de los que te hacen preguntarte cómo pudo pasar… y cómo pudo el mundo mirar para otro lado")','un objeto o un documento concreto y la historia que esconde','una cita breve y real (de alguien de la época, un escritor o un pensador) que plantea la pregunta del episodio, dicha con su autor, y enseguida la historia'];
-  function epOutline(topic,city){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos 20 minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.
+  function epOutline(topic,city,from){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos 20 minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.${from?`\nNace de una ficha breve que el oyente ya escuchó sobre «${from.name}»${from.what?` (${from.what})`:''}: no repitas lo de la ficha; cuenta la historia de fondo, más amplia, y si encaja, pasa por ese sitio en algún momento como un lugar más de la historia.`:''}
 Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "...", "beats": ["...", "..."]}], "ending": "..."} con 6 capítulos.
 - "opening": cómo arranca el primer capítulo. Esta vez prueba con ${op}; si no le queda bien a este tema, elige otra forma que enganche. Que cada episodio empiece distinto.
 - Arco: un comienzo que engancha; un desarrollo en orden que se entiende sin saber nada antes; un final que deja pensando.
@@ -1628,7 +1633,7 @@ Devuelve JSON: {"text": "..."}`}
   async function epTry(fn){let last;for(let k=0;k<4;k++){try{return await fn()}catch(e){last=e;if(e.message==='KEY')throw e;await wait([2500,7000,15000,30000][k])}}throw last}
   const epBusy=new Set();
   async function epWrite(id){if(epBusy.has(id))return;epBusy.add(id);let ep=epGet(id);if(!ep){epBusy.delete(id);return}
-    try{if(!ep.outline){const o=await epTry(async()=>{const r=await gemini([{text:epOutline(ep.topic,ep.city)}],{fast:true});if(!r||!Array.isArray(r.chapters)||!r.chapters.length)throw new Error('outline');return r});
+    try{if(!ep.outline){const o=await epTry(async()=>{const r=await gemini([{text:epOutline(ep.topic,ep.city,ep.from)}],{fast:true});if(!r||!Array.isArray(r.chapters)||!r.chapters.length)throw new Error('outline');return r});
         o.chapters=o.chapters.slice(0,7);ep=epGet(id)||ep;ep.outline=o;ep.chapters=ep.chapters||[];epSave(ep);epPaint(id)}
       const n=ep.outline.chapters.length;
       const one=async i=>{if((epGet(id)||ep).chapters[i])return;const cur0=epGet(id)||ep;const out=await epTry(async()=>{const r=await gemini([{text:epChapter(cur0,i)}],{fast:true});const t=String(r&&r.text||'').replace(/\*\*|__|#+\s/g,'').trim();if(!t)throw new Error('chapter');return t});
@@ -1683,9 +1688,9 @@ Devuelve JSON: {"text": "..."}`}
   function openEp(id){const ep=epGet(id);if(!ep)return;$('v-ep').dataset.id=String(id);const cv=$('ep-cover');cv.classList.remove('in');cv.removeAttribute('src');$('ep-now').hidden=true;$('ep-now')._seg=null;show('ep');
     const b=$('ep-listen');b._label=t_('Escuchar');pillSet(b,'idle');if(active&&active.src==='ep|'+id)reattach(b);epPaint(id);clearInterval(epSyncT);epSyncT=setInterval(epSync,400);
     if((ep.st==='writing'||ep.st==='part')&&!epBusy.has(id)){if(ep.st==='part'){ep.st='writing';epSave(ep)}epWrite(id)}if(!epCv.has(id))getPhoto('epc|'+id).then(x=>{if(!x)epMakeCover(ep).then(()=>epPaint(id))})}
-  function epNew(topic){topic=epCap(topic);if(!topic)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
+  function epNew(topic,from){topic=epCap(topic);if(!topic)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap, so it can start on its own later
-    const id=Date.now();const ep={id,topic,city:epCity(),title:topic,chapters:[],st:'writing',at:id,lang:cfg.lang};epSave(ep);epMakeCover(ep).then(()=>epPaint(id));openEp(id);
+    const id=Date.now();const ep={id,topic,city:epCity(),title:topic,chapters:[],st:'writing',at:id,lang:cfg.lang,...(from?{from}:{})};epSave(ep);epMakeCover(ep).then(()=>epPaint(id));openEp(id);
     const first=setInterval(()=>{const e=epGet(id);if(!e||e.st==='err'){clearInterval(first);return}if(epReady(e)){clearInterval(first);if(view!=='ep'||$('v-ep').dataset.id!=String(id))epReadyNote(e)}},700)}   // never starts on its own: you choose when to listen
   function epReadyNote(ep){const el=$('ntoast');$('ntoast-text').innerHTML='';$('ntoast-text').append(t_('Listo para escuchar')+' · ');const b=document.createElement('b');b.textContent=ep.title;$('ntoast-text').append(b);
     $('ntoast-go').onclick=()=>{nOut();openEp(ep.id)};el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false;clearTimeout(readyNote.t);readyNote.t=setTimeout(nOut,6000)}
@@ -1702,8 +1707,29 @@ Devuelve JSON: {"text": "..."}`}
     a.splice(i,1);store.set('episodes',a);pendingDelete={ep:item,i};
     $('toast-text').innerHTML='';$('toast-text').append(t_('Borrado')+' · ');{const b=document.createElement('b');b.textContent=item.title;$('toast-text').append(b)}{const el=$('toast');el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false}
     clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);setTimeout(epList,0)}
-  function openEps(){show('eps');const city=epCity();$('eps-k').textContent=[t_('Episodios'),city].filter(Boolean).join('  ·  ');epList();epSuggest(city)}
-  $('btn-eps').onclick=openEps;$('eps-form').onsubmit=e=>{e.preventDefault();const v=$('eps-input').value;$('eps-input').value='';$('eps-input').blur();epNew(v)};
+  function openEps(){show('eps');const city=epCity();$('eps-k').textContent=[t_('Episodios'),city].filter(Boolean).join('  ·  ');epList();epSuggest(city);
+    $('eps-iht').textContent=city?t_('Ideas en')+' '+city:t_('Ideas');$('eps-ideas').hidden=!city||!cfg.key;$('eps-ideas').classList.toggle('open',store.get('epsIdeas',null)??!epAll().length);if(!epOkBusy)$('eps-ok').hidden=true}
+  $('eps-ih').onclick=()=>{const b=$('eps-ideas');b.classList.toggle('open');store.set('epsIdeas',b.classList.contains('open'))};
+  // before writing twenty minutes about a typo: a quick look, and a question only when something changed
+  let epOkBusy=0;const epNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}]+/gu,'');
+  function epOk(kicker,body){const b=$('eps-ok');b.hidden=false;b.innerHTML='';const k=document.createElement('p');k.className='eps-okk';k.textContent=kicker;b.appendChild(k);if(body)body(b)}
+  function epOkBtns(b,go,altLabel,alt){const r=document.createElement('div');r.className='eps-okb';const g=document.createElement('button');g.className='gem-save';g.textContent=t_('Crear el episodio');g.onclick=go;const a=document.createElement('button');a.className='gem-save gem-alt';a.textContent=altLabel;a.onclick=alt;r.append(g,a);b.appendChild(r)}
+  const epOkClose=()=>{epOkBusy=0;$('eps-ok').hidden=true};
+  async function epAsk(raw,from){raw=String(raw||'').trim();if(!raw&&!from)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
+    if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap
+    const run=++epOkBusy,city=epCity();epOk(from?t_('Buscando la historia detrás de')+' '+from.name+'…':t_('Un momento…'));let o=null;
+    try{o=await gemini([{text:from?`Alguien está viendo esto en una ficha de su app de viaje: "${from.name}"${from.what?` (${from.what})`:''}${city?`, en ${city}`:''}. Propón el tema de un episodio de podcast de historia de unos 20 minutos que vaya más allá de la ficha: la historia de fondo (la época, el fenómeno, las personas detrás), no una descripción del sitio. De 2 a 6 palabras, concreto, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topic": "..."}`
+      :`Alguien escribió deprisa, quizá caminando por la calle, el tema de un episodio de podcast de historia: "${raw}"${city?` (está de viaje en ${city})`:''}. Corrige solo la ortografía, las tildes y los nombres propios mal escritos, sin cambiar lo que pide ni ampliarlo. Si no se entiende o puede ser cosas muy distintas, da de 2 a 3 lecturas posibles y concretas en "options". Escribe en ${LANG()}. Devuelve JSON: {"topic": "...", "options": []}`}],{fast:true})}catch(e){o=null}
+    if(run!==epOkBusy||view!=='eps')return;
+    const topic=epCap(String(o&&o.topic||'').trim()),opts=((o&&o.options)||[]).map(x=>epCap(String(x).trim())).filter(Boolean).slice(0,3);
+    if(from){if(!topic){epOkClose();return}epOk(t_('Desde')+' '+from.name,b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;b.appendChild(t);
+        epOkBtns(b,()=>{epOkClose();epNew(topic,from)},t_('Otro tema'),()=>{epOkClose();const i=$('eps-input');i.value=topic;i.focus()})});return}
+    if(opts.length>1){epOk(t_('¿Cuál de estos?'),b=>{const l=document.createElement('div');l.className='eps-opts';opts.forEach(x=>{const k=document.createElement('button');k.textContent=x;k.onclick=()=>{epOkClose();epNew(x)};l.appendChild(k)});b.appendChild(l);
+        const r=document.createElement('div');r.className='eps-okb';const a=document.createElement('button');a.className='gem-save gem-alt';a.textContent=t_('Como lo escribí');a.onclick=()=>{epOkClose();epNew(raw)};r.appendChild(a);b.appendChild(r)});return}
+    if(!topic||epNorm(topic)===epNorm(raw)){epOkClose();epNew(topic||raw);return}   // only accents or capitals: fixed quietly
+    epOk(t_('¿Te refieres a…?'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;b.appendChild(t);epOkBtns(b,()=>{epOkClose();epNew(topic)},t_('Como lo escribí'),()=>{epOkClose();epNew(raw)})})}
+  $('btn-epcard').onclick=()=>{if(!cur||!cur.name)return;const v=LV(cur);const from={name:v.name||cur.name,what:String(v.what||cur.what||'').replace(/\s+/g,' ').slice(0,400)};openEps();epAsk('',from)};
+  $('btn-eps').onclick=openEps;$('eps-form').onsubmit=e=>{e.preventDefault();const v=$('eps-input').value;$('eps-input').value='';$('eps-input').blur();epAsk(v)};
   // listening is just listening: the cover alone, the rest one tap away (remembered)
   function epFocus(on){$('v-ep').classList.toggle('focus',on);$('ep-fx').setAttribute('aria-label',t_(on?'Ver el texto':'Solo la portada'));store.set('epFocus',on)}
   $('v-ep').classList.toggle('focus',!!store.get('epFocus',false));$('ep-fx').onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));$('ep-cover').parentElement.onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));
@@ -2679,7 +2705,7 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
   ['ask-chatgpt','ask-claude','ask-copy'].forEach(id=>{const b=$(id);if(b.querySelector('.lab')){b._orig=b.querySelector('.lab').textContent;return}const sp=document.createElement('span');sp.className='lab';sp.textContent=b.textContent;b.textContent='';b.appendChild(sp);b._orig=sp.textContent});
   const askFlash=id=>flashCopied($(id));
   const said=(id,txt)=>{const l=$(id).querySelector('.lab');if(!l)return;clearTimeout(l._t);l.textContent=t_(txt);l._t=setTimeout(()=>{l.textContent=$(id)._orig||l.textContent},2400)};
-  $('more-head').onclick=()=>{const b=$('more-body'),h=$('more-head'),open=h.getAttribute('aria-expanded')!=='true';h.setAttribute('aria-expanded',String(open));slide(b,open)};
+  $('more-head').onclick=()=>{$('btn-epcard').hidden=!(cur&&cur.name&&!cur.noAI&&cur.kind!=='moment');const b=$('more-body'),h=$('more-head'),open=h.getAttribute('aria-expanded')!=='true';h.setAttribute('aria-expanded',String(open));slide(b,open)};
   $('ask-chatgpt').onclick=()=>{if(copyAsk()){askFlash('ask-chatgpt');said('ask-chatgpt','Copiado · pégalo en el chat')}}; // the link itself opens the chat
   $('ask-claude').onclick=()=>{$('ask-claude').href='https://claude.ai/new?q='+encodeURIComponent(askText().replace(/\n\nMi pregunta: $/,'\n\nCuéntame más.'))};
   $('ask-copy').onclick=()=>{if(copyAsk()){askFlash('ask-copy');said('ask-copy','Copiado')}};
