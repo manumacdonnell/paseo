@@ -1027,6 +1027,7 @@ html.photo-tint :is(#r-img,#dy-th,#prep-img,#alts-thumb,#minibar-img,.nd-art,.hn
 .gem-style{width:100%;box-sizing:border-box;background:transparent;border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--ink);font:inherit;font-size:15px;line-height:1.45;resize:none;outline:none}
 .gem-style:focus{border-color:var(--muted)}
 .gem-row{display:flex;align-items:flex-start;gap:12px;margin-top:10px}.gem-row .fl{flex:1;margin:0!important}
+.gem-alt{background:transparent!important;color:var(--ink)!important;box-shadow:inset 0 0 0 1px currentColor}
 .gem-save{flex:none;border:0;border-radius:999px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;padding:9px 18px}
 
 /* player, final: inside the app it lives in the bottom bar, between back and camera, one row, nothing stacked;
@@ -1351,6 +1352,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
         <p class="fl" style="margin-top:16px">Cómo quieres que suene</p>
         <textarea id="s-gem-style" rows="3" class="gem-style" placeholder="Narrador argentino de podcast de historia: cercano, dinámico, acento rioplatense."></textarea>
         <div class="gem-row"><span class="fl auto-help" id="s-gem-state">Por ejemplo: «con acento rioplatense», «más lento», «más alegre».</span><button class="gem-save" id="s-gem-save">Guardar</button></div>
+        <div class="gem-row" id="s-gem-ar" hidden><span class="fl auto-help" id="s-gem-voice"></span><button class="gem-save gem-alt" id="s-gem-next">Otra voz</button></div>
         <p class="fl auto-help" id="s-gem-out" hidden>Cupo gratis agotado hasta mañana · con facturación, ~1 cént. por narración.</p>
       </div>
       <div id="s-voice-sys" hidden><select id="s-sys-voice-es" hidden></select><select id="s-sys-voice-en" hidden></select></div>
@@ -1418,7 +1420,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.31 · 12:30</p>
+    <p class="note small ver" translate="no">manu-go · v 4.32 · 12:45</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1669,7 +1671,7 @@ Devuelve JSON: {"text": "..."}`}
     if(k!==box._last){box._last=k;const kids=$('ep-lyr').children;[...kids].forEach((x,i)=>x.className=i<k?'past':i===k?'now':'');const el=kids[k];if(el){const ly=$('ep-lyr');ly.scrollTo({top:Math.max(0,el.offsetTop-ly.offsetTop-ly.clientHeight*.3),behavior:'smooth'})}}}
   function epPaint(id){if(view!=='ep'||$('v-ep').dataset.id!=String(id))return;const ep=epGet(id);if(!ep)return;$('ep-title').textContent=ep.title;
     $('ep-k').textContent=[t_('Episodio'),ep.city,`${epMins(ep)} min`].filter(Boolean).join('  ·  ');const n=ep.outline?epN(ep):0,k=epReady(ep);
-    $('ep-st').textContent=ep.st==='writing'?(!n?t_('Armando el guion…'):k?(k<n?t_(`Escribiendo los capítulos que faltan (${k} de ${n} listos).`):''):t_('Escribiendo el primer capítulo. Empieza a sonar en cuanto esté.')):ep.st==='err'?t_('No pude escribirlo. Toca «Seguir escribiendo».'):ep.st==='part'?t_('Se cortó a mitad: lo retomo solo, o toca «Seguir escribiendo».'):'';
+    $('ep-st').textContent=ep.st==='writing'?(!n?t_('Armando el guion…'):k?(k<n?t_(`Ya se puede escuchar. Sigo con el resto (${k} de ${n}).`):''):t_('Escribiendo el primer capítulo. Cuando esté, aparece «Escuchar».')):ep.st==='err'?t_('No pude escribirlo. Toca «Seguir escribiendo».'):ep.st==='part'?t_('Se cortó a mitad: lo retomo solo, o toca «Seguir escribiendo».'):'';
     $('ep-more').hidden=!(ep.st==='part'||ep.st==='err');$('ep-listen').hidden=!k;
     const cl=$('ep-chapters');cl.innerHTML='';((ep.outline||{}).chapters||[]).forEach((c,i)=>{const b=document.createElement('button');b.className='epc'+(ep.chapters&&ep.chapters[i]?'':' wait');b.innerHTML='<span class="n"></span><span class="t"></span>';b.querySelector('.n').textContent=String(i+1).padStart(2,'0');b.querySelector('.t').textContent=c.title;b.onclick=()=>{if(ep.chapters&&ep.chapters[i]&&epReady(ep)>i)epPlay(id,i)};cl.appendChild(b)});
     const cv=$('ep-cover');epCover(ep).then(u=>{if(u){cv.src=u;cv.classList.add('in');$('ep-listen')._img=u}})}
@@ -1679,7 +1681,9 @@ Devuelve JSON: {"text": "..."}`}
   function epNew(topic){topic=epCap(topic);if(!topic)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap, so it can start on its own later
     const id=Date.now();const ep={id,topic,city:epCity(),title:topic,chapters:[],st:'writing',at:id,lang:cfg.lang};epSave(ep);epMakeCover(ep).then(()=>epPaint(id));openEp(id);
-    const first=setInterval(()=>{const e=epGet(id);if(!e||e.st==='err'){clearInterval(first);return}if(epReady(e)){clearInterval(first);if(!active&&view==='ep'&&$('v-ep').dataset.id==String(id))epPlay(id)}},700)}
+    const first=setInterval(()=>{const e=epGet(id);if(!e||e.st==='err'){clearInterval(first);return}if(epReady(e)){clearInterval(first);if(view!=='ep'||$('v-ep').dataset.id!=String(id))epReadyNote(e)}},700)}   // never starts on its own: you choose when to listen
+  function epReadyNote(ep){const el=$('ntoast');$('ntoast-text').innerHTML='';$('ntoast-text').append(t_('Listo para escuchar')+' · ');const b=document.createElement('b');b.textContent=ep.title;$('ntoast-text').append(b);
+    $('ntoast-go').onclick=()=>{nOut();openEp(ep.id)};el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false;clearTimeout(readyNote.t);readyNote.t=setTimeout(nOut,6000)}
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;epAll().forEach(e=>{if((e.st==='writing'||e.st==='part')&&!epBusy.has(e.id)&&epReady(e)){e.st='writing';epSave(e);epWrite(e.id)}})});   // back in the app: finish what was cut
   async function epSuggest(city){const box=$('eps-sug');if(!city||!cfg.key){box.innerHTML='';return}const k='epsug|'+city.toLowerCase()+'|'+cfg.lang;let list=store.get(k,null);
     if(!list){box.innerHTML='<span class="eps-wait">'+t_('Buscando historias de')+' '+city+'…</span>';try{const o=await gemini([{text:`Propón 6 temas para episodios de podcast de historia de unos 20 minutos para alguien que está de viaje en ${city}: historias que valga la pena escuchar (un hecho, una época, un barrio, una persona de aquí, alguien célebre que nació o vivió aquí). Variados entre sí. Cada tema, 2 a 6 palabras, concreto y con gancho, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topics": ["...", "..."]}`}],{fast:true});list=(o&&o.topics||[]).slice(0,6).map(String);if(list.length)store.set(k,list)}catch(e){list=[]}}
@@ -4061,7 +4065,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   const GEM_VOICE='Charon';let gemTTSModel=null;
   try{if((store.get('gemStyle','')||'').trim()==='narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.')store.set('gemStyle','')}catch(e){}
   const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.':'a Buenos Aires history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story he tells, with conviction but never shouting. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.');
-  const gemKey=()=>{const t=gemStyle()+'|v8';let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
+  const gemKey=()=>{const t=gemStyle()+'|v9|'+((arCur()||{}).id||'');let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
   const gemBad=new Set();
   async function gemTTSName(){if(gemTTSModel)return gemTTSModel;{const pin=store.get('gemTTSPin','');if(pin&&!gemBad.has(pin)){gemTTSModel=pin;return pin}}   // the same voice model every day: a newer one would sound different
 const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
@@ -4075,14 +4079,62 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     const qf=det.find(d=>/QuotaFailure/.test(d['@type']||''));const qid=qf?(qf.violations||[]).map(v=>v.quotaId||'').join(' '):'';
     const e=new Error(m||('HTTP '+status));e.status=status;e.wait=w;
     e.kind=status===429?(/limit:\s*0\b/.test(m)?'paid':(/PerDay/i.test(qid)||/per day|daily/i.test(m))?'quota':'busy'):(status===401||status===403||/API key/i.test(m))?'key':status===404?'model':status>=500?'server':'other';return e}
-  function pcmToWav(b64,rate){let bin=atob(b64);{const N=bin.length>>1;const smp=i=>{let v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);return v>32767?v-65536:v};
-      const win=Math.round(rate*0.02),loud=1400;let a=0,z=N;const energy=i=>{let m=0;for(let k=i;k<Math.min(N,i+win);k++){const v=Math.abs(smp(k));if(v>m)m=v}return m};
-      for(let i=0;i<N;i+=win){if(energy(i)>loud){a=Math.max(0,i-Math.round(rate*0.08));break}}for(let i=N-win;i>0;i-=win){if(energy(i)>loud){z=Math.min(N,i+win+Math.round(rate*0.22));break}}
-      if(z>a)bin=bin.slice(2*a,2*z)}   // no hiss or radio noise before or after the voice
-    const n=bin.length,buf=new ArrayBuffer(44+n),v=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  function pcmToWav(b64,rate){let bin=atob(b64);
+    if(bin.slice(0,4)==='RIFF'&&bin.slice(8,12)==='WAVE'){let o=12,data=null;while(o+8<=bin.length){const id=bin.slice(o,o+4),sz=(bin.charCodeAt(o+4)|bin.charCodeAt(o+5)<<8|bin.charCodeAt(o+6)<<16|bin.charCodeAt(o+7)<<24)>>>0;
+        if(id==='fmt '){rate=(bin.charCodeAt(o+12)|bin.charCodeAt(o+13)<<8|bin.charCodeAt(o+14)<<16|bin.charCodeAt(o+15)<<24)>>>0||rate}
+        if(id==='data'){data=bin.slice(o+8,Math.min(bin.length,o+8+(sz||bin.length)));break}o+=8+sz+(sz&1)}
+      if(data!=null)bin=data}   // the newer voices come as a WAV file: read only its sound, never its header or tags as noise
+    if(bin.length&1)bin=bin.slice(0,-1);
+    const N=bin.length>>1,pcm=new Int16Array(N);for(let i=0;i<N;i++){const v=bin.charCodeAt(2*i)|(bin.charCodeAt(2*i+1)<<8);pcm[i]=v>32767?v-65536:v}
+    {const win=Math.round(rate*0.02),loud=1400;const W=Math.floor(N/win);const pk=new Float32Array(W),zc=new Float32Array(W);
+      for(let w=0;w<W;w++){let m=0,z=0;for(let k=w*win+1;k<(w+1)*win;k++){const v=pcm[k];if(Math.abs(v)>m)m=Math.abs(v);if((v>=0)!==(pcm[k-1]>=0))z++}pk[w]=m;zc[w]=z/win}
+      const voiced=w=>pk[w]>loud&&zc[w]<0.2;   // voice, not hiss: static crosses zero far more often
+      let a=0,b=W;for(let w=0;w<W;w++){if(pk[w]>loud){a=Math.max(0,w-4);break}}
+      for(let w=W-1;w>=2;w--){if(voiced(w)&&voiced(w-1)&&voiced(w-2)){let e=w;while(e+1<W&&pk[e+1]>loud&&e-w<12)e++;b=Math.min(W,e+12);break}}   // the last word and its breath, then stop
+      if(b>a){const A=a*win,B=Math.min(N,b*win);const out=pcm.subarray(A,B);const f=Math.min(out.length,Math.round(rate*0.12));for(let i=0;i<f;i++)out[out.length-1-i]=Math.round(out[out.length-1-i]*(i/f));const g=Math.min(out.length,Math.round(rate*0.01));for(let i=0;i<g;i++)out[i]=Math.round(out[i]*(i/g));
+        return wavOf(out,rate)}}
+    return wavOf(pcm,rate)}
+  function wavOf(pcm,rate){const n=pcm.length*2,buf=new ArrayBuffer(44+n),v=new DataView(buf);const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
     w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n,true);
-    const u=new Uint8Array(buf,44);for(let i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([buf],{type:'audio/wav'})}
-  async function gemTTS1(text,plain){const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
+    new Int16Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'})}
+  // a real Buenos Aires voice from Google's voice library (Gemini 3.8): the accent lives in the voice, not in instructions
+  const AR_MODEL='gemini-3.8-flash-tts';let arList=null,arLoading=null;
+  const arCur=()=>{const v=store.get('gemVoiceAR',null);return v&&v.id?v:null};
+  async function arVoices(){if(arList)return arList;if(arLoading)return arLoading;
+    arLoading=(async()=>{const base='https://generativelanguage.googleapis.com/v1beta/voices',H={headers:{'x-goog-api-key':cfg.key}};const seen=new Map();
+      const pull=async q=>{let tok='',pg=0;do{const r=await fetch(base+'?page_size=1000'+q+(tok?'&page_token='+encodeURIComponent(tok):''),H);if(!r.ok){const e=new Error('voices '+r.status);e.status=r.status;throw e}const j=await r.json();
+          (j.voices||[]).forEach(v=>{const id=String(v.id||v.name||'').replace(/^voices\//,'');if(id)seen.set(id,{...v,id})});tok=j.next_page_token||j.nextPageToken||'';pg++}while(tok&&pg<4)};
+      const isAR=v=>/argentin|rioplat|porte/i.test([v.accent,v.description,v.persona].join(' '))||/^AR$/i.test(v.region_code||v.regionCode||'')||/^es-AR$/i.test(v.language_code||v.languageCode||'');
+      try{await pull('&accent='+encodeURIComponent('Argentina Spanish'))}catch(e){if(e.status===401||e.status===403)throw e}
+      if(![...seen.values()].some(isAR))await pull('');
+      const male=v=>/^male$/i.test(String(v.gender||''))||(/\bmale\b|\bman\b|hombre/i.test(v.description||'')&&!/female|woman|mujer/i.test(v.description||''));
+      const score=v=>{const d=[v.description,v.persona,v.context,(v.contexts||[]).join(' '),v.display_name||v.displayName].join(' ');let x=0;
+        if(/narrat|storyt|audiobook|documentar|podcast|host|radio|histor|teacher|professor|journalist|lectur|guide/i.test(d))x+=4;
+        const age=+((d.match(/(\d{2})-year/)||[])[1]||0);if(age>=34&&age<=58)x+=3;else if(age&&age<28)x-=3;
+        if(/low|medium/i.test(String(v.pitch||'')))x+=1;if(/child|kid|teen|cartoon|anime|robot/i.test(d))x-=6;return x};
+      arList=[...seen.values()].filter(isAR).filter(male).sort((a,b)=>score(b)-score(a)||String(a.id).localeCompare(String(b.id)));return arList})();
+    try{return await arLoading}finally{arLoading=null}}
+  async function arVoice(){const c=arCur();if(c)return c;if(store.get('gemVoiceARno',0)>Date.now())return null;
+    try{const L=await arVoices();if(!L.length){store.set('gemVoiceARno',Date.now()+864e5);return null}const v={id:L[0].id,name:L[0].display_name||L[0].displayName||'',way:null};store.set('gemVoiceAR',v);return v}
+    catch(e){if(e.status===401||e.status===403)return null;store.set('gemVoiceARno',Date.now()+36e5);return null}}
+  async function gemTTSar(text,v){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
+    const style='Telling a story on a history podcast: warm, conversational and unhurried, engaged but never theatrical. Short breathing pauses; let the last word of every phrase land fully, never rushed.';
+    const ways=v.way?[v.way]:['voice','prebuilt','voice-nostyle'];let last;
+    for(const way of ways){const part={text};if(way!=='voice-nostyle')part.speechMetadata={style};
+      const vc=way==='prebuilt'?{prebuiltVoiceConfig:{voiceName:v.id}}:{voice:v.id};
+      let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${AR_MODEL}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+        body:JSON.stringify({contents:[{parts:[part]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:vc,languageCode:'es-AR'}}})})}
+      catch(e){clearTimeout(tm);throw Object.assign(new Error(e.name==='AbortError'?'tardó demasiado':'sin conexión'),{kind:e.name==='AbortError'?'slow':'net'})}
+      let j=null;try{j=await r.json()}catch(e){}
+      if(r.status===400&&!v.way){last=gemErr(r.status,j);continue}   // learn once which way this API wants the voice
+      clearTimeout(tm);if(!r.ok){const e=gemErr(r.status,j);e.model=AR_MODEL;if(r.status===400||r.status===404)e.kind='arvoice';throw e}
+      const c=((j||{}).candidates||[])[0]||{};const p=((c.content||{}).parts||[]).find(p=>p.inlineData||p.inline_data);const d=p&&(p.inlineData||p.inline_data);
+      if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
+      if(!v.way){v.way=way;const cur=arCur();if(cur&&cur.id===v.id)store.set('gemVoiceAR',{...cur,way})}
+      const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate)}
+    clearTimeout(tm);last=last||new Error('voz');last.kind='arvoice';throw last}
+  async function gemTTS1(text,plain){if(cfg.lang!=='en'){const v=await arVoice();if(v){try{return await gemTTSar(text,v)}catch(e){if(e.kind!=='arvoice')throw e;store.set('gemVoiceAR',null);store.set('gemVoiceARno',Date.now()+36e5)}}}
+    const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
     const style=`### DIRECTOR'S NOTES\nStyle: ${gemStyle()}\n${cfg.lang==='en'?'':'Accent: a real adult man from Buenos Aires, Argentina, speaking Rioplatense Spanish in every word: "ll" and "y" sound like "sh" (sheísmo: "calle" = "cashe", "yo" = "sho"), porteño melody. Never neutral Latin American, never Mexican, never Colombian, never Spain.\n'}Pacing (measured on a real Argentine history podcast): an unhurried conversational tempo, about 4 syllables per second (around 125 words a minute). Short breathing pauses of about a third of a second every few words, as in live speech; a longer pause, around one second, only after a statement that matters. Before every pause, slow down slightly on the last two syllables and let the final word land fully: never speed up or clip the end of a phrase. Wide, natural pitch range. Many phrases end suspended, with a slight rise that keeps the story open, the way Rioplatense storytellers do; a sentence that closes an idea falls. When a word is repeated for emphasis, say it a little louder and slower. Tag questions like "¿no?" and "¿viste?" rise naturally.\nLanguage: ${cfg.lang==='en'?'English':'Spanish (Argentina)'}. Read only the transcript, word for word; never read these notes.\n\n#### TRANSCRIPT\n`;   // Google's format: everything above TRANSCRIPT directs the voice and is not spoken
     let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
       body:JSON.stringify({contents:[{parts:[{text:(plain?'':style)+text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:GEM_VOICE}}}}})})}
@@ -4185,6 +4237,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(b.classList.contains('is-pause')){player.play().then(()=>pillSet(b,'play')).catch(()=>{});return}
       listenStop();return}
     listenStop();if(!text)return;const isEp=String(key||'').startsWith('ep|');if(isEp&&!useEL())text=text.replace(/\n§§\n/g,'\n\n');
+    if(!useEL()&&outNow()&&noSysES()){status(t_('Se acabó la voz gratis de Gemini por hoy. Mañana vuelve la misma voz.'),true);return}   // never another accent instead
     if(!useEL()){const pr=prepScript(text);if(!pr.done&&scriptMem.get('say|'+sayNumbers(text))){const run=++listenRun;active={btn:b};pillSet(b,'load');await Promise.race([pr.catch(()=>{}),wait(4000)]);if(run!==listenRun)return;active=null}sysListen(b,text,key,!outNow()?'':elOut.day?outNote():elOut.why+' '+t_('Suena la voz del iPhone hasta dentro de un rato.'));return}
     if(!player||!player._h){if(!player){player=new Audio();player.playsInline=true}player._h=1;
       player.onended=()=>{const A=active;if(player.src===SILENT||!A||!A.segs)return;const n=A.i+1;if(A.segs[n])playSeg(A,n).catch(e=>{if(active===A&&A.fail)A.fail(e,n)});else if(A.more){A.waiting=true;pillSet(A.btn,'load')}else listenStop()};
@@ -4199,6 +4252,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     }catch(e){fail(e)}
     function fail(e,at){if(active!==A)return;
       if(isEp&&e&&e.name!=='NotAllowedError'){const k=e&&e.kind;if(k==='quota'&&cfg.voice==='gem'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(t_(k==='quota'?'Se acabó la voz gratis de Gemini por hoy. El episodio queda guardado: mañana sigue con la misma voz.':'La voz se cortó. Toca Escuchar para seguir.'),true);return}   // an episode never switches to another voice halfway
+      if(noSysES()&&!(e&&e.name==='NotAllowedError')){const k=e&&e.kind;if(k==='quota'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(k==='quota'?t_('Se acabó la voz gratis de Gemini por hoy. Mañana vuelve la misma voz.'):voiceWhy(e),true);return}   // the iPhone has no Buenos Aires voice: better silence than another accent
       if(hasSys()&&!(e&&e.name==='NotAllowedError'&&!at)){const k=e&&e.kind,gem=cfg.voice==='gem';const why=voiceWhy(e);
         if(k==='quota'||k==='paid'||(gem&&k==='key')){elOut={v:cfg.voice,t:Date.now(),why,...(gem&&k==='quota'?{day:ptDay()}:{})};store.set('voiceOut',elOut)}
         const rest=A.segs&&at?A.segs.slice(at).map(x=>x.text).join('\n\n'):text;listenStop();sysListen(b,rest,key+(at?'|'+at:''),gem&&k==='quota'?outNote():why+' '+t_('Sigue la voz del iPhone.'));return}
@@ -4210,6 +4264,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   const hasSys=()=>'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';
   const ptDay=()=>{try{return new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'})}catch(e){return new Date().toDateString()}};
   var elOut=store.get('voiceOut',null);const outNow=()=>!!elOut&&elOut.v===cfg.voice&&(elOut.day?elOut.day===ptDay():Date.now()-elOut.t<3600e3);
+  const noSysES=()=>cfg.voice==='gem'&&cfg.lang!=='en'&&!/es[-_]ar/i.test(((sysVoice('es')||{}).lang)||'');
   const useEL=()=>((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!outNow();
   function outNote(){if(store.get('outSaid','')===ptDay())return '-';store.set('outSaid',ptDay());return t_('Voz de Gemini agotada por hoy: suena la del iPhone.')}
   function voiceWhy(e){const k=e&&e.kind,m=String(e&&e.message||'').split(/[\n.]/)[0].slice(0,90);
@@ -4244,7 +4299,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   function fillSysVoices(){const L0=cfg.lang==='en'?'en':'es';['es','en'].forEach(L=>{const sel=L===L0?$('s-sys-voice-cur'):$('s-sys-voice-'+L);const vs=sysVoices(L).sort((a,b)=>vScore(b)-vScore(a)||a.name.localeCompare(b.name));const curV=sysVoice(L);
     sel.innerHTML='';const curL=sysLang(L);Object.keys(LANGN).filter(k=>k.startsWith(L+'-')).forEach(k=>{const d=document.createElement('option');d.value='lang:'+k;d.textContent=`${t_('La del iPhone')} · ${t_(LANGN[k])}`;if(!curV&&k===curL)d.selected=true;sel.appendChild(d)});
     if(curV){const o=document.createElement('option');o.value=curV.voiceURI;o.textContent=curV.name;o.selected=true;sel.appendChild(o)}})}
-  function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';$('s-gem-out').hidden=!(cfg.voice==='gem'&&outNow()&&elOut.day);if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
+  function voiceUI(){segSet('s-auto-seg',cfg.autoListen?'listen':'read');$('s-auto-help').textContent=t_(cfg.autoListen?'La voz empieza a contártelo sola.':'Lo lees tú. Para oírlo, toca «Escuchar».');segSet('s-voice-seg',cfg.voice);$('s-voice-el').hidden=cfg.voice!=='el';$('s-voice-gem').hidden=cfg.voice!=='gem';arUI();if(cfg.voice==='gem'&&cfg.key&&!arCur()&&cfg.lang!=='en')arVoice().then(arUI);$('s-gem-out').hidden=!(cfg.voice==='gem'&&outNow()&&elOut.day);if(document.activeElement!==$('s-gem-style'))$('s-gem-style').value=store.get('gemStyle','');
     $('s-voice-row').hidden=cfg.voice!=='iphone'||!hasSys();if(cfg.voice==='iphone')fillSysVoices();$('s-voice-more').hidden=$('s-voice-row').hidden||!!sysVoice()}
   $('s-auto-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.autoListen=v==='listen';store.set('autoListen',cfg.autoListen);voiceUI()};
   let gemTry=0;$('s-gem-save').onclick=async()=>{store.set('gemStyle',$('s-gem-style').value.trim());listenStop();elOut=null;store.set('voiceOut',null);$('s-gem-out').hidden=true;const st=$('s-gem-state'),btn=$('s-gem-save');const run=++gemTry;
@@ -4256,6 +4311,14 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play();say(t_('Guardado. Así suena.'),'var(--live)');back(3000)}
     catch(e){if(run===gemTry){say(voiceWhy(e),'var(--danger,#c0392b)');back(9000)}}
     finally{btn.disabled=false}};
+  function arUI(){const c=arCur(),r=$('s-gem-ar');r.hidden=!(cfg.lang!=='en'&&c);if(c)$('s-gem-voice').textContent=t_('Voz de Buenos Aires')+(c.name?' · '+c.name:'')}
+  let arTry=0;$('s-gem-next').onclick=async()=>{if(!cfg.key)return;const run=++arTry,btn=$('s-gem-next'),st=$('s-gem-voice');listenStop();
+    if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});btn.disabled=true;st.textContent=t_('Buscando otra voz…');
+    try{const L=await arVoices();if(!L.length)throw new Error('none');const c=arCur();const i=c?L.findIndex(v=>v.id===c.id):-1;const n=L[(i+1)%L.length];
+      const v={id:n.id,name:n.display_name||n.displayName||'',way:c&&c.way||null};store.set('gemVoiceAR',v);arUI();
+      const bl=await gemTTSar(t_('Así suena ahora la voz que te cuenta los lugares, ¿viste?'),v);if(run!==arTry)return;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play()}
+    catch(e){if(run===arTry){arUI();if(e.kind)st.textContent=voiceWhy(e)}}finally{btn.disabled=false}};
+  if(cfg.voice==='gem'&&cfg.key&&cfg.lang!=='en')setTimeout(()=>arVoice().catch(()=>{}),1500);   // find the voice early, so the first narration already uses it
   $('s-voice-seg').onclick=e=>{const bt=e.target.closest('button');const v=bt&&bt.dataset.v;if(!v)return;cfg.voice=v;store.set('voice',v);listenStop();voiceUI()};
   $('s-sys-voice-cur').onchange=()=>{const L=cfg.lang==='en'?'en':'es';cfg.sysVoices={...(cfg.sysVoices||{}),[L]:$('s-sys-voice-cur').value};store.set('sysVoices',cfg.sysVoices);
     if(hasSys()){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(L==='en'?'This is how I sound.':'Así sueno yo.');const v=sysVoice(L);if(v){u.voice=v;u.lang=v.lang}else u.lang=sysLang(L);speechSynthesis.speak(u)}catch(e){}}$('s-voice-more').hidden=!!sysVoice(L)};
