@@ -443,10 +443,11 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .ep.focus{min-height:calc(100svh - 120px);justify-content:center}.ep.focus .ep-cvw{width:min(86vw,420px)}.ep.focus .ep-meta,.ep.focus .ep-st,.ep.focus .ep-now,.ep.focus .ep-chw,.ep.focus #ep-more{display:none!important}
 body[data-view="ep"].ep-same #ndock{display:none!important}   /* the page already is the player */
 .ep-meta{display:flex;flex-direction:column;gap:6px}.ep-meta h2{font-size:30px;line-height:1.05}.ep-meta .dy-k{margin:0}
-.ep-ctrl .lrow{display:flex;align-items:center;gap:10px}.ep-ctrl .lpill{margin-top:0;min-width:9.3em}
+.ep-ctrl .lrow{display:flex;align-items:center;gap:10px}.ep-ctrl .lpill{margin-top:0;min-width:9.3em;justify-content:center}.ep.focus .ep-ctrl .lrow{justify-content:center;position:relative}.ep.focus .ep-fx{position:absolute;right:0;top:50%;transform:translateY(-50%)}
 .ep-st{margin:-6px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.ep-st:empty{display:none}#ep-more{align-self:flex-start;margin-top:-10px}#ep-more[hidden],#ep-listen[hidden],.ep-now[hidden]{display:none}
-.ep-now{border-top:1px solid var(--line);padding-top:16px}.ep-ch{margin:0 0 10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.ep-lyr{max-height:36vh;overflow-y:auto;overscroll-behavior:contain;font-family:var(--serif);font-size:23px;line-height:1.38;color:var(--faint);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 80%,transparent);padding:18px 0 40px}
+.ep-now{border-top:1px solid var(--line);padding-top:16px}.ep-ch{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;border:0;background:transparent;padding:0;text-align:left;margin:0 0 10px;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ep-ch::after{content:'';flex:none;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-135deg);margin-right:4px;transition:transform .25s ease}.ep-now.shut .ep-ch::after{transform:rotate(45deg) translate(-2px,-2px)}.ep-now.shut .ep-ch{margin:0}.ep-now.shut .ep-lyr{display:none}
+.ep-lyr{max-height:36vh;overflow:hidden;touch-action:pan-y;font-family:var(--serif);font-size:23px;line-height:1.38;color:var(--faint);-webkit-mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 80%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 12%,#000 80%,transparent);padding:18px 0 40px}
 .ep-lyr span{transition:color .4s ease}.ep-lyr span.past{color:var(--muted)}.ep-lyr span.now{color:var(--ink)}
 .ep-chapters{display:flex;flex-direction:column}.epc{display:flex;gap:14px;align-items:baseline;padding:12px 0;border:0;border-top:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;font-size:15px;transition:opacity .15s ease}.epc:first-child{border-top:0}.epc .n{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}.epc.wait{color:var(--faint)}.epc.on{color:var(--ink);font-weight:500}.epc.on .n{color:var(--live)}.ep-chapters.dim .epc:not(.on){color:var(--muted)}
 .nofx{filter:none!important}
@@ -1260,7 +1261,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div class="ep-meta"><h2 id="ep-title"></h2><p class="dy-k" id="ep-k"></p></div>
     <div class="ep-ctrl"><div class="lrow"><button class="lpill" id="ep-listen" hidden></button><button class="ep-fx" id="ep-fx" aria-label="Solo la portada"><svg class="i-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg><svg class="i-tx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg></button></div></div>
     <p class="ep-st" id="ep-st"></p><button class="jn-b" id="ep-more" hidden>Seguir escribiendo</button>
-    <div class="ep-now" id="ep-now" hidden><p class="ep-ch" id="ep-nowch"></p><div class="ep-lyr" id="ep-lyr"></div></div>
+    <div class="ep-now" id="ep-now" hidden><button class="ep-ch" id="ep-nowch"></button><div class="ep-lyr" id="ep-lyr"></div></div>
     <div class="ep-chw"><p class="label">Capítulos</p><div class="ep-chapters" id="ep-chapters"></div></div>
   </section>
   <!-- DIARIO: its own page, so the card stays clean -->
@@ -1356,7 +1357,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
         <p class="fl" style="margin-top:16px">Cómo quieres que suene</p>
         <textarea id="s-gem-style" rows="3" class="gem-style" placeholder="Narrador argentino de podcast de historia: cercano, dinámico, acento rioplatense."></textarea>
         <div class="gem-row"><span class="fl auto-help" id="s-gem-state">Por ejemplo: «con acento rioplatense», «más lento», «más alegre».</span><button class="gem-save" id="s-gem-save">Guardar</button></div>
-        <div class="gem-row" id="s-gem-ar" hidden><span class="fl auto-help" id="s-gem-voice"></span><button class="gem-save gem-alt" id="s-gem-next">Otra voz</button></div>
+        <div class="gem-row" id="s-gem-ar" hidden><span class="fl auto-help" id="s-gem-voice"></span><button class="gem-save gem-alt" id="s-gem-prev" hidden>La anterior</button><button class="gem-save gem-alt" id="s-gem-next">Otra voz</button></div>
         <p class="fl auto-help" id="s-gem-out" hidden>Cupo gratis agotado hasta mañana · con facturación, ~1 cént. por narración.</p>
       </div>
       <div id="s-voice-sys" hidden><select id="s-sys-voice-es" hidden></select><select id="s-sys-voice-en" hidden></select></div>
@@ -1424,7 +1425,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.35 · 13:45</p>
+    <p class="note small ver" translate="no">manu-go · v 4.36 · 14:05</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1706,6 +1707,7 @@ Devuelve JSON: {"text": "..."}`}
   // listening is just listening: the cover alone, the rest one tap away (remembered)
   function epFocus(on){$('v-ep').classList.toggle('focus',on);$('ep-fx').setAttribute('aria-label',t_(on?'Ver el texto':'Solo la portada'));store.set('epFocus',on)}
   $('v-ep').classList.toggle('focus',!!store.get('epFocus',false));$('ep-fx').onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));$('ep-cover').parentElement.onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));
+  $('ep-now').classList.toggle('shut',!!store.get('epLyrShut',false));$('ep-nowch').onclick=()=>{const b=$('ep-now');b.classList.toggle('shut');store.set('epLyrShut',b.classList.contains('shut'))};
   $('ep-listen').onclick=()=>epPlay(+$('v-ep').dataset.id);$('ep-more').onclick=()=>{const id=+$('v-ep').dataset.id,ep=epGet(id);if(!ep)return;ep.st='writing';epSave(ep);epPaint(id);epWrite(id)};
   const memPhoto=new Map();   // photos still being written to disk: never open a card without its photo
   async function getPhoto(t){let r=null;try{const d=await idb();r=await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){}return r||memPhoto.get(t)||null}
@@ -4076,7 +4078,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   const GEM_VOICE='Charon';let gemTTSModel=null;
   try{if((store.get('gemStyle','')||'').trim()==='narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.')store.set('gemStyle','')}catch(e){}
   const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.':'a Buenos Aires history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story he tells, with conviction but never shouting. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.');
-  const gemKey=()=>{const t=gemStyle()+'|v9|'+((arCur()||{}).id||'');let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
+  const gemKey=()=>{const t=gemStyle()+'|v10|'+((arCur()||{}).id||'');let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
   const gemBad=new Set();
   async function gemTTSName(){if(gemTTSModel)return gemTTSModel;{const pin=store.get('gemTTSPin','');if(pin&&!gemBad.has(pin)){gemTTSModel=pin;return pin}}   // the same voice model every day: a newer one would sound different
 const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
@@ -4122,12 +4124,13 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       const male=v=>/^male$/i.test(String(v.gender||''))||(/\bmale\b|\bman\b|hombre/i.test(v.description||'')&&!/female|woman|mujer/i.test(v.description||''));
       const score=v=>{const d=[v.description,v.persona,v.context,(v.contexts||[]).join(' '),v.display_name||v.displayName].join(' ');let x=0;
         if(/narrat|storyt|audiobook|documentar|podcast|host|radio|histor|teacher|professor|journalist|lectur|guide/i.test(d))x+=4;
-        const age=+((d.match(/(\d{2})-year/)||[])[1]||0);if(age>=34&&age<=58)x+=3;else if(age&&age<28)x-=3;
+        const age=+((d.match(/(\d{2})-year/)||[])[1]||0);if(age>=30&&age<=39)x+=5;else if(age>=40&&age<=45)x+=1;else if(age>45)x-=2;else if(age&&age<27)x-=3;
         if(/low|medium/i.test(String(v.pitch||'')))x+=1;if(/child|kid|teen|cartoon|anime|robot/i.test(d))x-=6;return x};
       arList=[...seen.values()].filter(isAR).filter(male).sort((a,b)=>score(b)-score(a)||String(a.id).localeCompare(String(b.id)));return arList})();
     try{return await arLoading}finally{arLoading=null}}
+  {const c=arCur();if(c&&store.get('arAgeV',0)<2){store.set('gemVoiceARprev',c);store.set('gemVoiceAR',null);store.set('arWay',c.way||null)}store.set('arAgeV',2)}   // once: a voice in his thirties; the one before stays one tap away
   async function arVoice(){const c=arCur();if(c)return c;if(store.get('gemVoiceARno',0)>Date.now())return null;
-    try{const L=await arVoices();if(!L.length){store.set('gemVoiceARno',Date.now()+864e5);return null}const v={id:L[0].id,name:L[0].display_name||L[0].displayName||'',way:null};store.set('gemVoiceAR',v);return v}
+    try{const L=await arVoices();if(!L.length){store.set('gemVoiceARno',Date.now()+864e5);return null}const v={id:L[0].id,name:L[0].display_name||L[0].displayName||'',way:store.get('arWay',null)};store.set('gemVoiceAR',v);return v}
     catch(e){if(e.status===401||e.status===403)return null;store.set('gemVoiceARno',Date.now()+36e5);return null}}
   function halves(t){const m=t.length>>1;let i=t.lastIndexOf('\n\n',m+400);if(i<m-600)i=-1;if(i<0){const r=/[.!?…»”][\s]+/g;let best=-1,x;while((x=r.exec(t))){const k=x.index+x[0].length;if(Math.abs(k-m)<Math.abs(best-m))best=k}i=best}if(i<=0)i=t.lastIndexOf(' ',m);return [t.slice(0,i).trim(),t.slice(i).trim()]}
   async function gemTTSar(text,v,raw,depth){try{return await gemTTSar1(text,v,raw)}catch(e){
@@ -4141,7 +4144,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
         throw e}}
     if(last)throw last;throw Object.assign(new Error('quota'),{kind:'quota'})}
   async function gemTTSarM(text,v,raw,AR_MODEL){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
-    const style='Telling a story on a history podcast: warm, conversational and unhurried, engaged but never theatrical. Short breathing pauses; let the last word of every phrase land fully, never rushed.';
+    const style='Telling a story on a history podcast: warm, conversational and unhurried, engaged but never theatrical. Natural pauses; breathe audibly only now and then, never before every sentence. Let the last word of every phrase land fully, never rushed.';
     const ways=v.way?[v.way]:['voice','prebuilt','voice-nostyle'];let last;
     for(const way of ways){const part={text};if(way!=='voice-nostyle')part.speechMetadata={style};
       const vc=way==='prebuilt'?{prebuiltVoiceConfig:{voiceName:v.id}}:{voice:v.id};
@@ -4334,11 +4337,14 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play();say(t_('Guardado. Así suena.'),'var(--live)');back(3000)}
     catch(e){if(run===gemTry){say(voiceWhy(e),'var(--danger,#c0392b)');back(9000)}}
     finally{btn.disabled=false}};
-  function arUI(){const c=arCur(),r=$('s-gem-ar');r.hidden=!(cfg.lang!=='en'&&c);if(c)$('s-gem-voice').textContent=t_('Voz de Buenos Aires')+(c.name?' · '+c.name:'')}
+  function arUI(){const c=arCur(),r=$('s-gem-ar');{const pv=store.get('gemVoiceARprev',null);$('s-gem-prev').hidden=!(pv&&c&&pv.id!==c.id)}r.hidden=!(cfg.lang!=='en'&&c);if(c)$('s-gem-voice').textContent=t_('Voz de Buenos Aires')+(c.name?' · '+c.name:'')}
+  async function arSample(v,run){const bl=await gemTTSar(t_('Así suena ahora la voz que te cuenta los lugares, ¿viste?'),v);if(run!==arTry)return;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play()}
+  $('s-gem-prev').onclick=async()=>{const pv=store.get('gemVoiceARprev',null),c=arCur();if(!pv)return;const run=++arTry;listenStop();if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});
+    store.set('gemVoiceAR',pv);store.set('gemVoiceARprev',c);arUI();try{await arSample(pv,run)}catch(e){if(run===arTry&&e.kind)$('s-gem-voice').textContent=voiceWhy(e)}};
   let arTry=0;$('s-gem-next').onclick=async()=>{if(!cfg.key)return;const run=++arTry,btn=$('s-gem-next'),st=$('s-gem-voice');listenStop();
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});btn.disabled=true;st.textContent=t_('Buscando otra voz…');
     try{const L=await arVoices();if(!L.length)throw new Error('none');const c=arCur();const i=c?L.findIndex(v=>v.id===c.id):-1;const n=L[(i+1)%L.length];
-      const v={id:n.id,name:n.display_name||n.displayName||'',way:c&&c.way||null};store.set('gemVoiceAR',v);arUI();
+      const v={id:n.id,name:n.display_name||n.displayName||'',way:c&&c.way||null};if(c)store.set('gemVoiceARprev',c);store.set('gemVoiceAR',v);arUI();
       const bl=await gemTTSar(t_('Así suena ahora la voz que te cuenta los lugares, ¿viste?'),v);if(run!==arTry)return;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(bl);player.src=player._url;await player.play()}
     catch(e){if(run===arTry){arUI();if(e.kind)st.textContent=voiceWhy(e)}}finally{btn.disabled=false}};
   if(cfg.voice==='gem'&&cfg.key&&cfg.lang!=='en')setTimeout(()=>arVoice().catch(()=>{}),1500);   // find the voice early, so the first narration already uses it
