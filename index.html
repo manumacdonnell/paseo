@@ -430,7 +430,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .dy-head{display:flex;gap:14px;align-items:center}.dy-th{width:58px;height:58px;border-radius:10px;object-fit:cover;flex:none;background:var(--raise)}.dy-th[hidden]{display:none}
 .dy-k{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.dy-head h2{font-size:30px;line-height:1.02}
 .dy-hint{margin:0;max-width:290px;text-align:center;color:var(--muted);font-size:15px;line-height:1.45}.dy-write{font-size:12px!important}
-.eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:6px}.eps h2{font-size:34px;line-height:1.02}
+.eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps h2{font-size:34px;line-height:1.02}
 .eps-sug{display:flex;flex-wrap:wrap;gap:8px}.eps-sug button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:14px;text-align:left;transition:opacity .15s ease}.eps-sug button:active{opacity:.55}.eps-wait{color:var(--muted);font-size:14px}
 .eps-list{display:flex;flex-direction:column}.epi{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}.epi:first-child{border-top:0}
 .epi-main{flex:1;min-width:0;display:flex;align-items:center;gap:14px;padding:12px 0;border:0;background:transparent;color:var(--ink);text-align:left;transition:opacity .15s ease}.epi-main:active{opacity:.55}
@@ -858,7 +858,7 @@ html[data-theme="light"] .pin{border-color:#fff!important;box-shadow:none!import
 .home>.history:not([hidden])~.quick{margin-top:30px}
 .top h1{cursor:pointer}
 
-.topicons{display:flex;align-items:center;gap:2px}
+.topicons{display:flex;align-items:center;gap:2px}#btn-eps{margin-right:8px}
 /* in the dark you see the sun (tap for day); in the day you see the moon */
 #btn-theme .i-moon{display:none}
 html[data-theme="light"] #btn-theme .i-moon{display:block}
@@ -1418,7 +1418,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.29 · 23:50</p>
+    <p class="note small ver" translate="no">manu-go · v 4.31 · 12:30</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1593,7 +1593,7 @@ Devuelve JSON: {"text": "..."}`}],{fast:true});
   const epReady=ep=>{const c=ep.chapters||[];let k=0;while(k<c.length&&c[k])k++;return k};   // chapters ready in order
   const epN=ep=>ep.outline?ep.outline.chapters.length:6;
   const epMins=ep=>{const w=(ep.chapters||[]).filter(Boolean).join(' ').split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round((ep.st==='ok'?w:epN(ep)*430)/140))};
-  const EP_OPEN=['una escena concreta, en presente, como si pasara ahora (un lugar, una hora, alguien haciendo algo)','una persona: quién era y qué estaba por pasarle','un dato que descoloca y obliga a seguir escuchando','el narrador presentando el tema a su manera, con la pregunta grande que lo vuelve inevitable (p. ej. "El tema que les traigo hoy es de esos que hielan la sangre, de los que te hacen preguntarte cómo pudo pasar… y cómo pudo el mundo mirar para otro lado")','un objeto o un documento concreto y la historia que esconde'];
+  const EP_OPEN=['una escena concreta, en presente, como si pasara ahora (un lugar, una hora, alguien haciendo algo)','una persona: quién era y qué estaba por pasarle','un dato que descoloca y obliga a seguir escuchando','el narrador presentando el tema a su manera, con la pregunta grande que lo vuelve inevitable (p. ej. "El tema que les traigo hoy es de esos que hielan la sangre, de los que te hacen preguntarte cómo pudo pasar… y cómo pudo el mundo mirar para otro lado")','un objeto o un documento concreto y la historia que esconde','una cita breve y real (de alguien de la época, un escritor o un pensador) que plantea la pregunta del episodio, dicha con su autor, y enseguida la historia'];
   function epOutline(topic,city){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos 20 minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.
 Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "...", "beats": ["...", "..."]}], "ending": "..."} con 6 capítulos.
 - "opening": cómo arranca el primer capítulo. Esta vez prueba con ${op}; si no le queda bien a este tema, elige otra forma que enganche. Que cada episodio empiece distinto.
@@ -1655,7 +1655,7 @@ Devuelve JSON: {"text": "..."}`}
   function epPlay(id,at){const ep=epGet(id);if(!ep||!epReady(ep))return;const b=$('ep-listen');b._title=ep.title;b._img=epCv.get(id)||null;
     if(active&&active.src==='ep|'+id){if(active.btn!==b)reattach(b);if(at==null){listen(b);return}const A=active;const idx=epSegOfChapter(A,ep,at);if(idx>=0&&A.segs[idx])playSeg(A,idx).catch(()=>{});return}
     const txt=ep.chapters.slice(0,epReady(ep)).join('\n§§\n');listen(b,txt,'ep|'+id);
-    setTimeout(()=>{const A=active;if(!A||A.src!=='ep|'+id)return;A.more=ep.st==='writing';A.fed=epReady(ep);if(at){const k=epSegOfChapter(A,ep,at);if(k>0)setTimeout(()=>{if(active===A)playSeg(A,k).catch(()=>{})},400)}},0)}
+    setTimeout(()=>{const A=active;if(!A||A.src!=='ep|'+id)return;A.more=ep.st==='writing';A.fed=epReady(ep);const k=at?epSegOfChapter(A,ep,at):store.get('eppos|'+id,0);if(k>0&&A.segs[k])setTimeout(()=>{if(active===A)playSeg(A,k).catch(()=>{})},400)},0)}   // picks up where you left it
   function epSegOfChapter(A,ep,ci){if(!A.segs||!ep.chapters[ci])return -1;const head=ep.chapters[ci].slice(0,60);return A.segs.findIndex(s=>s.text.startsWith(head))}
   function epChapterOfSeg(ep,txt){const head=String(txt||'').slice(0,60);for(let i=0;i<(ep.chapters||[]).length;i++){if(ep.chapters[i]&&ep.chapters[i].includes(head))return i}return 0}
   // the words follow the voice: the piece being read, its current sentence lit
@@ -4060,10 +4060,11 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   // ---- Gemini's own voice: a documentary narrator, from the same Gemini key ----
   const GEM_VOICE='Charon';let gemTTSModel=null;
   try{if((store.get('gemStyle','')||'').trim()==='narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.')store.set('gemStyle','')}catch(e){}
-  const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a travel documentary narrator: warm, deep, unhurried, with quiet wonder, natural, never theatrical':'narrador argentino de un podcast de historia, porteño, con acento rioplatense marcado: le importa muchísimo lo que cuenta y se nota; habla con energía y convicción pero sin apuro, a ritmo medio: respira entre ideas y deja que las frases importantes se asienten, como quien le cuenta a un amigo algo que lo apasiona y lo indigna; suena en vivo, con vida, no leído. Nunca desganado, nunca monótono, nunca relajado de más. Marca los nombres y las fechas; cuando repite una palabra para subrayarla, la dice un poco más fuerte y más lenta; los "¿no?" y "¿viste?" suben como pregunta. Pausas cortas y naturales, sonríe en los datos curiosos y se pone serio en lo trágico. Nunca solemne, nunca teatral, nunca de locutor.');
-  const gemKey=()=>{const t=gemStyle()+'|v6';let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
+  const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.':'a Buenos Aires history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story he tells, with conviction but never shouting. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.');
+  const gemKey=()=>{const t=gemStyle()+'|v8';let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
   const gemBad=new Set();
-  async function gemTTSName(){if(gemTTSModel)return gemTTSModel;const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
+  async function gemTTSName(){if(gemTTSModel)return gemTTSModel;{const pin=store.get('gemTTSPin','');if(pin&&!gemBad.has(pin)){gemTTSModel=pin;return pin}}   // the same voice model every day: a newer one would sound different
+const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
     try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=300',{headers:{'x-goog-api-key':cfg.key}});const j=await r.json();
       const ns=(j.models||[]).filter(m=>/tts/.test(m.name)&&(m.supportedGenerationMethods||['generateContent']).includes('generateContent')).map(m=>m.name.replace('models/','')).filter(n=>!gemBad.has(n));
       const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};const rank=n=>(/flash/.test(n)?0:2)+(/lite/.test(n)?1:0);   // flash first (fast), lite and pro last
@@ -4082,7 +4083,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n,true);
     const u=new Uint8Array(buf,44);for(let i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([buf],{type:'audio/wav'})}
   async function gemTTS1(text,plain){const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
-    const style=`### DIRECTOR'S NOTES\nStyle: ${gemStyle()}\n${cfg.lang==='en'?'':'Accent: Rioplatense Spanish from Buenos Aires, Argentina, in every word: "ll" and "y" sound like "sh" (sheísmo: "calle" = "cashe", "yo" = "sho"), porteño intonation and melody. Never neutral Latin American, never Colombian, Mexican or Spanish from Spain.\n'}Language: ${cfg.lang==='en'?'English':'Spanish (Argentina)'}. Read only the transcript, word for word; never read these notes.\n\n#### TRANSCRIPT\n`;   // Google's format: everything above TRANSCRIPT directs the voice and is not spoken
+    const style=`### DIRECTOR'S NOTES\nStyle: ${gemStyle()}\n${cfg.lang==='en'?'':'Accent: a real adult man from Buenos Aires, Argentina, speaking Rioplatense Spanish in every word: "ll" and "y" sound like "sh" (sheísmo: "calle" = "cashe", "yo" = "sho"), porteño melody. Never neutral Latin American, never Mexican, never Colombian, never Spain.\n'}Pacing (measured on a real Argentine history podcast): an unhurried conversational tempo, about 4 syllables per second (around 125 words a minute). Short breathing pauses of about a third of a second every few words, as in live speech; a longer pause, around one second, only after a statement that matters. Before every pause, slow down slightly on the last two syllables and let the final word land fully: never speed up or clip the end of a phrase. Wide, natural pitch range. Many phrases end suspended, with a slight rise that keeps the story open, the way Rioplatense storytellers do; a sentence that closes an idea falls. When a word is repeated for emphasis, say it a little louder and slower. Tag questions like "¿no?" and "¿viste?" rise naturally.\nLanguage: ${cfg.lang==='en'?'English':'Spanish (Argentina)'}. Read only the transcript, word for word; never read these notes.\n\n#### TRANSCRIPT\n`;   // Google's format: everything above TRANSCRIPT directs the voice and is not spoken
     let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
       body:JSON.stringify({contents:[{parts:[{text:(plain?'':style)+text}]}],generationConfig:{responseModalities:['AUDIO'],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:GEM_VOICE}}}}})})}
     catch(e){clearTimeout(tm);throw Object.assign(new Error(e.name==='AbortError'?'tardó demasiado':'sin conexión'),{kind:e.name==='AbortError'?'slow':'net'})}
@@ -4092,10 +4093,10 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
     const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate)}
   // retries what Google says is temporary, so the voice does not switch on a hiccup
-  async function gemTTS(text,onWait){let plain=false;
+  async function gemTTS(text,onWait){let plain=false;if(gemTTSModel&&store.get('gemTTSPin','')!==gemTTSModel&&!gemBad.has(gemTTSModel))store.set('gemTTSPin',gemTTSModel);
     for(let t=0;;t++){try{return await gemTTS1(text,plain)}catch(e){if(t>=3)throw e;
-      if(e.kind==='model'){gemBad.add(e.model);gemTTSModel=null;continue}
-      if(e.kind==='server'||e.kind==='noaudio'||e.kind==='other'){plain=e.kind!=='server'||t>0;await wait(700);continue}   // a rejected or silent answer: once more with the bare text
+      if(e.kind==='model'){gemBad.add(e.model);gemTTSModel=null;if(store.get('gemTTSPin','')===e.model)store.set('gemTTSPin','');continue}
+      if(e.kind==='server'||e.kind==='noaudio'||e.kind==='other'){await wait(900*(t+1));continue}   // try again the same way: dropping the direction notes changed the voice mid-episode
       if(e.kind==='slow'&&t===0)continue;
       if(e.kind==='busy'&&(e.wait||5)<=30){onWait&&onWait(Math.ceil(e.wait||5));await wait((e.wait||5)*1000+400);continue}
       throw e}}}
@@ -4171,7 +4172,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
     const b=await segBlob(A,i);sg.blobReady=true;if(run!==listenRun||active!==A)return;
     A.i=i;if(player._url)URL.revokeObjectURL(player._url);player._url=URL.createObjectURL(b);player.src=player._url;
     const slow=String(A.src||'').startsWith('ep|');try{player.preservesPitch=true;player.defaultPlaybackRate=slow?.94:1;player.playbackRate=slow?.94:1}catch(e){}player.onloadedmetadata=()=>{try{player.playbackRate=slow?.94:1}catch(e){}sg.dur=player.duration;if(at)player.currentTime=Math.max(0,Math.min(at,player.duration-.05))};
-    await player.play();if(A.segs[i+1])segBlob(A,i+1).catch(()=>{});if(String(A.src||'').startsWith('ep|')&&A.segs[i+2])setTimeout(()=>{if(active===A)segBlob(A,i+2).catch(()=>{})},4000);if(run===listenRun&&active===A){pillSet(A.btn,'play');if($('status').textContent.startsWith(t_('Gemini pide esperar')))status('')}
+    await player.play();if(String(A.src||'').startsWith('ep|'))store.set('eppos|'+A.src.split('|')[1],A.segs[i+1]||A.more?i:0);if(A.segs[i+1])segBlob(A,i+1).catch(()=>{});if(String(A.src||'').startsWith('ep|')&&A.segs[i+2])setTimeout(()=>{if(active===A)segBlob(A,i+2).catch(()=>{})},4000);if(run===listenRun&&active===A){pillSet(A.btn,'play');if($('status').textContent.startsWith(t_('Gemini pide esperar')))status('')}
     if(A.segs[i+1])segBlob(A,i+1).then(()=>A.segs[i+1].blobReady=true).catch(()=>{});if(A.segs[i+2]&&A.segs[i+1].blobReady)segBlob(A,i+2).catch(()=>{});
   }
   function rewind(sec){const A=active;if(!A)return;if(A.sys){sysBack();return}const t=player.currentTime;
@@ -4197,6 +4198,7 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
       await playSeg(A,0);
     }catch(e){fail(e)}
     function fail(e,at){if(active!==A)return;
+      if(isEp&&e&&e.name!=='NotAllowedError'){const k=e&&e.kind;if(k==='quota'&&cfg.voice==='gem'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(t_(k==='quota'?'Se acabó la voz gratis de Gemini por hoy. El episodio queda guardado: mañana sigue con la misma voz.':'La voz se cortó. Toca Escuchar para seguir.'),true);return}   // an episode never switches to another voice halfway
       if(hasSys()&&!(e&&e.name==='NotAllowedError'&&!at)){const k=e&&e.kind,gem=cfg.voice==='gem';const why=voiceWhy(e);
         if(k==='quota'||k==='paid'||(gem&&k==='key')){elOut={v:cfg.voice,t:Date.now(),why,...(gem&&k==='quota'?{day:ptDay()}:{})};store.set('voiceOut',elOut)}
         const rest=A.segs&&at?A.segs.slice(at).map(x=>x.text).join('\n\n'):text;listenStop();sysListen(b,rest,key+(at?'|'+at:''),gem&&k==='quota'?outNote():why+' '+t_('Sigue la voz del iPhone.'));return}
