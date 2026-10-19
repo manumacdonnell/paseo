@@ -1420,7 +1420,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.33 · 13:05</p>
+    <p class="note small ver" translate="no">manu-go · v 4.34 · 13:25</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1590,7 +1590,7 @@ Devuelve JSON: {"text": "..."}`}],{fast:true});
   const epCity=()=>{try{return (lastKnown&&cityNear(lastKnown))||quickCity()||(store.get('history',[])[0]||{}).city||''}catch(e){return ''}};
   const epCap=t=>{t=String(t||'').trim();return t?t[0].toLocaleUpperCase(LOCALE())+t.slice(1):t};
   // few, long pieces: the free voice allows only a handful of requests a day. The first is short so it starts fast.
-  function epChunks(text,first){const ps=String(text||'').split(/\n{2,}/).map(x=>x.trim()).filter(Boolean),out=[];let cur='',lim=first?650:3200;
+  function epChunks(text,first){const ps=String(text||'').split(/\n{2,}/).map(x=>x.trim()).filter(Boolean),out=[];let cur='',lim=first?650:6500;
     for(const p of ps){if(cur&&(cur.length+p.length+2>lim)){out.push(cur);cur='';lim=3200}cur=cur?cur+'\n\n'+p:p}if(cur)out.push(cur);return out}
   const epReady=ep=>{const c=ep.chapters||[];let k=0;while(k<c.length&&c[k])k++;return k};   // chapters ready in order
   const epN=ep=>ep.outline?ep.outline.chapters.length:6;
@@ -4098,7 +4098,8 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     w(0,'RIFF');v.setUint32(4,36+n,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n,true);
     new Int16Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'})}
   // a real Buenos Aires voice from Google's voice library (Gemini 3.8): the accent lives in the voice, not in instructions
-  const AR_MODEL='gemini-3.8-flash-tts';let arList=null,arLoading=null;
+  const AR_MODELS=['gemini-3.8-flash-tts','gemini-3.8-flash-lite-tts'];   // each has its own free daily quota: when the first runs out, the same voice goes on in the second
+  const arOutDay=m=>{const o=store.get('arOut',{})||{};return o[m]===ptDay()};const arMarkOut=m=>{const o=store.get('arOut',{})||{};o[m]=ptDay();store.set('arOut',o)};let arList=null,arLoading=null;
   const arCur=()=>{const v=store.get('gemVoiceAR',null);return v&&v.id?v:null};
   async function arVoices(){if(arList)return arList;if(arLoading)return arLoading;
     arLoading=(async()=>{const base='https://generativelanguage.googleapis.com/v1beta/voices',H={headers:{'x-goog-api-key':cfg.key}};const seen=new Map();
@@ -4122,7 +4123,13 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(e.kind==='arvoice'&&v.way&&text.length>500&&(depth||0)<3){const [a,b]=halves(text);const A=await gemTTSar(a,v,true,(depth||0)+1),B=await gemTTSar(b,v,true,(depth||0)+1);   // same voice, smaller pieces: never another voice
         const gap=Math.round(A.rate*0.35),out=new Int16Array(A.pcm.length+gap+B.pcm.length);out.set(A.pcm,0);out.set(B.pcm,A.pcm.length+gap);return raw?{pcm:out,rate:A.rate}:wavOf(out,A.rate)}
       throw e}}
-  async function gemTTSar1(text,v,raw){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
+  async function gemTTSar1(text,v,raw){const ms=AR_MODELS.filter(m=>!arOutDay(m)&&!(store.get('arBad',[])||[]).includes(m));let last;
+    for(const m of ms){try{return await gemTTSarM(text,v,raw,m)}catch(e){last=e;
+        if(e.kind==='quota'||e.kind==='paid'){arMarkOut(m);continue}
+        if(e.kind==='arvoice'&&m!==AR_MODELS[0]&&v.way&&text.length<=500){store.set('arBad',[...(store.get('arBad',[])||[]),m]);continue}   // this model does not take the voice: never use it
+        throw e}}
+    if(last)throw last;throw Object.assign(new Error('quota'),{kind:'quota'})}
+  async function gemTTSarM(text,v,raw,AR_MODEL){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
     const style='Telling a story on a history podcast: warm, conversational and unhurried, engaged but never theatrical. Short breathing pauses; let the last word of every phrase land fully, never rushed.';
     const ways=v.way?[v.way]:['voice','prebuilt','voice-nostyle'];let last;
     for(const way of ways){const part={text};if(way!=='voice-nostyle')part.speechMetadata={style};
@@ -4268,7 +4275,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   var sysOn=false;
   const hasSys=()=>'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';
   const ptDay=()=>{try{return new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'})}catch(e){return new Date().toDateString()}};
-  var elOut=store.get('voiceOut',null);const outNow=()=>!!elOut&&elOut.v===cfg.voice&&(elOut.day?elOut.day===ptDay():Date.now()-elOut.t<3600e3);
+  var elOut=store.get('voiceOut',null);const outNow=()=>!!elOut&&elOut.v===cfg.voice&&!(cfg.voice==='gem'&&cfg.lang!=='en'&&arCur()&&AR_MODELS.some(m=>!arOutDay(m)&&!(store.get('arBad',[])||[]).includes(m)))&&(elOut.day?elOut.day===ptDay():Date.now()-elOut.t<3600e3);
   const noSysES=()=>cfg.voice==='gem'&&cfg.lang!=='en'&&!/es[-_]ar/i.test(((sysVoice('es')||{}).lang)||'');
   const useEL=()=>((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!outNow();
   function outNote(){if(store.get('outSaid','')===ptDay())return '-';store.set('outSaid',ptDay());return t_('Voz de Gemini agotada por hoy: suena la del iPhone.')}
