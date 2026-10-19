@@ -437,7 +437,11 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .epi-cv{width:58px;height:58px;flex:none;border-radius:6px;background:var(--raise);overflow:hidden}.epi-cv img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .3s ease}.epi-cv.in img{opacity:1}
 .epi-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.epi-t b{font-weight:500;font-size:16px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.epi-t small{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
 .epi-del{flex:none;height:40px;min-width:40px;display:grid;place-items:center;border:0;background:transparent;color:var(--faint);border-radius:999px;transition:color .2s ease}.epi-del svg{width:18px;height:18px}.epi-del.sure{color:var(--danger);font-size:13px;padding:0 10px;border:1px solid var(--danger)}
-.ep{gap:20px;align-items:stretch}.ep-cvw{align-self:center;width:min(78vw,330px);aspect-ratio:1;border-radius:8px;background:var(--raise);overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.45)}.ep-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s ease}.ep-cover.in{opacity:1}
+.ep{gap:20px;align-items:stretch}.ep-cvw{align-self:center;width:min(78vw,330px);aspect-ratio:1;border-radius:8px;background:var(--raise);overflow:hidden;transition:width .35s ease}.ep-cover{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .4s ease}.ep-cover.in{opacity:1}
+.ep-fx{order:9;margin-left:auto;flex:none;width:40px;height:40px;display:grid;place-items:center;border:0;background:transparent;color:var(--muted);border-radius:999px;transition:opacity .15s ease}.ep-fx:active{opacity:.5}.ep-fx svg{width:20px;height:20px}.ep-fx .i-tx,.ep.focus .ep-fx .i-cv{display:none}.ep.focus .ep-fx .i-tx{display:block}
+.ep-st,.ep-now,.ep-chw,#ep-more{transition:opacity .25s ease}
+.ep.focus{min-height:calc(100svh - 120px);justify-content:center}.ep.focus .ep-cvw{width:min(86vw,420px)}.ep.focus .ep-meta,.ep.focus .ep-st,.ep.focus .ep-now,.ep.focus .ep-chw,.ep.focus #ep-more{display:none!important}
+body[data-view="ep"].ep-same #ndock{display:none!important}   /* the page already is the player */
 .ep-meta{display:flex;flex-direction:column;gap:6px}.ep-meta h2{font-size:30px;line-height:1.05}.ep-meta .dy-k{margin:0}
 .ep-ctrl .lrow{display:flex;align-items:center;gap:10px}.ep-ctrl .lpill{margin-top:0;min-width:9.3em}
 .ep-st{margin:-6px 0 0;color:var(--muted);font-size:14px;line-height:1.45}.ep-st:empty{display:none}#ep-more{align-self:flex-start;margin-top:-10px}#ep-more[hidden],#ep-listen[hidden],.ep-now[hidden]{display:none}
@@ -1254,10 +1258,10 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   <section class="ep" id="v-ep" hidden>
     <div class="ep-cvw"><img class="ep-cover" id="ep-cover" alt=""></div>
     <div class="ep-meta"><h2 id="ep-title"></h2><p class="dy-k" id="ep-k"></p></div>
-    <div class="ep-ctrl"><div class="lrow"><button class="lpill" id="ep-listen" hidden></button></div></div>
+    <div class="ep-ctrl"><div class="lrow"><button class="lpill" id="ep-listen" hidden></button><button class="ep-fx" id="ep-fx" aria-label="Solo la portada"><svg class="i-cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="5" y="5" width="14" height="14" rx="1.5"/></svg><svg class="i-tx" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg></button></div></div>
     <p class="ep-st" id="ep-st"></p><button class="jn-b" id="ep-more" hidden>Seguir escribiendo</button>
     <div class="ep-now" id="ep-now" hidden><p class="ep-ch" id="ep-nowch"></p><div class="ep-lyr" id="ep-lyr"></div></div>
-    <div><p class="label">Capítulos</p><div class="ep-chapters" id="ep-chapters"></div></div>
+    <div class="ep-chw"><p class="label">Capítulos</p><div class="ep-chapters" id="ep-chapters"></div></div>
   </section>
   <!-- DIARIO: its own page, so the card stays clean -->
   <section class="diary" id="v-diary" hidden>
@@ -1420,7 +1424,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.34 · 13:25</p>
+    <p class="note small ver" translate="no">manu-go · v 4.35 · 13:45</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1662,7 +1666,7 @@ Devuelve JSON: {"text": "..."}`}
   function epChapterOfSeg(ep,txt){const head=String(txt||'').slice(0,60);for(let i=0;i<(ep.chapters||[]).length;i++){if(ep.chapters[i]&&ep.chapters[i].includes(head))return i}return 0}
   // the words follow the voice: the piece being read, its current sentence lit
   let epSyncT=null;
-  function epSync(){if(view!=='ep'){clearInterval(epSyncT);epSyncT=null;return}const id=+$('v-ep').dataset.id,ep=epGet(id),A=active,box=$('ep-now');
+  function epSync(){if(view!=='ep'){clearInterval(epSyncT);epSyncT=null;return}const id=+$('v-ep').dataset.id,ep=epGet(id),A=active,box=$('ep-now');document.body.classList.toggle('ep-same',!!(A&&A.src==='ep|'+id));
     const on=A&&A.src==='ep|'+id&&A.segs&&A.segs[A.i]&&player&&player.src&&player.src!==SILENT;box.hidden=!on;$('ep-chapters').classList.toggle('dim',!!on);if(!on||!ep)return;
     const sg=A.segs[A.i];if(box._seg!==sg){box._seg=sg;const ci=epChapterOfSeg(ep,sg.text);$('ep-nowch').textContent=`${String(ci+1).padStart(2,'0')}  ·  ${((ep.outline||{}).chapters||[])[ci]?ep.outline.chapters[ci].title:''}`;
       const ly=$('ep-lyr');ly.innerHTML='';(sg.text.match(/[^.!?…]+[.!?…]+["»”)]*\s*|[^.!?…]+$/g)||[sg.text]).forEach(t=>{const s=document.createElement('span');s.textContent=t;ly.appendChild(s)});box._lens=[...ly.children].map(x=>x.textContent.length);box._last=-1;
@@ -1688,14 +1692,20 @@ Devuelve JSON: {"text": "..."}`}
   async function epSuggest(city){const box=$('eps-sug');if(!city||!cfg.key){box.innerHTML='';return}const k='epsug|'+city.toLowerCase()+'|'+cfg.lang;let list=store.get(k,null);
     if(!list){box.innerHTML='<span class="eps-wait">'+t_('Buscando historias de')+' '+city+'…</span>';try{const o=await gemini([{text:`Propón 6 temas para episodios de podcast de historia de unos 20 minutos para alguien que está de viaje en ${city}: historias que valga la pena escuchar (un hecho, una época, un barrio, una persona de aquí, alguien célebre que nació o vivió aquí). Variados entre sí. Cada tema, 2 a 6 palabras, concreto y con gancho, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topics": ["...", "..."]}`}],{fast:true});list=(o&&o.topics||[]).slice(0,6).map(String);if(list.length)store.set(k,list)}catch(e){list=[]}}
     if(view!=='eps')return;box.innerHTML='';list.forEach(t=>{const b=document.createElement('button');b.textContent=epCap(t);b.onclick=()=>epNew(t);box.appendChild(b)})}
-  function epList(){const list=$('eps-list'),all=epAll();list.innerHTML='';$('eps-mine').hidden=!all.length;
-    all.forEach(ep=>{const row=document.createElement('div');row.className='epi';row.innerHTML='<button class="epi-main"><span class="epi-cv"><img alt=""></span><span class="epi-t"><b></b><small></small></span></button><button class="epi-del" aria-label="Borrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>';
-      row.querySelector('b').textContent=ep.title;row.querySelector('small').textContent=[ep.city,new Date(ep.at).toLocaleDateString(LOCALE(),{day:'numeric',month:'short'}).replace('.',''),ep.st==='ok'?`${epMins(ep)} min`:t_('a medias')].filter(Boolean).join('  ·  ');
-      const im=row.querySelector('img');epCover(ep).then(u=>{if(u){im.src=u;im.parentElement.classList.add('in')}});row.querySelector('.epi-main').onclick=()=>openEp(ep.id);
-      const del=row.querySelector('.epi-del');del.onclick=()=>{if(!del.dataset.sure){del.dataset.sure='1';del.classList.add('sure');del.innerHTML='<span>'+t_('Borrar')+'</span>';setTimeout(()=>{if(del.isConnected)epList()},2800);return}
-        if(active&&active.src==='ep|'+ep.id)listenStop();store.set('episodes',epAll().filter(e=>e.id!==ep.id));delPhoto('epc|'+ep.id);epList()};list.appendChild(row)})}
+  function epList(){const list=$('eps-list'),all=epAll();list.innerHTML='';$('eps-mine').hidden=!all.length;const ul=document.createElement('ul');ul.className='rows eprows';list.appendChild(ul);
+    all.forEach(ep=>{const li=document.createElement('li'),b=document.createElement('button');const bg=document.createElement('div');bg.className='del-bg';bg.textContent=t_('Borrar');li.appendChild(bg);
+      const im=document.createElement('img');im.className='th';im.alt='';const n=document.createElement('span');n.className='nm';n.textContent=ep.title;
+      const w=document.createElement('span');w.className='when';w.textContent=ep.st==='ok'?`${epMins(ep)} min`:t_('a medias');b.append(im,n,w);li.appendChild(b);
+      epCover(ep).then(u=>{if(u)im.src=u});swipeDel(li,b,()=>removeEpisode(ep.id),()=>openEp(ep.id));ul.appendChild(li)})}
+  function removeEpisode(id){finishPendingDelete();const a=epAll(),i=a.findIndex(e=>e.id===id);if(i<0)return;const item=a[i];if(active&&active.src==='ep|'+id)listenStop();
+    a.splice(i,1);store.set('episodes',a);pendingDelete={ep:item,i};
+    $('toast-text').innerHTML='';$('toast-text').append(t_('Borrado')+' · ');{const b=document.createElement('b');b.textContent=item.title;$('toast-text').append(b)}{const el=$('toast');el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false}
+    clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);setTimeout(epList,0)}
   function openEps(){show('eps');const city=epCity();$('eps-k').textContent=[t_('Episodios'),city].filter(Boolean).join('  ·  ');epList();epSuggest(city)}
   $('btn-eps').onclick=openEps;$('eps-form').onsubmit=e=>{e.preventDefault();const v=$('eps-input').value;$('eps-input').value='';$('eps-input').blur();epNew(v)};
+  // listening is just listening: the cover alone, the rest one tap away (remembered)
+  function epFocus(on){$('v-ep').classList.toggle('focus',on);$('ep-fx').setAttribute('aria-label',t_(on?'Ver el texto':'Solo la portada'));store.set('epFocus',on)}
+  $('v-ep').classList.toggle('focus',!!store.get('epFocus',false));$('ep-fx').onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));$('ep-cover').parentElement.onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));
   $('ep-listen').onclick=()=>epPlay(+$('v-ep').dataset.id);$('ep-more').onclick=()=>{const id=+$('v-ep').dataset.id,ep=epGet(id);if(!ep)return;ep.st='writing';epSave(ep);epPaint(id);epWrite(id)};
   const memPhoto=new Map();   // photos still being written to disk: never open a card without its photo
   async function getPhoto(t){let r=null;try{const d=await idb();r=await new Promise(res=>{const q=d.transaction('photos').objectStore('photos').get(t);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}catch(e){}return r||memPhoto.get(t)||null}
@@ -2731,9 +2741,11 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     const n=document.createElement('span');n.className='nm';n.textContent=LV(x).name||x.name;
     const w=document.createElement('span');w.className='when';const when=x.takenAt||x.t;w.textContent=timeOnly==='smart'?smartWhen(x.t||when):timeOnly?new Date(when).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'}):fmtWhen(when);
     b.append(im,n,w);li.appendChild(b);
-    // swipe left to delete
-    // horizontal drag only: vertical scrolling stays with the page, the rest of the list doesn't move
-    let x0=null,y0=0,dx=0,swiping=false,locked=false;
+    swipeDel(li,b,()=>removeDiscovery(x.t,true),onOpen);
+    return li;
+  }
+  // swipe left to delete, the same everywhere: horizontal drag only, vertical scrolling stays with the page
+  function swipeDel(li,b,onDel,onOpen){let x0=null,y0=0,dx=0,swiping=false,locked=false;
     b.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;swiping=false;locked=false},{passive:true});
     b.addEventListener('touchmove',e=>{if(x0===null||locked)return;const mx=e.touches[0].clientX-x0,my=e.touches[0].clientY-y0;
       if(!swiping){if(Math.abs(my)>8&&Math.abs(my)>Math.abs(mx)){locked=true;return}if(mx<-14&&Math.abs(mx)>Math.abs(my)*1.3){swiping=true;li.classList.add('dragging')}else return}
@@ -2741,12 +2753,10 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     const end=()=>{li.classList.remove('dragging');
       if(swiping&&dx<-Math.min(120,li.offsetWidth*0.35)){li.classList.add('leaving');b.style.transform='translateX(-100%)';
         setTimeout(()=>{li.style.height=li.offsetHeight+'px';requestAnimationFrame(()=>{li.style.height='0px';li.style.opacity='0';li.style.marginTop='-6px'})},180);
-        setTimeout(()=>removeDiscovery(x.t,true),420)}
+        setTimeout(onDel,420)}
       else b.style.transform='';x0=null;setTimeout(()=>{swiping=false},0)};
     b.addEventListener('touchend',end);b.addEventListener('touchcancel',end);
-    b.onclick=e=>{if(swiping){e.preventDefault();return}onOpen()};
-    return li;
-  }
+    b.onclick=e=>{if(swiping){e.preventDefault();return}onOpen()}}
   // delete with a few seconds to undo; the photo is only erased when the undo window closes
   let undoTimer=null,pendingDelete=null;
   function removeDiscovery(t,fromSwipe){
@@ -2770,11 +2780,12 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     el.addEventListener('touchend',()=>{if(y0===null)return;y0=null;if(dy>36){finishPendingDelete()}else{el.style.transition='transform .2s ease,opacity .2s ease';el.style.transform='';el.style.opacity=''}})}
   function finishPendingDelete(){
     clearTimeout(undoTimer);toastOut();
-    if(!pendingDelete)return;const t=pendingDelete.item.t;pendingDelete=null;
+    if(!pendingDelete)return;if(pendingDelete.ep){const id=pendingDelete.ep.id;pendingDelete=null;delPhoto('epc|'+id);store.set('eppos|'+id,null);return}const t=pendingDelete.item.t;pendingDelete=null;
     delPhoto(t);PHA.small.delete(t);PHA.big.delete(t);const u=urlCache.get(t);if(u)URL.revokeObjectURL(u);urlCache.delete(t);
   }
   $('toast-undo').onclick=()=>{
     if(!pendingDelete)return;clearTimeout(undoTimer);
+    if(pendingDelete.ep){const a=epAll();a.splice(Math.min(pendingDelete.i,a.length),0,pendingDelete.ep);store.set('episodes',a);pendingDelete=null;toastOut();epList();return}
     const h=store.get('history',[]);h.splice(Math.min(pendingDelete.i,h.length),0,pendingDelete.item);store.set('history',h);
     pendingDelete=null;toastOut();refreshLists();
   };
