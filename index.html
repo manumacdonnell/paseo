@@ -433,6 +433,7 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps h2{font-size:34px;line-height:1.02}
 .eps-ideas .eps-ih{margin:0}.eps-ideas:not(.open) .eps-sug{display:none}.eps-ideas:not(.open) .eps-ih::after{transform:rotate(45deg) translate(-2px,-2px)}.eps-ideas.open .eps-ih{margin-bottom:12px}.eps-ideas[hidden]{display:none}
 .eps-ok{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;display:flex;flex-direction:column;gap:6px}.eps-ok[hidden]{display:none}.eps-okk{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.eps-okt{margin:0;font-family:var(--serif);font-size:26px;line-height:1.1;color:var(--ink)}
+.eps-oka{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink);opacity:.82}
 .eps-okb{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.eps-okb .gem-save{padding:9px 16px}.eps-opts{display:flex;flex-direction:column;margin-top:4px}.eps-opts button{border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;font-family:var(--serif);font-size:22px;line-height:1.15;padding:12px 0;transition:opacity .15s ease}.eps-opts button:active{opacity:.55}
 .eps-sug{display:flex;flex-wrap:wrap;gap:8px}.eps-sug button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:14px;text-align:left;transition:opacity .15s ease}.eps-sug button:active{opacity:.55}.eps-wait{color:var(--muted);font-size:14px}
 .eps-list{display:flex;flex-direction:column}.epi{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line)}.epi:first-child{border-top:0}
@@ -1430,7 +1431,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.37 · 14:30</p>
+    <p class="note small ver" translate="no">manu-go · v 4.39 · 20:45</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1606,8 +1607,8 @@ Devuelve JSON: {"text": "..."}`}],{fast:true});
   const epN=ep=>ep.outline?ep.outline.chapters.length:6;
   const epMins=ep=>{const w=(ep.chapters||[]).filter(Boolean).join(' ').split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round((ep.st==='ok'?w:epN(ep)*430)/140))};
   const EP_OPEN=['una escena concreta, en presente, como si pasara ahora (un lugar, una hora, alguien haciendo algo)','una persona: quién era y qué estaba por pasarle','un dato que descoloca y obliga a seguir escuchando','el narrador presentando el tema a su manera, con la pregunta grande que lo vuelve inevitable (p. ej. "El tema que les traigo hoy es de esos que hielan la sangre, de los que te hacen preguntarte cómo pudo pasar… y cómo pudo el mundo mirar para otro lado")','un objeto o un documento concreto y la historia que esconde','una cita breve y real (de alguien de la época, un escritor o un pensador) que plantea la pregunta del episodio, dicha con su autor, y enseguida la historia'];
-  function epOutline(topic,city,from){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos 20 minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.${from?`\nNace de una ficha breve que el oyente ya escuchó sobre «${from.name}»${from.what?` (${from.what})`:''}: no repitas lo de la ficha; cuenta la historia de fondo, más amplia, y si encaja, pasa por ese sitio en algún momento como un lugar más de la historia.`:''}
-Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "...", "beats": ["...", "..."]}], "ending": "..."} con 6 capítulos.
+  function epOutline(topic,city,from,notes,short){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos ${short?8:20} minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.${from?`\nNace de una ficha breve que el oyente ya escuchó sobre «${from.name}»${from.what?` (${from.what})`:''}: no repitas lo de la ficha; cuenta la historia de fondo, más amplia, y si encaja, pasa por ese sitio en algún momento como un lugar más de la historia.`:''}
+Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "...", "beats": ["...", "..."]}], "ending": "..."} con ${short?3:6} capítulos.${notes&&notes.length?`\nLo que se averiguó del tema (es la base: cuenta ESTO, no otra cosa con un nombre parecido):\n- ${notes.join('\n- ')}`:''}
 - "opening": cómo arranca el primer capítulo. Esta vez prueba con ${op}; si no le queda bien a este tema, elige otra forma que enganche. Que cada episodio empiece distinto.
 - Arco: un comienzo que engancha; un desarrollo en orden que se entiende sin saber nada antes; un final que deja pensando.
 - Cada capítulo, un título corto y 3 a 5 "beats" con hechos concretos: personas con nombre, fechas, lugares concretos (calles, edificios, barrios), cifras.
@@ -1618,7 +1619,7 @@ Escribe en ${LANG()}.`}
   function epChapter(ep,i){const o=ep.outline,n=o.chapters.length,ch=o.chapters[i],prev=i>0&&ep.chapters[i-1]?ep.chapters[i-1].slice(-700):'';
     return `Escribes el capítulo ${i+1} de ${n} de un episodio de podcast de historia, "${ep.title}"${ep.city?`, desde ${ep.city}`:''}.
 Guion completo: ${JSON.stringify(o)}
-${prev?`Así terminó el capítulo anterior: "…${prev}"\n`:i>0?'El capítulo anterior cuenta lo que dice su guion: empieza donde termina eso, sin repetirlo.\n':''}
+${ep.notes&&ep.notes.length?`Lo que se averiguó del tema (la base, no te salgas de esto): ${ep.notes.join(' · ')}\n`:''}${prev?`Así terminó el capítulo anterior: "…${prev}"\n`:i>0?'El capítulo anterior cuenta lo que dice su guion: empieza donde termina eso, sin repetirlo.\n':''}
 Escribe SOLO el capítulo ${i+1} ("${ch.title}"), unas 430 palabras, listo para leerse en voz alta.
 Cómo se cuenta (lo más importante):
 - Como un buen podcast de historia narrado por una persona que sabe contar y a la que le importa lo que cuenta: envolvente, cercano, con convicción. Nunca pretencioso, nunca actoral, nunca solemne ni de documental épico. No intentes "transportar" al oyente con frases grandilocuentes: que lo haga la historia.
@@ -1633,7 +1634,7 @@ Devuelve JSON: {"text": "..."}`}
   async function epTry(fn){let last;for(let k=0;k<4;k++){try{return await fn()}catch(e){last=e;if(e.message==='KEY')throw e;await wait([2500,7000,15000,30000][k])}}throw last}
   const epBusy=new Set();
   async function epWrite(id){if(epBusy.has(id))return;epBusy.add(id);let ep=epGet(id);if(!ep){epBusy.delete(id);return}
-    try{if(!ep.outline){const o=await epTry(async()=>{const r=await gemini([{text:epOutline(ep.topic,ep.city,ep.from)}],{fast:true});if(!r||!Array.isArray(r.chapters)||!r.chapters.length)throw new Error('outline');return r});
+    try{if(!ep.outline){const o=await epTry(async()=>{const r=await gemini([{text:epOutline(ep.topic,ep.city,ep.from,ep.notes,ep.short)}],{fast:true});if(!r||!Array.isArray(r.chapters)||!r.chapters.length)throw new Error('outline');return r});
         o.chapters=o.chapters.slice(0,7);ep=epGet(id)||ep;ep.outline=o;ep.chapters=ep.chapters||[];epSave(ep);epPaint(id)}
       const n=ep.outline.chapters.length;
       const one=async i=>{if((epGet(id)||ep).chapters[i])return;const cur0=epGet(id)||ep;const out=await epTry(async()=>{const r=await gemini([{text:epChapter(cur0,i)}],{fast:true});const t=String(r&&r.text||'').replace(/\*\*|__|#+\s/g,'').trim();if(!t)throw new Error('chapter');return t});
@@ -1688,9 +1689,9 @@ Devuelve JSON: {"text": "..."}`}
   function openEp(id){const ep=epGet(id);if(!ep)return;$('v-ep').dataset.id=String(id);const cv=$('ep-cover');cv.classList.remove('in');cv.removeAttribute('src');$('ep-now').hidden=true;$('ep-now')._seg=null;show('ep');
     const b=$('ep-listen');b._label=t_('Escuchar');pillSet(b,'idle');if(active&&active.src==='ep|'+id)reattach(b);epPaint(id);clearInterval(epSyncT);epSyncT=setInterval(epSync,400);
     if((ep.st==='writing'||ep.st==='part')&&!epBusy.has(id)){if(ep.st==='part'){ep.st='writing';epSave(ep)}epWrite(id)}if(!epCv.has(id))getPhoto('epc|'+id).then(x=>{if(!x)epMakeCover(ep).then(()=>epPaint(id))})}
-  function epNew(topic,from){topic=epCap(topic);if(!topic)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
+  function epNew(topic,from,extra){topic=epCap(topic);if(!topic)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap, so it can start on its own later
-    const id=Date.now();const ep={id,topic,city:epCity(),title:topic,chapters:[],st:'writing',at:id,lang:cfg.lang,...(from?{from}:{})};epSave(ep);epMakeCover(ep).then(()=>epPaint(id));openEp(id);
+    const id=Date.now();const ep={id,topic,city:epCity(),title:topic,chapters:[],st:'writing',at:id,lang:cfg.lang,...(from?{from}:{}),...(extra&&extra.notes&&extra.notes.length?{notes:extra.notes}:{}),...(extra&&extra.short?{short:true}:{})};epSave(ep);epMakeCover(ep).then(()=>epPaint(id));openEp(id);
     const first=setInterval(()=>{const e=epGet(id);if(!e||e.st==='err'){clearInterval(first);return}if(epReady(e)){clearInterval(first);if(view!=='ep'||$('v-ep').dataset.id!=String(id))epReadyNote(e)}},700)}   // never starts on its own: you choose when to listen
   function epReadyNote(ep){const el=$('ntoast');$('ntoast-text').innerHTML='';$('ntoast-text').append(t_('Listo para escuchar')+' · ');const b=document.createElement('b');b.textContent=ep.title;$('ntoast-text').append(b);
     $('ntoast-go').onclick=()=>{nOut();openEp(ep.id)};el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false;clearTimeout(readyNote.t);readyNote.t=setTimeout(nOut,6000)}
@@ -1717,7 +1718,18 @@ Devuelve JSON: {"text": "..."}`}
   const epOkClose=()=>{epOkBusy=0;$('eps-ok').hidden=true};
   async function epAsk(raw,from){raw=String(raw||'').trim();if(!raw&&!from)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap
-    const run=++epOkBusy,city=epCity();epOk(from?t_('Buscando la historia detrás de')+' '+from.name+'…':t_('Un momento…'));let o=null;
+    const run=++epOkBusy,city=epCity();epOk(from?t_('Buscando la historia detrás de')+' '+from.name+'…':t_('Buscando qué es…'));let o=null;
+    if(!from){let g=null;try{const txt=await gemini([{text:`Alguien quiere escuchar un episodio de podcast sobre esto que escribió deprisa: "${raw}"${city?` (está de viaje en ${city}; puede ser algo de aquí)`:''}.
+Antes de nada, busca en Google qué es exactamente: puede ser un hecho, una época, una persona, un lugar, pero también jerga, un meme, un estereotipo, una costumbre local o un chiste de la gente de aquí. No lo interpretes al pie de la letra si es una expresión: averigua qué quiere decir de verdad. Corrige la ortografía.
+Devuelve SOLO JSON: {"topic": "título claro del tema, 2 a 7 palabras, sin dos puntos", "about": "qué es, en 2 o 3 frases claras, como se lo explicarías a un amigo", "notes": ["hasta 12 hechos concretos y verificados para contar la historia: origen, fechas, personas, ejemplos, cómo se usa"], "depth": "long si hay historia para unos 20 minutos, short si da para unos 8", "options": []}
+Si puede ser cosas muy distintas, deja "about" vacío y da 2 o 3 lecturas posibles y concretas en "options". Escribe en ${LANG()}.`}],{stream:true,search:true,fast:true,onText:()=>{}});const m=String(txt||'').match(/\{[\s\S]*\}/);if(m)g=JSON.parse(m[0])}catch(e){g=null}
+      if(run!==epOkBusy||view!=='eps')return;
+      if(g&&(g.about||(g.options||[]).length)){const topic=epCap(String(g.topic||raw).trim()),opts=(g.options||[]).map(x=>epCap(String(x).trim())).filter(Boolean).slice(0,3);
+        if(!g.about&&opts.length){epOk(t_('¿Cuál de estos?'),b=>{const l=document.createElement('div');l.className='eps-opts';opts.forEach(x=>{const k=document.createElement('button');k.textContent=x;k.onclick=()=>epAsk(x);l.appendChild(k)});b.appendChild(l)});return}
+        const extra={notes:(g.notes||[]).map(String).filter(Boolean).slice(0,12),short:g.depth==='short'};
+        epOk(t_('Entendí'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;const a=document.createElement('p');a.className='eps-oka';a.textContent=String(g.about).trim();b.append(t,a);
+          epOkBtns(b,()=>{epOkClose();epNew(topic,null,extra)},t_('No es eso'),()=>{epOkClose();const i=$('eps-input');i.value=raw;i.focus()})});
+        if(extra.short){const g2=$('eps-ok').querySelector('.eps-okb .gem-save');if(g2)g2.textContent=t_('Crear un episodio corto')}return}}
     try{o=await gemini([{text:from?`Alguien está viendo esto en una ficha de su app de viaje: "${from.name}"${from.what?` (${from.what})`:''}${city?`, en ${city}`:''}. Propón el tema de un episodio de podcast de historia de unos 20 minutos que vaya más allá de la ficha: la historia de fondo (la época, el fenómeno, las personas detrás), no una descripción del sitio. De 2 a 6 palabras, concreto, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topic": "..."}`
       :`Alguien escribió deprisa, quizá caminando por la calle, el tema de un episodio de podcast de historia: "${raw}"${city?` (está de viaje en ${city})`:''}. Corrige solo la ortografía, las tildes y los nombres propios mal escritos, sin cambiar lo que pide ni ampliarlo. Si no se entiende o puede ser cosas muy distintas, da de 2 a 3 lecturas posibles y concretas en "options". Escribe en ${LANG()}. Devuelve JSON: {"topic": "...", "options": []}`}],{fast:true})}catch(e){o=null}
     if(run!==epOkBusy||view!=='eps')return;
@@ -4104,7 +4116,10 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   const GEM_VOICE='Charon';let gemTTSModel=null;
   try{if((store.get('gemStyle','')||'').trim()==='narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.')store.set('gemStyle','')}catch(e){}
   const gemStyle=()=>(store.get('gemStyle','')||'').trim()||(cfg.lang==='en'?'a history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.':'a Buenos Aires history podcaster in his forties: warm, engaged and conversational, grounded and real; genuinely interested in the story he tells, with conviction but never shouting. Never cartoonish, never exaggerated, never theatrical, never a radio announcer.');
-  const gemKey=()=>{const t=gemStyle()+'|v10|'+((arCur()||{}).id||'');let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
+  const gemKeyFor=(id,ver)=>{const t=gemStyle()+'|'+ver+(ver==='v8'?'':'|'+(id||''));let h=0;for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return 'gem-'+GEM_VOICE+'-'+h};
+  const gemKey=()=>gemKeyFor((arCur()||{}).id,'v10');
+  // earlier voices whose audio may already be saved on the phone
+  const gemOldKeys=()=>{const c=arCur(),pv=store.get('gemVoiceARprev',null),out=[];if(pv)out.push({vk:gemKeyFor(pv.id,'v10'),voice:pv},{vk:gemKeyFor(pv.id,'v9'),voice:pv});if(c)out.push({vk:gemKeyFor(c.id,'v9'),voice:c});out.push({vk:gemKeyFor('', 'v8'),voice:null});return out};
   const gemBad=new Set();
   async function gemTTSName(){if(gemTTSModel)return gemTTSModel;{const pin=store.get('gemTTSPin','');if(pin&&!gemBad.has(pin)){gemTTSModel=pin;return pin}}   // the same voice model every day: a newer one would sound different
 const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=>!gemBad.has(n));
@@ -4138,6 +4153,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     new Int16Array(buf,44).set(pcm);return new Blob([buf],{type:'audio/wav'})}
   // a real Buenos Aires voice from Google's voice library (Gemini 3.8): the accent lives in the voice, not in instructions
   const AR_MODELS=['gemini-3.8-flash-tts','gemini-3.8-flash-lite-tts'];   // each has its own free daily quota: when the first runs out, the same voice goes on in the second
+  const arAllOut=()=>AR_MODELS.every(m=>arOutDay(m)||(store.get('arBad',[])||[]).includes(m));
   const arOutDay=m=>{const o=store.get('arOut',{})||{};return o[m]===ptDay()};const arMarkOut=m=>{const o=store.get('arOut',{})||{};o[m]=ptDay();store.set('arOut',o)};let arList=null,arLoading=null;
   const arCur=()=>{const v=store.get('gemVoiceAR',null);return v&&v.id?v:null};
   async function arVoices(){if(arList)return arList;if(arLoading)return arLoading;
@@ -4171,6 +4187,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     if(last)throw last;throw Object.assign(new Error('quota'),{kind:'quota'})}
   async function gemTTSarM(text,v,raw,AR_MODEL){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
     const style='Telling a story on a history podcast: warm, conversational and unhurried, engaged but never theatrical. Natural pauses; breathe audibly only now and then, never before every sentence. Let the last word of every phrase land fully, never rushed.';
+    if(!v.way&&store.get('arWay',null))v.way=store.get('arWay',null);   // how the API takes a voice is the same for every voice
     const ways=v.way?[v.way]:['voice','prebuilt','voice-nostyle'];let last;
     for(const way of ways){const part={text};if(way!=='voice-nostyle')part.speechMetadata={style};
       const vc=way==='prebuilt'?{prebuiltVoiceConfig:{voiceName:v.id}}:{voice:v.id};
@@ -4182,10 +4199,10 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       clearTimeout(tm);if(!r.ok){const e=gemErr(r.status,j);e.model=AR_MODEL;if(r.status===400||r.status===404)e.kind='arvoice';throw e}
       const c=((j||{}).candidates||[])[0]||{};const p=((c.content||{}).parts||[]).find(p=>p.inlineData||p.inline_data);const d=p&&(p.inlineData||p.inline_data);
       if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
-      if(!v.way){v.way=way;const cur=arCur();if(cur&&cur.id===v.id)store.set('gemVoiceAR',{...cur,way})}
+      if(!v.way){v.way=way;store.set('arWay',way);const cur=arCur();if(cur&&cur.id===v.id)store.set('gemVoiceAR',{...cur,way})}
       const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate,raw)}
     clearTimeout(tm);last=last||new Error('voz');last.kind='arvoice';throw last}
-  async function gemTTS1(text,plain){if(cfg.lang!=='en'){const v=await arVoice();if(v){try{return await gemTTSar(text,v)}catch(e){if(e.kind!=='arvoice'||v.way){if(e.kind==='arvoice')e.kind='server';throw e}store.set('gemVoiceAR',null);store.set('gemVoiceARno',Date.now()+36e5)}}}   // a voice that worked once is kept: a hiccup retries it, never swaps it
+  async function gemTTS1(text,plain,voice){if(cfg.lang!=='en'){const v=voice||await arVoice();if(v){try{return await gemTTSar(text,v)}catch(e){if(e.kind!=='arvoice'||v.way){if(e.kind==='arvoice')e.kind='server';throw e}store.set('gemVoiceAR',null);store.set('gemVoiceARno',Date.now()+36e5)}}}   // a voice that worked once is kept: a hiccup retries it, never swaps it
     const model=await gemTTSName();const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),20000+text.length*40);
     const style=`### DIRECTOR'S NOTES\nStyle: ${gemStyle()}\n${cfg.lang==='en'?'':'Accent: a real adult man from Buenos Aires, Argentina, speaking Rioplatense Spanish in every word: "ll" and "y" sound like "sh" (sheísmo: "calle" = "cashe", "yo" = "sho"), porteño melody. Never neutral Latin American, never Mexican, never Colombian, never Spain.\n'}Pacing (measured on a real Argentine history podcast): an unhurried conversational tempo, about 4 syllables per second (around 125 words a minute). Short breathing pauses of about a third of a second every few words, as in live speech; a longer pause, around one second, only after a statement that matters. Before every pause, slow down slightly on the last two syllables and let the final word land fully: never speed up or clip the end of a phrase. Wide, natural pitch range. Many phrases end suspended, with a slight rise that keeps the story open, the way Rioplatense storytellers do; a sentence that closes an idea falls. When a word is repeated for emphasis, say it a little louder and slower. Tag questions like "¿no?" and "¿viste?" rise naturally.\nLanguage: ${cfg.lang==='en'?'English':'Spanish (Argentina)'}. Read only the transcript, word for word; never read these notes.\n\n#### TRANSCRIPT\n`;   // Google's format: everything above TRANSCRIPT directs the voice and is not spoken
     let r;try{r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
@@ -4197,14 +4214,14 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
     const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate)}
   // retries what Google says is temporary, so the voice does not switch on a hiccup
-  async function gemTTS(text,onWait){let plain=false;if(gemTTSModel&&store.get('gemTTSPin','')!==gemTTSModel&&!gemBad.has(gemTTSModel))store.set('gemTTSPin',gemTTSModel);
-    for(let t=0;;t++){try{return await gemTTS1(text,plain)}catch(e){if(t>=3)throw e;
+  async function gemTTS(text,onWait,voice){let plain=false;if(gemTTSModel&&store.get('gemTTSPin','')!==gemTTSModel&&!gemBad.has(gemTTSModel))store.set('gemTTSPin',gemTTSModel);
+    for(let t=0;;t++){try{return await gemTTS1(text,plain,voice)}catch(e){if(t>=3)throw e;
       if(e.kind==='model'){gemBad.add(e.model);gemTTSModel=null;if(store.get('gemTTSPin','')===e.model)store.set('gemTTSPin','');continue}
       if(e.kind==='server'||e.kind==='noaudio'||e.kind==='other'){await wait(900*(t+1));continue}   // try again the same way: dropping the direction notes changed the voice mid-episode
       if(e.kind==='slow'&&t===0)continue;
       if(e.kind==='busy'&&(e.wait||5)<=30){onWait&&onWait(Math.ceil(e.wait||5));await wait((e.wait||5)*1000+400);continue}
       throw e}}}
-  async function ttsBlob(text,prev,next,onWait){if(cfg.voice==='gem')return gemTTS(text,onWait);
+  async function ttsBlob(text,prev,next,onWait,voice){if(cfg.voice==='gem')return gemTTS(text,onWait,voice);
     const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),15000);
     const r=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(cfg.elVoice||DEFAULT_VOICE)}?output_format=mp3_44100_64`,{method:'POST',signal:ac.signal,
       headers:{'xi-api-key':cfg.elKey,'Content-Type':'application/json','Accept':'audio/mpeg'},
@@ -4268,7 +4285,8 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
     return out}
   function segKey(base,txt){let h=0;for(let i=0;i<txt.length;i++)h=(h*31+txt.charCodeAt(i))|0;return base+'|'+h}
   function segBlob(A,i){const sg=A.segs[i];if(!sg.p){sg.p=(async()=>{const k=segKey(A.key,sg.text);let b=audioMem.get(k)||await getPhoto(k);
-      if(!b){const ow=n=>{if(active===A&&A.i>=i-1)status(t_('Gemini pide esperar')+` ${n} s…`)};try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text,ow)}catch(e){if(e.kind!=='busy'||cfg.voice==='gem')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
+      if(!b&&A.olds&&arAllOut()){for(const o of A.olds){b=await getPhoto(segKey(o,sg.text));if(b)break}}
+      if(!b){const ow=n=>{if(active===A&&A.i>=i-1)status(t_('Gemini pide esperar')+` ${n} s…`)};try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text,ow,A.voice)}catch(e){if(e.kind!=='busy'||cfg.voice==='gem')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
       audioMem.set(k,b);return b})();sg.p.catch(()=>{sg.p=null})}return sg.p}
   async function playSeg(A,i,at){
     const run=listenRun;const sg=A.segs[i];if(!sg)return;
@@ -4289,21 +4307,28 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(b.classList.contains('is-pause')){player.play().then(()=>pillSet(b,'play')).catch(()=>{});return}
       listenStop();return}
     listenStop();if(!text)return;const isEp=String(key||'').startsWith('ep|');if(isEp&&!useEL())text=text.replace(/\n§§\n/g,'\n\n');
-    if(!useEL()&&outNow()&&noSysES()){status(t_('Se acabó la voz gratis de Gemini por hoy. Mañana vuelve la misma voz.'),true);return}   // never another accent instead
     if(!useEL()){const pr=prepScript(text);if(!pr.done&&scriptMem.get('say|'+sayNumbers(text))){const run=++listenRun;active={btn:b};pillSet(b,'load');await Promise.race([pr.catch(()=>{}),wait(4000)]);if(run!==listenRun)return;active=null}sysListen(b,text,key,!outNow()?'':elOut.day?outNote():elOut.why+' '+t_('Suena la voz del iPhone hasta dentro de un rato.'));return}
     if(!player||!player._h){if(!player){player=new Audio();player.playsInline=true}player._h=1;
       player.onended=()=>{const A=active;if(player.src===SILENT||!A||!A.segs)return;const n=A.i+1;if(A.segs[n])playSeg(A,n).catch(e=>{if(active===A&&A.fail)A.fail(e,n)});else if(A.more){A.waiting=true;pillSet(A.btn,'load')}else listenStop()};
       player.ontimeupdate=()=>{const A=active;if(!A||!A.segs||player.src===SILENT||!player.duration)return;const tot=A.segs.reduce((x,y)=>x+y.text.length,0);let done=0;for(let k=0;k<A.i;k++)done+=A.segs[k].text.length;
         progSet(A.btn,(100*(done+A.segs[A.i].text.length*player.currentTime/player.duration)/tot).toFixed(1)+'%')}}
     player.src=SILENT;player.play().catch(()=>{});   // iPhone: unlock audio inside the tap
-    const run=++listenRun;const A={src:String(key).split('|').slice(0,2).join('|'),btn:b,key:`audio4|${key}|${cfg.lang}|${cfg.voice==='gem'?gemKey():cfg.elVoice}`,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
+    let vk=cfg.voice==='gem'?gemKey():cfg.elVoice,voice=null,olds=null;
+    if(cfg.voice==='gem'&&cfg.lang!=='en'){const base=`audio4|${key}|${cfg.lang}|`;
+      if(isEp){const id=+String(key).split('|')[1];const ep=epGet(id);if(ep&&ep.vk){vk=ep.vk;voice=ep.voice||null}
+        else if(ep&&arCur()){const first=(ep.chapters&&ep.chapters[0])?(epChunks(ep.chapters[0],true)[0]||''):'';let pick={vk:gemKey(),voice:arCur()};   // the voice an episode started with stays until its end
+          for(const o of [pick,...gemOldKeys()]){if(!o.voice)continue;if(first&&await getPhoto(segKey(base+o.vk,first))){pick=o;break}}
+          vk=pick.vk;voice=pick.voice;const e2=epGet(id);if(e2){e2.vk=vk;e2.voice=voice;epSave(e2)}}}
+      else olds=gemOldKeys().map(o=>base+o.vk)}
+    const run=++listenRun;const A={src:String(key).split('|').slice(0,2).join('|'),btn:b,key:`audio4|${key}|${cfg.lang}|${vk}`,voice,olds,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
     try{
       const script=isEp?text:await prepScript(text);if(run!==listenRun)return;
       let cs=isEp?script.split('\n§§\n').flatMap((c,i)=>epChunks(c,i===0)):chunks(script);if(isEp){}else if(cfg.voice==='gem'&&cs.length>1&&script.length<=1400)cs=[cs.join('\n\n')];else if(cfg.voice==='gem'&&cs.length>2){const head=cs[0]+'\n\n'+cs[1];let rest=cs.slice(2);const L=rest.join(' ').length;cs=[head];if(L>2400){const h=Math.ceil(rest.length/2);cs.push(rest.slice(0,h).join('\n\n'),rest.slice(h).join('\n\n'))}else cs.push(rest.join('\n\n'))}A.segs=cs.map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
       await playSeg(A,0);
     }catch(e){fail(e)}
     function fail(e,at){if(active!==A)return;
-      if(isEp&&e&&e.name!=='NotAllowedError'){const k=e&&e.kind;if(k==='quota'&&cfg.voice==='gem'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(t_(k==='quota'?'Se acabó la voz gratis de Gemini por hoy. El episodio queda guardado: mañana sigue con la misma voz.':'La voz se cortó. Toca Escuchar para seguir.'),true);return}   // an episode never switches to another voice halfway
+      if(e&&e.kind==='quota'&&cfg.voice==='gem'&&!sysToday()){listenStop();gemOutNote(()=>{if(isEp)epPlay(+String(key).split('|')[1]);else listen(b,text,key)});return}
+      if(isEp&&e&&e.name!=='NotAllowedError'){listenStop();status(t_('La voz se cortó. Toca Escuchar para seguir.'),true);return}   // an episode never switches to another voice halfway
       if(noSysES()&&!(e&&e.name==='NotAllowedError')){const k=e&&e.kind;if(k==='quota'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(k==='quota'?t_('Se acabó la voz gratis de Gemini por hoy. Mañana vuelve la misma voz.'):voiceWhy(e),true);return}   // the iPhone has no Buenos Aires voice: better silence than another accent
       if(hasSys()&&!(e&&e.name==='NotAllowedError'&&!at)){const k=e&&e.kind,gem=cfg.voice==='gem';const why=voiceWhy(e);
         if(k==='quota'||k==='paid'||(gem&&k==='key')){elOut={v:cfg.voice,t:Date.now(),why,...(gem&&k==='quota'?{day:ptDay()}:{})};store.set('voiceOut',elOut)}
@@ -4316,8 +4341,14 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   const hasSys=()=>'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined';
   const ptDay=()=>{try{return new Date().toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'})}catch(e){return new Date().toDateString()}};
   var elOut=store.get('voiceOut',null);const outNow=()=>!!elOut&&elOut.v===cfg.voice&&!(cfg.voice==='gem'&&cfg.lang!=='en'&&arCur()&&AR_MODELS.some(m=>!arOutDay(m)&&!(store.get('arBad',[])||[]).includes(m)))&&(elOut.day?elOut.day===ptDay():Date.now()-elOut.t<3600e3);
-  const noSysES=()=>cfg.voice==='gem'&&cfg.lang!=='en'&&!/es[-_]ar/i.test(((sysVoice('es')||{}).lang)||'');
-  const useEL=()=>((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!outNow();
+  const noSysES=()=>cfg.voice==='gem'&&cfg.lang!=='en'&&!sysToday()&&!/es[-_]ar/i.test(((sysVoice('es')||{}).lang)||'');
+  const sysToday=()=>store.get('sysDay','')===ptDay();
+  const useEL=()=>cfg.voice==='gem'?(!!cfg.key&&!sysToday()):((cfg.voice==='el'&&!!cfg.elKey)||(cfg.voice==='gem'&&!!cfg.key))&&!outNow();
+  // next reset of Google's free quota (midnight in California), in the phone's own time
+  function gemBack(){const d0=ptDay();let t=Date.now();for(let i=0;i<200&&new Date(t).toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'})===d0;i++)t+=15*60e3;const la=x=>new Date(x).toLocaleDateString('en-CA',{timeZone:'America/Los_Angeles'});for(let i=0;i<15&&la(t-60e3)!==d0;i++)t-=60e3;t=Math.floor(t/60e3)*60e3;return new Date(t).toLocaleTimeString(LOCALE(),{hour:'2-digit',minute:'2-digit'})}
+  function gemOutNote(useSys){const el=$('ntoast');$('ntoast-text').innerHTML='';$('ntoast-text').append(t_('Voz gratis agotada hasta las')+' ');const bb=document.createElement('b');bb.textContent=gemBack();$('ntoast-text').append(bb);
+    const go=$('ntoast-go');const lab=go.textContent;go.textContent=t_('Voz del iPhone');go.onclick=()=>{go.textContent=lab;nOut();store.set('sysDay',ptDay());useSys()};
+    el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false;clearTimeout(readyNote.t);readyNote.t=setTimeout(()=>{nOut();setTimeout(()=>{go.textContent=lab},300)},9000)}
   function outNote(){if(store.get('outSaid','')===ptDay())return '-';store.set('outSaid',ptDay());return t_('Voz de Gemini agotada por hoy: suena la del iPhone.')}
   function voiceWhy(e){const k=e&&e.kind,m=String(e&&e.message||'').split(/[\n.]/)[0].slice(0,90);
     if(cfg.voice==='gem')return t_({quota:'Gemini: se acabó el cupo gratis de voz de hoy.',paid:'Tu clave de Gemini no incluye la voz gratis: hace falta activar la facturación.',key:'Tu clave de Gemini no deja usar la voz.',busy:'Gemini: demasiadas narraciones por minuto.',slow:'La voz de Gemini tardó demasiado.',net:'Sin conexión con Gemini.'}[k]||'La voz de Gemini falló')+(k&&!['quota','paid','busy','slow','net'].includes(k)&&m?' ('+m+').':'');
