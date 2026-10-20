@@ -430,12 +430,19 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .dy-head{display:flex;gap:14px;align-items:center}.dy-th{width:58px;height:58px;border-radius:10px;object-fit:cover;flex:none;background:var(--raise)}.dy-th[hidden]{display:none}
 .dy-k{margin:0 0 4px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}.dy-head h2{font-size:30px;line-height:1.02}
 .dy-hint{margin:0;max-width:290px;text-align:center;color:var(--muted);font-size:15px;line-height:1.45}.dy-write{font-size:12px!important}
-.eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps h2{font-size:34px;line-height:1.02}
-.eps-ideas .eps-ih{margin:0}.eps-ideas:not(.open) .eps-sug{display:none}.eps-ideas:not(.open) .eps-ih::after{transform:rotate(45deg) translate(-2px,-2px)}.eps-ideas.open .eps-ih{margin-bottom:12px}.eps-ideas[hidden]{display:none}
+.eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps{padding-top:64px;gap:26px}.ep{padding-top:44px}.eps h2{font-size:38px;line-height:1.02}
+.eps-ideas{display:flex;flex-direction:column;gap:12px}.eps-ideas[hidden]{display:none}
+.eps-ideas .eps-sug{display:flex;flex-wrap:nowrap;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -20px;padding:0 20px 2px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}.eps-ideas .eps-sug::-webkit-scrollbar{display:none}
+.eps-ideas .eps-sug button{flex:none;width:156px;height:118px;scroll-snap-align:start;scroll-margin-left:20px;display:flex;align-items:flex-end;border:0;border-radius:8px;background:var(--raise);padding:14px;font-family:var(--serif);font-size:19px;line-height:1.12;text-align:left;color:var(--ink);white-space:normal}
+.eps-ideas .eps-sug button:nth-child(3n+2){background:color-mix(in srgb,var(--raise) 70%,#3b4a3a)}.eps-ideas .eps-sug button:nth-child(3n+3){background:color-mix(in srgb,var(--raise) 70%,#4a3a2c)}
+.eps-herow[hidden]{display:none}.eps.asking .eps-herow{display:none}.rows li>button.eps-hero{display:flex;border-bottom:0;padding:0;background:var(--bg)}
+.eps-hero{display:flex;gap:16px;align-items:center;border:0;background:transparent;color:var(--ink);text-align:left;padding:0;transition:opacity .15s ease}.eps-hero:active{opacity:.6}.eps-hero[hidden]{display:none}.eps.asking .eps-hero{display:none}
+.eph-cv{width:132px;height:132px;flex:none;border-radius:8px;overflow:hidden;background:var(--raise)}.eph-cv img{width:100%;height:100%;object-fit:cover;display:block}
+.eph-t{display:flex;flex-direction:column;gap:6px;min-width:0}.eph-t b{font-family:var(--serif);font-weight:400;font-size:24px;line-height:1.08;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}.eph-t small{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted)}
 .eps-ok{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;display:flex;flex-direction:column;gap:6px}.eps-ok[hidden]{display:none}.eps-okk{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.eps-okt{margin:0;font-family:var(--serif);font-size:26px;line-height:1.1;color:var(--ink)}
 .eps.asking .eps-ideas{display:none}.eps-form input:disabled{opacity:1;color:var(--muted);-webkit-text-fill-color:var(--muted)}
-.eps-okt.eps-wait{color:var(--muted)}.eps-load{display:block;height:1px;margin-top:14px;background:linear-gradient(90deg,transparent,var(--ink),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:epsload 1.3s ease-in-out infinite}
-@keyframes epsload{from{background-position:-40% 0}to{background-position:140% 0}}
+.eps-ok.waiting{border:0;padding:4px 0}.eps-ok.waiting .eps-okk{font-family:var(--serif);font-size:20px;letter-spacing:0;text-transform:none;color:var(--muted);animation:epsbreath 2.4s ease-in-out infinite}
+@keyframes epsbreath{0%,100%{opacity:.45}50%{opacity:1}}
 .eps-oka{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink);opacity:.82}
 .eps-okb{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.eps-okb .gem-save{padding:9px 16px}.eps-opts{display:flex;flex-direction:column;margin-top:4px}.eps-opts button{border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;font-family:var(--serif);font-size:22px;line-height:1.15;padding:12px 0;transition:opacity .15s ease}.eps-opts button:active{opacity:.55}
 .eps-sug{display:flex;flex-wrap:wrap;gap:8px}.eps-sug button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:14px;text-align:left;transition:opacity .15s ease}.eps-sug button:active{opacity:.55}.eps-wait{color:var(--muted);font-size:14px}
@@ -776,6 +783,7 @@ button.dayhead .cnt{transition:opacity .2s ease}.daytop.isopen .cnt{opacity:0}
 
 /* only the home screen is locked; long pages keep the iPhone's natural bounce */
 html.lock,html.lock body{overscroll-behavior:none}
+html.fits,html.fits body{overflow:hidden}
 body[data-view=prep] .app{box-sizing:border-box}
 .transfer{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:18px;margin-top:6px}
 .transfer .row{display:flex;gap:10px;flex-wrap:wrap}
@@ -1262,7 +1270,8 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div><p class="dy-k" id="eps-k">Episodios</p><h2>Para escuchar caminando</h2></div>
     <form class="q-form eps-form" id="eps-form" autocomplete="off"><input id="eps-input" enterkeyhint="go" placeholder="¿Qué te apetece escuchar?" aria-label="Tema del episodio"><button type="submit" aria-label="Crear el episodio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
     <div class="eps-ok" id="eps-ok" hidden></div>
-    <div class="eps-ideas" id="eps-ideas"><button class="ep-ch eps-ih" id="eps-ih"><span id="eps-iht">Ideas</span></button><div class="eps-sug" id="eps-sug"></div></div>
+    <ul class="rows eps-herow" id="eps-herow" hidden><li><div class="del-bg">Borrar</div><button class="eps-hero" id="eps-hero"><span class="eph-cv"><img alt="" id="eph-img"></span><span class="eph-t"><span class="eps-okk" id="eph-k">Seguir escuchando</span><b id="eph-title"></b><small id="eph-meta"></small></span></button></li></ul>
+    <div class="eps-ideas open" id="eps-ideas"><p class="eps-okk" id="eps-iht">Ideas</p><div class="eps-sug" id="eps-sug"></div></div>
     <div id="eps-mine" hidden><p class="label">Tus episodios</p><div class="eps-list" id="eps-list"></div></div>
   </section>
   <section class="ep" id="v-ep" hidden>
@@ -1434,7 +1443,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.40 · 00:50</p>
+    <p class="note small ver" translate="no">manu-go · v 4.41 · 01:20</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1491,7 +1500,9 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   let cur=null; // the card on screen
   let view='home';
   var scrollMem={},goBack=false,pendY=null;
-  function show(v){if(rec&&v!=='diary')recStop(true);if(v!=='diary'&&jEdit&&document.activeElement)document.activeElement.blur();$('dyfab').hidden=v!=='diary'||!!rec;document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();if(prev==='result'&&v!=='result'&&!['ask','alts','story'].includes(v))resetCardUI();view=v;const fabOn=['result','mymap','settings','all','loading'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-eps').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
+  function fitLock(){const v=document.body.dataset.view;const fits=document.documentElement.scrollHeight<=innerHeight+2;document.documentElement.classList.toggle('lock',v==='home'||v==='prep'||fits);document.documentElement.classList.toggle('fits',fits&&v!=='home'&&v!=='prep')}
+  try{new ResizeObserver(()=>fitLock()).observe(document.querySelector('.app'))}catch(e){}addEventListener('resize',fitLock);
+  function show(v){if(rec&&v!=='diary')recStop(true);if(v!=='diary'&&jEdit&&document.activeElement)document.activeElement.blur();$('dyfab').hidden=v!=='diary'||!!rec;document.body.dataset.view=v;const prev=view;if(prev&&prev!==v)scrollMem[prev]=window.scrollY;status('');if(prev!==v&&v!=='result')detachVoice();if(prev==='result'&&v!=='result'&&!['ask','alts','story'].includes(v))resetCardUI();view=v;const fabOn=['result','mymap','settings','all','loading'].includes(v);closeSheet();if(typeof closeShare==='function')closeShare();if(window.closeQS)closeQS();$('fab').hidden=!fabOn;document.querySelector('.app').classList.toggle('with-fab',fabOn);document.querySelector('.app').classList.toggle('on-card',v==='result');const mb=document.getElementById('mapbox');if(mb&&mb.classList.contains('full')){mb.classList.remove('full');if(typeof map!=='undefined'&&map)map.dragging.disable();document.getElementById('btn-mapfull').textContent='Ampliar'}views.forEach(x=>$('v-'+x).hidden=x!==v);$('btn-back').hidden=true;$('navback').hidden=v==='home';document.body.classList.toggle('has-nav',v!=='home');document.documentElement.classList.toggle('lock',v==='home'||v==='prep');requestAnimationFrame(fitLock);document.documentElement.classList.toggle('noscroll',v==='prep');document.querySelector('.app').classList.toggle('has-back',v!=='home');$('btn-settings').hidden=v!=='home';$('btn-eps').hidden=v!=='home';$('btn-theme').hidden=true;if(v==='home')renderHome();pendY=goBack?(scrollMem[v]||0):null;goBack=false;window.scrollTo(0,pendY||0);if(prev!==v){const sec=$('v-'+v);sec.classList.remove('vin');void sec.offsetWidth;sec.classList.add('vin');clearTimeout(sec._vin);sec._vin=setTimeout(()=>sec.classList.remove('vin'),300)}if(typeof updateMinibar==='function')updateMinibar()}
   function status(t,err){const s=$('status');s.textContent=t||'';s.classList.toggle('err',!!err)}
   let backTo=null;
   $('navback').onclick=()=>$('btn-back').onclick();
@@ -1703,7 +1714,9 @@ Devuelve JSON: {"text": "..."}`}
   async function epSuggest(city){const box=$('eps-sug');if(!city||!cfg.key){box.innerHTML='';return}const k='epsug|'+city.toLowerCase()+'|'+cfg.lang;let list=store.get(k,null);
     if(!list){box.innerHTML='<span class="eps-wait">'+t_('Buscando historias de')+' '+city+'…</span>';try{const o=await gemini([{text:`Propón 6 temas para episodios de podcast de historia de unos 20 minutos para alguien que está de viaje en ${city}: historias que valga la pena escuchar (un hecho, una época, un barrio, una persona de aquí, alguien célebre que nació o vivió aquí). Variados entre sí. Cada tema, 2 a 6 palabras, concreto y con gancho, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topics": ["...", "..."]}`}],{fast:true});list=(o&&o.topics||[]).slice(0,6).map(String);if(list.length)store.set(k,list)}catch(e){list=[]}}
     if(view!=='eps')return;box.innerHTML='';list.forEach(t=>{const b=document.createElement('button');b.textContent=epCap(t);b.onclick=()=>epNew(t);box.appendChild(b)})}
-  function epList(){const list=$('eps-list'),all=epAll();list.innerHTML='';$('eps-mine').hidden=!all.length;const ul=document.createElement('ul');ul.className='rows eprows';list.appendChild(ul);
+  function epList(){const list=$('eps-list'),every=epAll();list.innerHTML='';const top=every[0],all=every.slice(1);$('eps-mine').hidden=!all.length;
+    {const h=$('eps-hero');$('eps-herow').hidden=!top;h._id=top?top.id:null;const li=h.parentElement;li.classList.remove('leaving');li.style.height='';li.style.opacity='';li.style.marginTop='';h.style.transform='';if(!h._sw){h._sw=1;swipeDel(li,h,()=>{if(h._id)removeEpisode(h._id)},()=>{if(h._id)openEp(h._id)})}if(top){const pos=store.get('eppos|'+top.id,0);$('eph-k').textContent=t_(pos?'Seguir escuchando':epReady(top)?'Tu último episodio':'Escribiéndose');$('eph-title').textContent=top.title;
+      $('eph-meta').textContent=[top.st==='ok'?`${epMins(top)} min`:'',top.city].filter(Boolean).join('  ·  ');const im=$('eph-img');im.removeAttribute('src');epCover(top).then(u=>{if(u)im.src=u})}}const ul=document.createElement('ul');ul.className='rows eprows';list.appendChild(ul);
     all.forEach(ep=>{const li=document.createElement('li'),b=document.createElement('button');const bg=document.createElement('div');bg.className='del-bg';bg.textContent=t_('Borrar');li.appendChild(bg);
       const im=document.createElement('img');im.className='th';im.alt='';const n=document.createElement('span');n.className='nm';n.textContent=ep.title;
       const w=document.createElement('span');w.className='when';w.textContent=ep.st==='ok'?`${epMins(ep)} min`:t_('a medias');b.append(im,n,w);li.appendChild(b);
@@ -1713,11 +1726,10 @@ Devuelve JSON: {"text": "..."}`}
     $('toast-text').innerHTML='';$('toast-text').append(t_('Borrado')+' · ');{const b=document.createElement('b');b.textContent=item.title;$('toast-text').append(b)}{const el=$('toast');el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false}
     clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);setTimeout(epList,0)}
   function openEps(){show('eps');const city=epCity();$('eps-k').textContent=[t_('Episodios'),city].filter(Boolean).join('  ·  ');epList();epSuggest(city);
-    $('eps-iht').textContent=city?t_('Ideas en')+' '+city:t_('Ideas');$('eps-ideas').hidden=!city||!cfg.key;$('eps-ideas').classList.toggle('open',store.get('epsIdeas',null)??!epAll().length);if(!epOkBusy){$('eps-ok').hidden=true;epAskEnd()}}
-  $('eps-ih').onclick=()=>{const b=$('eps-ideas');b.classList.toggle('open');store.set('epsIdeas',b.classList.contains('open'))};
+    $('eps-iht').textContent=city?t_('Ideas en')+' '+city:t_('Ideas');$('eps-ideas').hidden=!city||!cfg.key;if(!epOkBusy){$('eps-ok').hidden=true;epAskEnd()}}
   // before writing twenty minutes about a typo: a quick look, and a question only when something changed
   let epOkBusy=0;const epNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}]+/gu,'');
-  function epOk(kicker,body){const b=$('eps-ok');b.hidden=false;b.innerHTML='';const k=document.createElement('p');k.className='eps-okk';k.textContent=kicker;b.appendChild(k);if(body)body(b)}
+  function epOk(kicker,body){const b=$('eps-ok');b.hidden=false;b.classList.remove('waiting');b.innerHTML='';const k=document.createElement('p');k.className='eps-okk';k.textContent=kicker;b.appendChild(k);if(body)body(b)}
   function epOkBtns(b,go,altLabel,alt){const r=document.createElement('div');r.className='eps-okb';const g=document.createElement('button');g.className='gem-save';g.textContent=t_('Crear el episodio');g.onclick=go;const a=document.createElement('button');a.className='gem-save gem-alt';a.textContent=altLabel;a.onclick=alt;r.append(g,a);b.appendChild(r)}
   const epOkClose=()=>{epOkBusy=0;$('eps-ok').hidden=true;epAskEnd()};
   // what is it, really? one Google search first, so an episode never starts from a guess
@@ -1732,7 +1744,7 @@ DATOS:
 OPCIONES:
 - solo si puede ser cosas muy distintas: 2 o 3 lecturas concretas, y entonces deja QUÉ ES vacío
 Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${LANG()}.`;
-    let txt='';for(let k=0;k<2&&!txt;k++){try{txt=String(await Promise.race([gemini([{text:ask}],{stream:true,search:true,mustSearch:true,fast:true,onText:()=>{}}),wait(k?12000:18000).then(()=>'')])||'')}catch(e){txt=''}if(!txt&&k===0)await wait(1500)}
+    let txt='';for(let k=0;k<2&&!txt;k++){try{txt=String(await grounded(ask)||'')}catch(e){txt=''}if(!txt&&k===0)await wait(1500)}
     if(!txt)return null;const clean=x=>String(x||'').replace(/\*\*|__|`/g,'').replace(/\s*\[\d+(?:[,\s]*\d+)*\]/g,'').trim();const T=clean(txt);
     const sec=(lab,next)=>{const re=new RegExp('(?:^|\\n)\\s*'+lab+'[ \\t]*:?[ \\t]*([\\s\\S]*?)(?=\\n\\s*(?:'+next+')[ \\t]*:|$)','i');const x=T.match(re);return x?x[1].trim():''};
     const L='TEMA|QU[ÉE] ES|DURACI[ÓO]N|DATOS|OPCIONES';const list=x=>x.split('\n').map(l=>l.replace(/^\s*[-•*\d.)]+\s*/,'').trim()).filter(l=>l&&!/^\(?vac[ií]o\)?$|^ninguna?\.?$/i.test(l));
@@ -1742,7 +1754,7 @@ Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${
   async function epAsk(raw,from){raw=String(raw||'').trim();if(!raw&&!from)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap
     const run=++epOkBusy,city=epCity(),inp=$('eps-input');$('v-eps').classList.add('asking');if(!from){inp.value=raw;inp.disabled=true}
-    epOk(from?t_('Buscando la historia detrás de')+' '+from.name:t_('Buscando qué es…'),b=>{const l=document.createElement('i');l.className='eps-load';b.append(l)});
+    epOk(from?t_('Buscando la historia detrás de')+' '+from.name:t_('Buscando qué es…'));$('eps-ok').classList.add('waiting');
     const g=await epFind(raw,from,city);if(run!==epOkBusy||view!=='eps')return;epAskEnd();
     const again=()=>{const i=$('eps-input');i.value=raw;i.focus()};
     if(!g||(!g.topic&&!g.about&&!g.opts.length)){epOk(t_('No pude buscarlo ahora'),b=>{const a=document.createElement('p');a.className='eps-oka';a.textContent=t_('Google no respondió. No escribo nada sin saber de qué se trata: prueba otra vez en un momento.');b.appendChild(a);
@@ -1908,6 +1920,11 @@ Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${
       return{ok:true,text};
     }catch(e){clearTimeout(t);if(e.name==='AbortError')return{ok:false,status:504,msg:'timeout'};throw e}
   }
+  async function grounded(prompt){for(const model of ['gemini-2.5-flash','gemini-2.5-flash-lite']){const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),22000);
+      try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,{method:'POST',signal:ac.signal,headers:{'Content-Type':'application/json','x-goog-api-key':cfg.key},
+          body:JSON.stringify({contents:[{parts:[{text:prompt}]}],tools:[{google_search:{}}],generationConfig:{thinkingConfig:{thinkingBudget:0}}})});
+        clearTimeout(tm);if(!r.ok)continue;const t=textOf(await r.json());if(t)return t}catch(e){clearTimeout(tm)}}
+    return ''}   // the newer models only search with billing on: these two do it free
   const textOf=j=>((j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[]).filter(p=>p.text&&!p.thought).map(p=>p.text).join('');
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   // tries the saved model, then others; if Google is busy everywhere, waits and tries once more
@@ -2575,7 +2592,7 @@ QUÉ ES: "${V.what}"
 DATO: "${V.cool||''}"
 Hoy es ${new Date().toLocaleDateString(LOCALE(),{weekday:'long',day:'numeric',month:'long',year:'numeric'})}. 0) Si la ficha habla de algo que está pasando (gente haciendo algo, un acto, una protesta, una fiesta, una obra, una exposición), busca qué ocurre HOY en esta ciudad y cuéntalo en QUÉ ES: qué es y por qué hoy. 1) Si algo es falso o dudoso, corrígelo. 2) Si el dato es flojo, genérico o no está ligado a este lugar, cámbialo por uno comprobado, concreto y sorprendente sobre ESTE sitio o su relación con la ciudad (máximo 25 palabras). 3) Si todo está bien, no cambies nada. Mismo tono y largo, en ${LANG()}, años con cifras, sin describir la foto, sin muletillas.
 Devuelve SOLO JSON: {"what": "...", "cool": "...", "changed": true|false}`;
-    try{const txt=await gemini([{text:prompt}],{stream:true,search:true,fast:true,onText:()=>{}});const m=String(txt||'').match(/\{[\s\S]*\}/);if(!m)return;const o=JSON.parse(m[0]);
+    try{const txt=await grounded(prompt);const m=String(txt||'').match(/\{[\s\S]*\}/);if(!m)return;const o=JSON.parse(m[0]);
       if(!o||!o.changed)return;const what=(o.what||'').trim(),cool=(o.cool||'').trim();if(!what||what.length<20)return;
       const L=cfg.lang,b=c.lang||'es';if(L!==b)return;c._ver={what,cool:cool||c.cool};saveDiscovery(true,c);return;   // corrections are saved quietly and show next time: never swap text while you read
       await new Promise(r=>{const ck=()=>{if(!$('r-what').classList.contains('typing')&&!$('r-cool').classList.contains('typing'))r();else setTimeout(ck,400)};ck()});
