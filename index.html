@@ -433,6 +433,9 @@ html,body{overflow-x:hidden;overscroll-behavior-x:none;touch-action:manipulation
 .eps,.ep{display:flex;flex-direction:column;gap:22px;padding-top:30px}.eps h2{font-size:34px;line-height:1.02}
 .eps-ideas .eps-ih{margin:0}.eps-ideas:not(.open) .eps-sug{display:none}.eps-ideas:not(.open) .eps-ih::after{transform:rotate(45deg) translate(-2px,-2px)}.eps-ideas.open .eps-ih{margin-bottom:12px}.eps-ideas[hidden]{display:none}
 .eps-ok{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:16px 0;display:flex;flex-direction:column;gap:6px}.eps-ok[hidden]{display:none}.eps-okk{margin:0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}.eps-okt{margin:0;font-family:var(--serif);font-size:26px;line-height:1.1;color:var(--ink)}
+.eps.asking .eps-ideas{display:none}.eps-form input:disabled{opacity:1;color:var(--muted);-webkit-text-fill-color:var(--muted)}
+.eps-okt.eps-wait{color:var(--muted)}.eps-load{display:block;height:1px;margin-top:14px;background:linear-gradient(90deg,transparent,var(--ink),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:epsload 1.3s ease-in-out infinite}
+@keyframes epsload{from{background-position:-40% 0}to{background-position:140% 0}}
 .eps-oka{margin:6px 0 0;font-size:15px;line-height:1.5;color:var(--ink);opacity:.82}
 .eps-okb{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.eps-okb .gem-save{padding:9px 16px}.eps-opts{display:flex;flex-direction:column;margin-top:4px}.eps-opts button{border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;font-family:var(--serif);font-size:22px;line-height:1.15;padding:12px 0;transition:opacity .15s ease}.eps-opts button:active{opacity:.55}
 .eps-sug{display:flex;flex-wrap:wrap;gap:8px}.eps-sug button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 14px;font-size:14px;text-align:left;transition:opacity .15s ease}.eps-sug button:active{opacity:.55}.eps-wait{color:var(--muted);font-size:14px}
@@ -1257,7 +1260,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   <!-- EPISODIOS -->
   <section class="eps" id="v-eps" hidden>
     <div><p class="dy-k" id="eps-k">Episodios</p><h2>Para escuchar caminando</h2></div>
-    <form class="q-form eps-form" id="eps-form" autocomplete="off"><input id="eps-input" enterkeyhint="go" placeholder="Un lugar, una época, alguien…" aria-label="Tema del episodio"><button type="submit" aria-label="Crear el episodio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
+    <form class="q-form eps-form" id="eps-form" autocomplete="off"><input id="eps-input" enterkeyhint="go" placeholder="¿Qué te apetece escuchar?" aria-label="Tema del episodio"><button type="submit" aria-label="Crear el episodio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button></form>
     <div class="eps-ok" id="eps-ok" hidden></div>
     <div class="eps-ideas" id="eps-ideas"><button class="ep-ch eps-ih" id="eps-ih"><span id="eps-iht">Ideas</span></button><div class="eps-sug" id="eps-sug"></div></div>
     <div id="eps-mine" hidden><p class="label">Tus episodios</p><div class="eps-list" id="eps-list"></div></div>
@@ -1431,7 +1434,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.39 · 20:45</p>
+    <p class="note small ver" translate="no">manu-go · v 4.40 · 00:50</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1607,9 +1610,10 @@ Devuelve JSON: {"text": "..."}`}],{fast:true});
   const epN=ep=>ep.outline?ep.outline.chapters.length:6;
   const epMins=ep=>{const w=(ep.chapters||[]).filter(Boolean).join(' ').split(/\s+/).filter(Boolean).length;return Math.max(1,Math.round((ep.st==='ok'?w:epN(ep)*430)/140))};
   const EP_OPEN=['una escena concreta, en presente, como si pasara ahora (un lugar, una hora, alguien haciendo algo)','una persona: quién era y qué estaba por pasarle','un dato que descoloca y obliga a seguir escuchando','el narrador presentando el tema a su manera, con la pregunta grande que lo vuelve inevitable (p. ej. "El tema que les traigo hoy es de esos que hielan la sangre, de los que te hacen preguntarte cómo pudo pasar… y cómo pudo el mundo mirar para otro lado")','un objeto o un documento concreto y la historia que esconde','una cita breve y real (de alguien de la época, un escritor o un pensador) que plantea la pregunta del episodio, dicha con su autor, y enseguida la historia'];
-  function epOutline(topic,city,from,notes,short){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos ${short?8:20} minutos. Tema: "${topic}"${city?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.${from?`\nNace de una ficha breve que el oyente ya escuchó sobre «${from.name}»${from.what?` (${from.what})`:''}: no repitas lo de la ficha; cuenta la historia de fondo, más amplia, y si encaja, pasa por ese sitio en algún momento como un lugar más de la historia.`:''}
+  function epOutline(topic,city,from,notes,short){const op=EP_OPEN[Math.floor(Math.random()*EP_OPEN.length)];return `Vas a preparar un episodio de podcast de historia de unos ${short?8:20} minutos. Tema: "${topic}"${city&&!(notes&&notes.length)?` (el oyente está de viaje en ${city}; si el tema es de la ciudad, cuéntalo desde ahí)`:''}. El episodio es atemporal: nunca se refiere a dónde está el oyente.${from?`\nNace de una ficha breve que el oyente ya escuchó sobre «${from.name}»${from.what?` (${from.what})`:''}: no repitas lo de la ficha; cuenta la historia de fondo, más amplia, y si encaja, pasa por ese sitio en algún momento como un lugar más de la historia.`:''}
 Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "...", "beats": ["...", "..."]}], "ending": "..."} con ${short?3:6} capítulos.${notes&&notes.length?`\nLo que se averiguó del tema (es la base: cuenta ESTO, no otra cosa con un nombre parecido):\n- ${notes.join('\n- ')}`:''}
 - "opening": cómo arranca el primer capítulo. Esta vez prueba con ${op}; si no le queda bien a este tema, elige otra forma que enganche. Que cada episodio empiece distinto.
+- Todo el episodio trata de este tema y de nada más: cada título de capítulo habla de él, nunca de otra historia de la ciudad.
 - Arco: un comienzo que engancha; un desarrollo en orden que se entiende sin saber nada antes; un final que deja pensando.
 - Cada capítulo, un título corto y 3 a 5 "beats" con hechos concretos: personas con nombre, fechas, lugares concretos (calles, edificios, barrios), cifras.
 - Incluye 2 o 3 comparaciones que ayuden a imaginar (una escala, una distancia, cuánto sería hoy, cuánta gente cabe en algo conocido), siempre verificables.
@@ -1709,39 +1713,49 @@ Devuelve JSON: {"text": "..."}`}
     $('toast-text').innerHTML='';$('toast-text').append(t_('Borrado')+' · ');{const b=document.createElement('b');b.textContent=item.title;$('toast-text').append(b)}{const el=$('toast');el.style.transition='';el.style.transform='';el.style.opacity='';el.hidden=false}
     clearTimeout(undoTimer);undoTimer=setTimeout(finishPendingDelete,5000);setTimeout(epList,0)}
   function openEps(){show('eps');const city=epCity();$('eps-k').textContent=[t_('Episodios'),city].filter(Boolean).join('  ·  ');epList();epSuggest(city);
-    $('eps-iht').textContent=city?t_('Ideas en')+' '+city:t_('Ideas');$('eps-ideas').hidden=!city||!cfg.key;$('eps-ideas').classList.toggle('open',store.get('epsIdeas',null)??!epAll().length);if(!epOkBusy)$('eps-ok').hidden=true}
+    $('eps-iht').textContent=city?t_('Ideas en')+' '+city:t_('Ideas');$('eps-ideas').hidden=!city||!cfg.key;$('eps-ideas').classList.toggle('open',store.get('epsIdeas',null)??!epAll().length);if(!epOkBusy){$('eps-ok').hidden=true;epAskEnd()}}
   $('eps-ih').onclick=()=>{const b=$('eps-ideas');b.classList.toggle('open');store.set('epsIdeas',b.classList.contains('open'))};
   // before writing twenty minutes about a typo: a quick look, and a question only when something changed
   let epOkBusy=0;const epNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\p{L}\p{N}]+/gu,'');
   function epOk(kicker,body){const b=$('eps-ok');b.hidden=false;b.innerHTML='';const k=document.createElement('p');k.className='eps-okk';k.textContent=kicker;b.appendChild(k);if(body)body(b)}
   function epOkBtns(b,go,altLabel,alt){const r=document.createElement('div');r.className='eps-okb';const g=document.createElement('button');g.className='gem-save';g.textContent=t_('Crear el episodio');g.onclick=go;const a=document.createElement('button');a.className='gem-save gem-alt';a.textContent=altLabel;a.onclick=alt;r.append(g,a);b.appendChild(r)}
-  const epOkClose=()=>{epOkBusy=0;$('eps-ok').hidden=true};
+  const epOkClose=()=>{epOkBusy=0;$('eps-ok').hidden=true;epAskEnd()};
+  // what is it, really? one Google search first, so an episode never starts from a guess
+  async function epFind(raw,from,city){const ask=`${from?`Alguien está viendo esto en una ficha de su app de viaje: "${from.name}"${from.what?` (${from.what})`:''}${city?`, en ${city}`:''}. Quiere un episodio de podcast con la historia de fondo: no una descripción del sitio, sino la época, el fenómeno, las personas detrás.`
+      :`Alguien quiere escuchar un episodio de podcast sobre esto, que escribió deprisa: "${raw}"${city?` (está de viaje en ${city}: si parece algo de aquí, busca también en el idioma local)`:''}. Puede ser un hecho, una época, una persona o un lugar, pero también jerga, un meme, un estereotipo o un chiste de la gente: no lo interpretes al pie de la letra ni lo cambies por otro tema de la ciudad; averigua qué es de verdad.`}
+Busca en Google antes de responder. Responde SOLO con este formato, con estas etiquetas tal cual:
+TEMA: título claro del episodio, de 2 a 7 palabras, sin dos puntos
+QUÉ ES: 2 o 3 frases claras, como se lo contarías a un amigo
+DURACIÓN: larga (si hay historia para unos 20 minutos) o corta (si da para unos 8)
+DATOS:
+- hasta 12 hechos concretos y verificados para contar la historia (origen, fechas, personas, ejemplos, cómo se usa)
+OPCIONES:
+- solo si puede ser cosas muy distintas: 2 o 3 lecturas concretas, y entonces deja QUÉ ES vacío
+Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${LANG()}.`;
+    let txt='';for(let k=0;k<2&&!txt;k++){try{txt=String(await Promise.race([gemini([{text:ask}],{stream:true,search:true,mustSearch:true,fast:true,onText:()=>{}}),wait(k?12000:18000).then(()=>'')])||'')}catch(e){txt=''}if(!txt&&k===0)await wait(1500)}
+    if(!txt)return null;const clean=x=>String(x||'').replace(/\*\*|__|`/g,'').replace(/\s*\[\d+(?:[,\s]*\d+)*\]/g,'').trim();const T=clean(txt);
+    const sec=(lab,next)=>{const re=new RegExp('(?:^|\\n)\\s*'+lab+'[ \\t]*:?[ \\t]*([\\s\\S]*?)(?=\\n\\s*(?:'+next+')[ \\t]*:|$)','i');const x=T.match(re);return x?x[1].trim():''};
+    const L='TEMA|QU[ÉE] ES|DURACI[ÓO]N|DATOS|OPCIONES';const list=x=>x.split('\n').map(l=>l.replace(/^\s*[-•*\d.)]+\s*/,'').trim()).filter(l=>l&&!/^\(?vac[ií]o\)?$|^ninguna?\.?$/i.test(l));
+    const topic=epCap(sec('TEMA',L).split('\n')[0].replace(/^["«]|["»]$/g,'')),about=sec('QU[ÉE] ES',L),dur=sec('DURACI[ÓO]N',L);
+    return{topic,about:/NO_SE/.test(about)?'':about,none:/NO_SE/.test(about),notes:list(sec('DATOS',L)).slice(0,12),opts:list(sec('OPCIONES',L)).map(epCap).slice(0,3),short:/^cort|^short/i.test(dur)}}
+  function epAskEnd(){$('v-eps').classList.remove('asking');const i=$('eps-input');i.disabled=false}
   async function epAsk(raw,from){raw=String(raw||'').trim();if(!raw&&!from)return;if(!cfg.key){status('Primero pega tu clave gratuita de Gemini.',true);return}
     if(!player){player=new Audio();player.playsInline=true}player.src=SILENT;player.play().catch(()=>{});   // unlock audio inside the tap
-    const run=++epOkBusy,city=epCity();epOk(from?t_('Buscando la historia detrás de')+' '+from.name+'…':t_('Buscando qué es…'));let o=null;
-    if(!from){let g=null;try{const txt=await gemini([{text:`Alguien quiere escuchar un episodio de podcast sobre esto que escribió deprisa: "${raw}"${city?` (está de viaje en ${city}; puede ser algo de aquí)`:''}.
-Antes de nada, busca en Google qué es exactamente: puede ser un hecho, una época, una persona, un lugar, pero también jerga, un meme, un estereotipo, una costumbre local o un chiste de la gente de aquí. No lo interpretes al pie de la letra si es una expresión: averigua qué quiere decir de verdad. Corrige la ortografía.
-Devuelve SOLO JSON: {"topic": "título claro del tema, 2 a 7 palabras, sin dos puntos", "about": "qué es, en 2 o 3 frases claras, como se lo explicarías a un amigo", "notes": ["hasta 12 hechos concretos y verificados para contar la historia: origen, fechas, personas, ejemplos, cómo se usa"], "depth": "long si hay historia para unos 20 minutos, short si da para unos 8", "options": []}
-Si puede ser cosas muy distintas, deja "about" vacío y da 2 o 3 lecturas posibles y concretas en "options". Escribe en ${LANG()}.`}],{stream:true,search:true,fast:true,onText:()=>{}});const m=String(txt||'').match(/\{[\s\S]*\}/);if(m)g=JSON.parse(m[0])}catch(e){g=null}
-      if(run!==epOkBusy||view!=='eps')return;
-      if(g&&(g.about||(g.options||[]).length)){const topic=epCap(String(g.topic||raw).trim()),opts=(g.options||[]).map(x=>epCap(String(x).trim())).filter(Boolean).slice(0,3);
-        if(!g.about&&opts.length){epOk(t_('¿Cuál de estos?'),b=>{const l=document.createElement('div');l.className='eps-opts';opts.forEach(x=>{const k=document.createElement('button');k.textContent=x;k.onclick=()=>epAsk(x);l.appendChild(k)});b.appendChild(l)});return}
-        const extra={notes:(g.notes||[]).map(String).filter(Boolean).slice(0,12),short:g.depth==='short'};
-        epOk(t_('Entendí'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;const a=document.createElement('p');a.className='eps-oka';a.textContent=String(g.about).trim();b.append(t,a);
-          epOkBtns(b,()=>{epOkClose();epNew(topic,null,extra)},t_('No es eso'),()=>{epOkClose();const i=$('eps-input');i.value=raw;i.focus()})});
-        if(extra.short){const g2=$('eps-ok').querySelector('.eps-okb .gem-save');if(g2)g2.textContent=t_('Crear un episodio corto')}return}}
-    try{o=await gemini([{text:from?`Alguien está viendo esto en una ficha de su app de viaje: "${from.name}"${from.what?` (${from.what})`:''}${city?`, en ${city}`:''}. Propón el tema de un episodio de podcast de historia de unos 20 minutos que vaya más allá de la ficha: la historia de fondo (la época, el fenómeno, las personas detrás), no una descripción del sitio. De 2 a 6 palabras, concreto, sin dos puntos. Escribe en ${LANG()}. Devuelve JSON: {"topic": "..."}`
-      :`Alguien escribió deprisa, quizá caminando por la calle, el tema de un episodio de podcast de historia: "${raw}"${city?` (está de viaje en ${city})`:''}. Corrige solo la ortografía, las tildes y los nombres propios mal escritos, sin cambiar lo que pide ni ampliarlo. Si no se entiende o puede ser cosas muy distintas, da de 2 a 3 lecturas posibles y concretas en "options". Escribe en ${LANG()}. Devuelve JSON: {"topic": "...", "options": []}`}],{fast:true})}catch(e){o=null}
-    if(run!==epOkBusy||view!=='eps')return;
-    const topic=epCap(String(o&&o.topic||'').trim()),opts=((o&&o.options)||[]).map(x=>epCap(String(x).trim())).filter(Boolean).slice(0,3);
-    if(from){if(!topic){epOkClose();return}epOk(t_('Desde')+' '+from.name,b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;b.appendChild(t);
-        epOkBtns(b,()=>{epOkClose();epNew(topic,from)},t_('Otro tema'),()=>{epOkClose();const i=$('eps-input');i.value=topic;i.focus()})});return}
-    if(opts.length>1){epOk(t_('¿Cuál de estos?'),b=>{const l=document.createElement('div');l.className='eps-opts';opts.forEach(x=>{const k=document.createElement('button');k.textContent=x;k.onclick=()=>{epOkClose();epNew(x)};l.appendChild(k)});b.appendChild(l);
-        const r=document.createElement('div');r.className='eps-okb';const a=document.createElement('button');a.className='gem-save gem-alt';a.textContent=t_('Como lo escribí');a.onclick=()=>{epOkClose();epNew(raw)};r.appendChild(a);b.appendChild(r)});return}
-    if(!topic||epNorm(topic)===epNorm(raw)){epOkClose();epNew(topic||raw);return}   // only accents or capitals: fixed quietly
-    epOk(t_('¿Te refieres a…?'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;b.appendChild(t);epOkBtns(b,()=>{epOkClose();epNew(topic)},t_('Como lo escribí'),()=>{epOkClose();epNew(raw)})})}
+    const run=++epOkBusy,city=epCity(),inp=$('eps-input');$('v-eps').classList.add('asking');if(!from){inp.value=raw;inp.disabled=true}
+    epOk(from?t_('Buscando la historia detrás de')+' '+from.name:t_('Buscando qué es…'),b=>{const l=document.createElement('i');l.className='eps-load';b.append(l)});
+    const g=await epFind(raw,from,city);if(run!==epOkBusy||view!=='eps')return;epAskEnd();
+    const again=()=>{const i=$('eps-input');i.value=raw;i.focus()};
+    if(!g||(!g.topic&&!g.about&&!g.opts.length)){epOk(t_('No pude buscarlo ahora'),b=>{const a=document.createElement('p');a.className='eps-oka';a.textContent=t_('Google no respondió. No escribo nada sin saber de qué se trata: prueba otra vez en un momento.');b.appendChild(a);
+        const r=document.createElement('div');r.className='eps-okb';const x=document.createElement('button');x.className='gem-save';x.textContent=t_('Reintentar');x.onclick=()=>epAsk(raw,from);const c=document.createElement('button');c.className='gem-save gem-alt';c.textContent=t_('Cancelar');c.onclick=()=>{epOkClose();if(!from)again()};r.append(x,c);b.appendChild(r)});return}
+    if(g.none&&!g.opts.length){epOk(t_('No encontré qué es'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=raw;const a=document.createElement('p');a.className='eps-oka';a.textContent=t_('Prueba a escribirlo de otra forma o con más contexto.');b.append(t,a);
+        const r=document.createElement('div');r.className='eps-okb';const c=document.createElement('button');c.className='gem-save gem-alt';c.textContent=t_('Escribirlo de nuevo');c.onclick=()=>{epOkClose();again()};r.appendChild(c);b.appendChild(r)});return}
+    if(!g.about&&g.opts.length){epOk(t_('¿Cuál de estos?'),b=>{const l=document.createElement('div');l.className='eps-opts';g.opts.forEach(x=>{const k=document.createElement('button');k.textContent=x;k.onclick=()=>epAsk(x);l.appendChild(k)});b.appendChild(l)});return}
+    const topic=g.topic||epCap(raw),extra={notes:g.notes,short:g.short};
+    epOk(from?t_('Desde')+' '+from.name:t_('Entendí'),b=>{const t=document.createElement('p');t.className='eps-okt';t.textContent=topic;const a=document.createElement('p');a.className='eps-oka';a.textContent=g.about;b.append(t,a);
+      epOkBtns(b,()=>{epOkClose();$('eps-input').value='';epNew(topic,from,extra)},from?t_('Otro tema'):t_('No es eso'),()=>{epOkClose();if(from){const i=$('eps-input');i.value='';i.focus()}else again()})});
+    if(g.short){const g2=$('eps-ok').querySelector('.eps-okb .gem-save');if(g2)g2.textContent=t_('Crear un episodio corto')}}
   $('btn-epcard').onclick=()=>{if(!cur||!cur.name)return;const v=LV(cur);const from={name:v.name||cur.name,what:String(v.what||cur.what||'').replace(/\s+/g,' ').slice(0,400)};openEps();epAsk('',from)};
-  $('btn-eps').onclick=openEps;$('eps-form').onsubmit=e=>{e.preventDefault();const v=$('eps-input').value;$('eps-input').value='';$('eps-input').blur();epAsk(v)};
+  $('btn-eps').onclick=openEps;$('eps-form').onsubmit=e=>{e.preventDefault();if($('eps-input').disabled)return;const v=$('eps-input').value;$('eps-input').blur();epAsk(v)};
   // listening is just listening: the cover alone, the rest one tap away (remembered)
   function epFocus(on){$('v-ep').classList.toggle('focus',on);$('ep-fx').setAttribute('aria-label',t_(on?'Ver el texto':'Solo la portada'));store.set('epFocus',on)}
   $('v-ep').classList.toggle('focus',!!store.get('epFocus',false));$('ep-fx').onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));$('ep-cover').parentElement.onclick=()=>epFocus(!$('v-ep').classList.contains('focus'));
@@ -1873,7 +1887,7 @@ Si puede ser cosas muy distintas, deja "about" vacío y da 2 o 3 lecturas posibl
       if(!r.ok){
         clearTimeout(t);let msg='';try{msg=(await r.json()).error.message||''}catch(e){}
         if(gc.thinkingConfig&&r.status===400&&/think/i.test(msg)){noThinking.add(model);return callModel(model,parts,opt)}
-        if(opt.search&&(r.status===400||r.status===429)){return callModel(model,parts,{...opt,search:false})}   // no web search on this model or quota: answer without it
+        if(opt.search&&(r.status===400||r.status===429)){if(opt.mustSearch)return{ok:false,status:r.status,msg};return callModel(model,parts,{...opt,search:false})}   // no web search on this model or quota: answer without it
         return{ok:false,status:r.status,msg};
       }
       if(!opt.stream){clearTimeout(t);const j=await r.json();return{ok:true,text:textOf(j)}}
