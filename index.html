@@ -1005,6 +1005,8 @@ html.photo-tint :is(#r-img,#dy-th,#prep-img,#alts-thumb,#minibar-img,.nd-art,.hn
 html.photo-tint :is(#r-img,#dy-th,#prep-img,#alts-thumb,#minibar-img,.nd-art,.hn-art,.rows img.th,.pin img,.leaflet-popup-content img,#q-att-img,.q-qimg)[data-tint="5"]{filter:url(#tint5)}
 .loc-line{display:flex;align-items:center;gap:10px;color:var(--ink)!important;font-size:15px!important}
 .loc-line .dot{width:8px;height:8px;border-radius:50%;border:1px solid var(--muted);flex:none}
+.diag-b{align-self:flex-start;margin:4px 0 10px}
+.loc-line.tap{cursor:pointer}.loc-line.tap #s-loc-t{text-decoration:underline;text-underline-offset:3px}
 .loc-line.ok .dot{background:var(--live);border-color:var(--live)}.loc-line.bad .dot{border-color:var(--danger)}
 
 .hist-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}.hist-head h2{margin:0!important}
@@ -1062,7 +1064,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 .lback{display:grid!important}.lrow .lback{width:0!important;padding:0!important;min-width:0!important;margin-left:-10px;border-width:0!important;overflow:hidden;transition:width .34s cubic-bezier(.2,.7,.2,1),margin .34s cubic-bezier(.2,.7,.2,1),opacity .25s ease .08s,transform .25s ease .08s}.lrow.on .lback{width:38px!important;margin-left:0;border-width:1px!important}.acc-body .lrow.on .lback{width:34px!important}
 .home>.hnow:not([hidden])+.history{margin-top:0}
 .hnow{animation:rowin .42s cubic-bezier(.2,.7,.2,1) both}
-.hn{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 44px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.hn{position:relative;display:grid;grid-template-columns:46px minmax(0,1fr) 44px 36px;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
 .hn-art{width:46px;height:46px;border-radius:4px;background:var(--surface);object-fit:cover;display:block}
 .hn-mid{background:transparent;border:0;padding:0;color:var(--ink);text-align:left;min-width:0;display:flex;flex-direction:column;gap:4px}
 .hn-t{font-family:var(--sans);font-weight:600;font-size:16px;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -1070,6 +1072,8 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 .hn-pp{width:44px;height:44px;border:0;background:transparent;color:var(--ink);display:grid;place-items:center;padding:0;-webkit-tap-highlight-color:transparent}
 .hn-pp svg{width:24px;height:24px;grid-area:1/1;transition:opacity .2s ease}.hn-pp .pl{opacity:0}.hnow.is-pause .hn-pp .pl{opacity:1}.hnow.is-pause .hn-pp .pz{opacity:0}.hnow.is-load .hn-pp{opacity:.5}
 .hn-pp:active{transform:scale(.9)}
+.hn-x,.nd-x{width:36px;height:44px;border:0;background:transparent;color:var(--muted);display:grid;place-items:center;padding:0;flex:none}.hn-x svg,.nd-x svg{width:18px;height:18px}.hn-x:active,.nd-x:active{transform:scale(.9)}
+.nd-x{display:none}.ndock.is-pause .nd-x{display:grid}
 .hn-prog{position:absolute;left:0;right:0;bottom:-1px;height:1px;overflow:hidden}.hn-prog i{display:block;height:100%;width:0;background:var(--ink);transition:width .25s linear}
 .term{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;text-decoration-color:color-mix(in srgb,currentColor 45%,transparent);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .15s ease}.term:active{opacity:.55}
 .look{display:flex;flex-direction:column;gap:14px;padding:4px 0 6px}
@@ -1131,7 +1135,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   <section class="home" id="v-home">
     <div class="history hnow" id="hnow" hidden>
       <div class="hist-head"><h2>Sonando</h2></div>
-      <div class="hn"><img class="hn-art" id="hn-art" alt=""><button class="hn-mid" id="hn-mid"><span class="hn-t" id="hn-t"></span><span class="hn-s" id="hn-s"></span></button><button class="hn-pp" id="hn-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><span class="hn-prog"><i id="hn-prog"></i></span></div>
+      <div class="hn"><img class="hn-art" id="hn-art" alt=""><button class="hn-mid" id="hn-mid"><span class="hn-t" id="hn-t"></span><span class="hn-s" id="hn-s"></span></button><button class="hn-pp" id="hn-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><button class="hn-x" id="hn-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button><span class="hn-prog"><i id="hn-prog"></i></span></div>
     </div>
     <div class="history" id="history" hidden>
       <div class="hist-head"><h2>Recientes</h2></div>
@@ -1443,7 +1447,8 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small">En el plan gratuito, Google puede usar lo que envías (fotos incluidas) para mejorar sus productos. Evita fotos con caras o datos privados.</p>
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
-    <p class="note small ver" translate="no">manu-go · v 4.41 · 01:20</p>
+    <button class="jn-b diag-b" id="s-diag">Copiar informe de errores</button>
+    <p class="note small ver" translate="no">manu-go · v 4.43 · 16:30</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1464,7 +1469,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <div class="sh2-foot"><button class="sh2-go" id="sh2-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span>Compartir</span></button><button class="sh2-msg" id="sh2-pdf" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/><path d="M10 12h5M10 15.5h5M10 9h2"/></svg><span id="sh2-pdf-t">Relato en PDF</span></button></div>
   </div>
   <div class="sheet-bg" id="sheet-bg" hidden></div><div class="sheet" id="sheet" role="dialog" aria-modal="true" hidden><span class="sh-grab"></span><p class="sh-t"></p><div class="sh-list"></div></div>
-  <div class="ndock" id="ndock" role="region" aria-label="Narración"><img class="nd-art" id="nd-art" alt="" hidden><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
+  <div class="ndock" id="ndock" role="region" aria-label="Narración"><img class="nd-art" id="nd-art" alt="" hidden><button class="nd-mid" id="nd-mid" aria-label="Ir a lo que suena"><span class="nd-t" id="nd-t"></span><span class="nd-s"><span id="nd-s"></span></span></button><button class="nd-pp" id="nd-pp" aria-label="Pausar"><svg class="pz" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg><svg class="pl" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 4.8v14.4a1 1 0 0 0 1.5.86l11.6-7.2a1 1 0 0 0 0-1.72L9 3.94a1 1 0 0 0-1.5.86z"/></svg></button><button class="nd-back" id="nd-back" aria-label="Atrás 5 segundos"></button><button class="nd-x" id="nd-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button><span class="nd-prog"><i id="nd-prog"></i></span></div>
   <button class="fab" id="fab" hidden aria-label="¿Qué estoy mirando? Sacar una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
   <div class="pdfv" id="pdfv" hidden role="dialog" aria-modal="true"><div class="pdfv-top"><button class="sh2-x" id="pdfv-x" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button><p class="pdfv-t">Relato</p></div><div class="pdfv-pages" id="pdfv-pages"></div><div class="pdfv-foot"><div class="seg pdfv-seg" id="pdfv-seg" role="group" aria-label="Fotos"><button data-v="print">Fotos impresas</button><button data-v="orig">Fotos originales</button></div><button class="sh2-go" id="pdfv-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7"/></svg><span>Compartir PDF</span></button></div></div>
   <div class="viewer" id="viewer" hidden><img id="viewer-img" alt="Tu foto"><p>Mantén pulsado para guardar · Toca para cerrar</p></div>
@@ -1478,6 +1483,10 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
 <script>
 (function(){
   const $=id=>document.getElementById(id);
+  const DIAG=(()=>{try{return JSON.parse(localStorage.getItem('pc_diag')||'[]')}catch(e){return[]}})();
+  function diag(kind,msg){try{DIAG.push({t:Date.now(),v:(document.querySelector('.ver')||{}).textContent||'',w:document.body&&document.body.dataset.view||'',k:kind,m:String(msg||'').slice(0,300)});while(DIAG.length>80)DIAG.shift();localStorage.setItem('pc_diag',JSON.stringify(DIAG))}catch(e){}}
+  addEventListener('error',e=>diag('error',(e.message||'')+' @'+(e.lineno||'')));addEventListener('unhandledrejection',e=>diag('promise',e.reason&&(e.reason.message||e.reason)));
+  const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());   // the App Store version: same page, inside a native shell
   const store={
     get(k,d){try{const v=localStorage.getItem('pc_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
     set(k,v){try{localStorage.setItem('pc_'+k,JSON.stringify(v))}catch(e){}}
@@ -1627,7 +1636,7 @@ Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "..."
 - Todo el episodio trata de este tema y de nada más: cada título de capítulo habla de él, nunca de otra historia de la ciudad.
 - Arco: un comienzo que engancha; un desarrollo en orden que se entiende sin saber nada antes; un final que deja pensando.
 - Cada capítulo, un título corto y 3 a 5 "beats" con hechos concretos: personas con nombre, fechas, lugares concretos (calles, edificios, barrios), cifras.
-- Incluye 2 o 3 comparaciones que ayuden a imaginar (una escala, una distancia, cuánto sería hoy, cuánta gente cabe en algo conocido), siempre verificables.
+- Como mucho una o dos comparaciones en todo el episodio para imaginar una escala (cuánto sería hoy, cuánta gente cabe en algo conocido), solo donde de verdad ayuden, verificables, y nunca dos parecidas. Márcalas en el beat que les toca.
 - Nada inventado: si no estás seguro de un dato o de una cifra, no lo uses.
 - "ending": cómo cierra. Si existe, una cita, un poema o una frase real y breve de alguien de la época o de un autor del país que dé sentido a todo el episodio (con su autor; si es de otro idioma, traducida). Si no hay nada así seguro, una imagen final concreta.
 Escribe en ${LANG()}.`}
@@ -1640,7 +1649,7 @@ Cómo se cuenta (lo más importante):
 - Como un buen podcast de historia narrado por una persona que sabe contar y a la que le importa lo que cuenta: envolvente, cercano, con convicción. Nunca pretencioso, nunca actoral, nunca solemne ni de documental épico. No intentes "transportar" al oyente con frases grandilocuentes: que lo haga la historia.
 - Frases de largo variado, como habla alguien que cuenta bien: unas largas que fluyen, alguna corta que pega. Nada de telegrama ni de listas.
 - Concreto: personas con nombre, fechas, lugares concretos. Cada frase aporta algo; no repitas lo que ya se contó ni resumas.
-- Si un número o una escala cuesta imaginarlo, compáralo con algo conocido y real ("para darse una idea…"), solo si es verificable.
+- Comparaciones para imaginar una escala ("para darse una idea…", "como una cancha de fútbol"): solo si el guion la marca en este capítulo, y entonces una sola. Si no, los números se cuentan solos. Es un recurso que cansa si se repite.
 - El episodio es atemporal y no sabe dónde está el oyente: NUNCA hagas referencia a dónde puede estar parado ni a lo que tiene alrededor (nada de "si estás parado en…", "mirá a tu derecha", "si pasan por la calle…", "hoy, donde estás…"). Le hablás como a alguien que escucha un podcast, no como un guía turístico.
 ${cfg.lang!=='en'?'- Español rioplatense natural, como un podcast argentino: voseo y "ustedes" cuando le hablás al oyente, sin modismos forzados.\n- Que suene a podcast en vivo, con sangre, no a texto leído: la oralidad de alguien que está contando hablando. Recursos, con medida (dos o tres por capítulo, nunca en cada párrafo): repetir una palabra clave para subrayarla ("el mayor campo de concentración urbano. Urbano, ¿eh?"), un "¿no?" o un "¿viste?" al cerrar una idea, un "ojo", un "pensemos que…" o un "imagínense", un paréntesis o una corrección sobre la marcha ("o mejor dicho…"). Que salga natural, nunca forzado.\n':'- Make it sound like a live podcast, not a text being read: sparingly, repeat a key word to underline it, a "right?" at the end of a thought, a quick aside or an on-the-fly correction.\n'}- ${i===0?`Arranca así: ${o.opening||'directo con algo que enganche'}. Sin saludos ni "bienvenidos", sin presentar el podcast ni a ti mismo.`:i===n-1?`Cierra el episodio así: ${o.ending}. Sin despedidas ni "gracias por escuchar".`:'No cierres con un resumen ni con una pregunta al oyente: termina en algo que empuje a seguir, sin anunciar el próximo capítulo.'}
 - Solo hechos que sabes con seguridad; si algo es leyenda o hay dudas, dilo. Años y fechas con cifras. Sin títulos, sin markdown, sin acotaciones de sonido.
@@ -1657,7 +1666,7 @@ Devuelve JSON: {"text": "..."}`}
       await one(0);   // the first one alone, so it starts to play; the rest two at a time, so it is all written before you lock the phone
       let next=1;const worker=async()=>{while(next<n){const i=next++;await one(i)}};await Promise.all([worker(),worker()]);
       ep=epGet(id)||ep;ep.st='ok';epSave(ep);epPaint(id);if(active&&active.src==='ep|'+id){active.more=false;if(active.waiting)listenStop()}}
-    catch(e){ep=epGet(id)||ep;ep.st=epReady(ep)?'part':'err';epSave(ep);epPaint(id);if(active&&active.src==='ep|'+id)active.more=false}
+    catch(e){diag('episodio',e&&e.message);ep=epGet(id)||ep;ep.st=epReady(ep)?'part':'err';epSave(ep);epPaint(id);if(active&&active.src==='ep|'+id)active.more=false}
     finally{epBusy.delete(id)}}
   // a chapter is ready: whatever is ready in order joins what is already playing
   function epFeed(ep){const A=active;if(!A||A.src!=='ep|'+ep.id||!A.segs)return;const k=epReady(ep);A.fed=A.fed||1;
@@ -1783,13 +1792,14 @@ Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${
 
   // ---------- location ----------
   let posPromise=null,placesPromise=null,lastKnown=null,posAt=0;
+  const freshPos=(ms=120000)=>lastKnown&&lastKnown.t&&Date.now()-lastKnown.t<ms?lastKnown:null;   // where you were 20 minutes ago is not where you are
   function locate(){
     posAt=Date.now();
     posPromise=new Promise(res=>{
-      if(!('geolocation' in navigator))return res(lastKnown);
+      if(!('geolocation' in navigator))return res(null);
       navigator.geolocation.getCurrentPosition(
-        p=>{lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};locSet('ok');res(lastKnown)},
-        e=>{locSet(e&&e.code===1?'denied':(lastKnown?'ok':'weak'));res(lastKnown)},{enableHighAccuracy:true,timeout:6000,maximumAge:10000});
+        p=>{lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy),t:Date.now()};locSet('ok');res(lastKnown)},
+        e=>{locSet(e&&e.code===1?'denied':'weak');res(freshPos())},{enableHighAccuracy:true,timeout:8000,maximumAge:10000});
     });
     // look up what's around as soon as we know where you are, while you're still taking the photo
     placesPromise=posPromise.then(p=>p?places(p):{wiki:[],osm:[]});
@@ -1798,7 +1808,7 @@ Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${
 
   // location you can trust: nothing is shown while it works; only when it doesn't, one quiet line on the home says so and how to fix it
   let locState='unknown';
-  function locSet(st){locState=st;if(view==='settings'&&typeof locUI==='function')locUI();const n=$('locnote');if(!n)return;n.hidden=!(st==='denied'||st==='weak');if(!n.hidden)n.querySelector('.lt').textContent=t_(st==='denied'?'Sin ubicación: identifico peor tus fotos':'No encuentro tu ubicación ahora')}
+  function locSet(st){locState=st;if(view==='settings'&&typeof locUI==='function')locUI();const n=$('locnote');if(!n)return;n.hidden=st!=='denied';if(!n.hidden)n.querySelector('.lt').textContent=t_(st==='denied'?'Sin ubicación: identifico peor tus fotos':'No encuentro tu ubicación ahora')}
   if(navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'geolocation'}).then(p=>{const up=()=>{if(p.state==='granted'){if(!lastKnown)locate()}else if(p.state==='denied')locSet('denied')};up();p.onchange=up}).catch(()=>{})}
   // city (for grouping the map) and street address (for "Preguntar más") in one lookup
   let geoChain=Promise.resolve();
@@ -2114,7 +2124,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
         if(pos)placesPromise=places(pos);else{note='Esta foto no trae ubicación, así que la identifico solo por la imagen.';locate()}
       }else{
         if(!posPromise||Date.now()-posAt>30000)locate(); // location is looked up when you tap the button; refresh if that was a while ago
-        pos=await Promise.race([posPromise,wait(2500).then(()=>lastKnown||posPromise)]);
+        pos=await Promise.race([posPromise,wait(2500).then(()=>freshPos(60000)||Promise.race([posPromise,wait(4000).then(()=>null)]))]);if(!pos)note=t_('No tenía tu ubicación en ese momento: lo identifico solo por la imagen.');
       }mark('gps');
       const pinfo=pos?placeInfo(pos).catch(()=>null):Promise.resolve(null);   // start finding the street and city now, so they are ready with the title
       if(pos){setL('Buscando contexto…');const p=await Promise.race([placesPromise,wait(3000).then(()=>null)]);if(p){near=p.wiki;osm=p.osm;if(mine())scanPlaces(osm,near)}}mark('places');
@@ -2123,7 +2133,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
       const pi=await Promise.race([pinfo,wait(900).then(()=>null)]);const here_=pi&&(pi.address||pi.city)?`\nDirección aproximada: ${[pi.address,pi.address&&(pi.city||cityNear(pos))&&pi.address.includes(pi.city||cityNear(pos))?'':(pi.city||cityNear(pos))].filter(Boolean).join(', ')}.`:(pos&&cityNear(pos)?`\nCiudad: ${cityNear(pos)}.`:'');
       const ctx=pos?`${where} lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).${here_}`+
         (osm.length?`\nSitios con nombre cerca según OpenStreetMap (locales, tiendas, monumentos): ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
-        (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
+        (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:'')+`\nSi nombras una calle o una plaza, que sea la de la dirección de arriba o una que se lea en la foto; nunca otra deducida. Si la precisión es peor que ±60 m, no afirmes en qué calle exacta está: di la zona.`:'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen (rótulos, arquitectura, monumentos reconocibles, estilo de la ciudad). Si no puedes saber el sitio exacto, dilo con SURE no.';
       const prompt=photoPrompt(hint,ctx);
       const base={__seq:seq,img,file:f,pos,near,osm,deep:{},fromGallery,city:pos?cityNear(pos):'',takenAt:fromGallery?await photoDate(f):null,cityPos:!pos&&fromGallery?await posPromise:null};
       await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:prompt}],base,{osm,pos});mark('done');store.set('lastTiming',{...window._tm,model:lastModel});
@@ -2144,7 +2154,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     let pi=null;if(pos){try{pi=await placeInfo(pos)}catch(e){}}
     const ctx=pos?`Foto tomada en lat ${pos.lat.toFixed(5)}, lon ${pos.lon.toFixed(5)} (precisión ±${pos.acc} m).${pi&&(pi.address||pi.city)?`\nDirección aproximada: ${[pi.address,pi.address&&pi.city&&pi.address.includes(pi.city)?'':pi.city].filter(Boolean).join(', ')}.`:''}`+
       (osm.length?`\nSitios con nombre cerca según OpenStreetMap: ${osm.slice(0,20).map(n=>`${n.title} [${n.kind}] (${n.dist} m)`).join('; ')}.`:'')+
-      (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:''):'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen.';
+      (near.length?`\nLugares con artículo de Wikipedia a menos de 200 m: ${near.slice(0,12).map(n=>`${n.title} (${n.dist} m)`).join('; ')}.`:'')+`\nSi nombras una calle o una plaza, que sea la de la dirección de arriba o una que se lea en la foto; nunca otra deducida. Si la precisión es peor que ±60 m, no afirmes en qué calle exacta está: di la zona.`:'Ubicación desconocida: identifícalo solo por lo que se ve en la imagen.';
     const base={img,file:f,pos,near,osm,deep:{},fromGallery:it.fromGallery,city:pos?cityNear(pos):'',takenAt:it.takenAt||it.t,_bg:true};
     await streamCard([{inline_data:{mime_type:'image/jpeg',data:img.split(',')[1]}},{text:photoPrompt(it.hint,ctx)}],base,{osm,pos});
   }
@@ -2180,7 +2190,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
       if(!here())return;
       const {o,done}=parseCard(txt);
       if(!shown){if(!(o.NAME&&(done.NAME||o.NAME.length>40)))return;
-        shown=true;window._mark&&window._tm&&!window._tm.first&&window._mark('first');cur={...base};typeStop($('r-what'));typeStop($('r-cool'));$('r-what').textContent='';$('r-cool').textContent='';paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true});$('r-name').classList.remove('appear');void $('r-name').offsetWidth;$('r-name').classList.add('appear')}
+        shown=true;if(note)setTimeout(()=>{if(view==='result')status(note)},700);window._mark&&window._tm&&!window._tm.first&&window._mark('first');cur={...base};typeStop($('r-what'));typeStop($('r-cool'));$('r-what').textContent='';$('r-cool').textContent='';paintCard({...base,name:o.NAME,sure:true,what:'',cool:''},{partial:true});$('r-name').classList.remove('appear');void $('r-name').offsetWidth;$('r-name').classList.add('appear')}
       $('r-name').textContent=o.NAME||'';if(cur)cur.name=o.NAME;
       const loc=o.LOCAL&&o.LOCAL.toLowerCase()!==(o.NAME||'').toLowerCase()?o.LOCAL:'';$('r-local').textContent=loc;$('r-local').hidden=!loc;
       $('r-unsure').hidden=!!base.confirmed||!(o.SURE&&/^no/i.test(o.SURE));
@@ -2475,8 +2485,8 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
     return`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=walking`}
 
   // ---------- quick question: one question, one short answer, knows where you are ----------
-  function quickPos(){return new Promise(res=>{if(!('geolocation' in navigator))return res(lastKnown);let done=false;const t=setTimeout(()=>{done=true;res(lastKnown)},3500);
-    navigator.geolocation.getCurrentPosition(p=>{if(done)return;clearTimeout(t);lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy)};res(lastKnown)},()=>{if(done)return;clearTimeout(t);res(lastKnown)},{enableHighAccuracy:false,timeout:3500,maximumAge:60000})})}
+  function quickPos(){return new Promise(res=>{if(!('geolocation' in navigator))return res(null);let done=false;const t=setTimeout(()=>{done=true;res(freshPos())},3500);
+    navigator.geolocation.getCurrentPosition(p=>{if(done)return;clearTimeout(t);lastKnown={lat:p.coords.latitude,lon:p.coords.longitude,acc:Math.round(p.coords.accuracy),t:Date.now()};res(lastKnown)},()=>{if(done)return;clearTimeout(t);res(freshPos())},{enableHighAccuracy:false,timeout:3500,maximumAge:60000})})}
   function quickCity(){const h=store.get('history',[]);return(h[0]&&h[0].city)||''}
   // ---------- questions: a small thread you can come back to; each answer knows where you are ----------
   let quickRun=0;
@@ -2550,7 +2560,7 @@ Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
   // and if the keyboard pushed the page up, put it back when it closes
   document.addEventListener('touchmove',e=>{if(!(view==='home'||view==='prep'))return;if(e.target.closest&&e.target.closest('.qs,.sh2,.sheet,.toast,#crop,.viewer,.rows li,.pdfv'))return;e.preventDefault()},{passive:false});
   document.addEventListener('focusout',()=>{if(view==='home'||view==='prep')setTimeout(()=>{if(!document.activeElement||document.activeElement===document.body)window.scrollTo(0,0)},60)});
-  $('locnote').onclick=()=>{locate().then(p=>{if(p&&locState==='ok')return;status(t_('Para que no vuelva a preguntar: Ajustes del iPhone → Apps → Safari → Ubicación → Permitir.'))})};
+  $('locnote').onclick=()=>{locate().then(p=>{if(p&&locState==='ok')return;status(t_((NATIVE?'Para que no vuelva a preguntar: Ajustes del iPhone → Apps → manu-go → Ubicación → Mientras se usa la app.':'Para que no vuelva a preguntar: Ajustes del iPhone → Apps → Safari → Ubicación → Permitir.')))})};
 
   // type a question, then shoot: the photo goes with it ("¿son balcones?"). Shooting without text stays exactly as before.
   // the camera in the question bar: a photo WITH a question. It stops on the photo screen with your question, so you confirm before it looks.
@@ -2942,6 +2952,9 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     if(navigator.share){navigator.share({text:out}).catch(e=>{if(e.name!=='AbortError')copyPlain(out)});return}
     copyPlain(out);
   }
+  $('s-diag').onclick=()=>{const L=DIAG.slice(-40).map(d=>`${new Date(d.t).toLocaleString('es-ES')} [${d.w}] ${d.k}: ${d.m}`).join('\n');
+    const head=[`${(document.querySelector('.ver')||{}).textContent||''}`,navigator.userAgent,`app nativa: ${NATIVE?'sí':'no'} · instalada: ${matchMedia('(display-mode: standalone)').matches||navigator.standalone?'sí':'no'}`,`voz: ${cfg.voice} · idioma: ${cfg.lang} · ubicación: ${locState}`].join('\n');
+    const txt=head+'\n\n'+(L||t_('Sin errores guardados.'));if(navigator.share){navigator.share({text:txt}).catch(e=>{if(e.name!=='AbortError')copyPlain(txt)})}else copyPlain(txt)};
   function copyPlain(txt){
     try{navigator.clipboard.writeText(txt).then(()=>status('Copiado. Pégalo donde quieras.'),()=>status('No pude copiarlo.',true))}catch(e){status('No pude copiarlo.',true)}
   }
@@ -4138,11 +4151,11 @@ Devuelve JSON: {"title": "titular de 2 a 6 palabras, con gancho, sin dos puntos"
   const BACK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4 3.5v3.7h3.7"/><text x="12.2" y="15.4" font-size="7.6" text-anchor="middle" fill="currentColor" stroke="none" font-family="-apple-system,Helvetica,Arial,sans-serif" font-weight="600">5</text></svg>';
   function ensureBack(b){const row=b.parentElement;if(!row||!row.classList.contains('lrow')||row.querySelector('.lback'))return;const k=document.createElement('button');k.className='lback';k.innerHTML=BACK;k.setAttribute('aria-label',t_('Atrás 5 segundos'));
     k.onclick=e=>{e.stopPropagation();if(!active||active.btn!==b||!(active.segs||active.sys))return;rewind(5)};row.appendChild(k)}
-  function pillSet(b,st){if(!b)return;if(!b.querySelector('.lt'))b.innerHTML=PILL;ensureBack(b);const row=b.parentElement;if(row&&row.classList.contains('lrow'))row.classList.toggle('on',st==='play'||st==='pause');if(st==='idle'||st==='load')progSet(b,'0');['load','play','pause'].forEach(x=>b.classList.toggle('is-'+x,st===x));
+  function pillSet(b,st){if(!b)return;clearTimeout(b._stall);if(st==='load')b._stall=setTimeout(()=>{if(b.classList.contains('is-load'))diag('stuck','«Preparando» más de 30 s · '+(active&&active.src||''))},30000);if(!b.querySelector('.lt'))b.innerHTML=PILL;ensureBack(b);const row=b.parentElement;if(row&&row.classList.contains('lrow'))row.classList.toggle('on',st==='play'||st==='pause');if(st==='idle'||st==='load')progSet(b,'0');['load','play','pause'].forEach(x=>b.classList.toggle('is-'+x,st===x));
     b.querySelector('.lt').textContent=t_(st==='play'?'Pausa':st==='load'?'Preparando':st==='pause'?'Seguir':(b._label||'Escuchar'));
     b.setAttribute('aria-label',t_(st==='play'?'Pausar':'Escuchar'));
     if(active&&active.btn===b){dockSet(st);const m=$('mb-listen');['play','pause'].forEach(x=>m.classList.toggle('is-'+x,st===x));m.setAttribute('aria-label',t_(st==='play'?'Pausar':'Seguir escuchando'))}}
-  function listenStop(){listenRun++;if(player){try{player.pause()}catch(e){}}if(sysOn){sysOn=false;try{speechSynthesis.cancel()}catch(e){}}if(active){const b=active.btn;pillSet(b,'idle');active=null}const m=$('mb-listen');m&&m.classList.remove('is-play','is-pause');dockSet('idle')}
+  function listenStop(){listenRun++;clearTimeout(pauseT);if(player){try{player.pause();if(player.src&&player.src!==SILENT){player.removeAttribute('src');player.load()}}catch(e){}}try{if('mediaSession' in navigator){navigator.mediaSession.metadata=null;navigator.mediaSession.playbackState='none'}}catch(e){}if(sysOn){sysOn=false;try{speechSynthesis.cancel()}catch(e){}}if(active){const b=active.btn;pillSet(b,'idle');active=null}const m=$('mb-listen');m&&m.classList.remove('is-play','is-pause');dockSet('idle')}
   // ---- Gemini's own voice: a documentary narrator, from the same Gemini key ----
   const GEM_VOICE='Charon';let gemTTSModel=null;
   try{if((store.get('gemStyle','')||'').trim()==='narrador de documental de viajes: cálido, grave, sin prisa, con asombro contenido, natural, nunca teatral. Acento neutro.')store.set('gemStyle','')}catch(e){}
@@ -4159,7 +4172,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       const ver=n=>{const m=n.match(/gemini-(\d+(?:\.\d+)?)/);return m?parseFloat(m[1]):0};const rank=n=>(/flash/.test(n)?0:2)+(/lite/.test(n)?1:0);   // flash first (fast), lite and pro last
       ns.sort((a,b)=>rank(a)-rank(b)||ver(b)-ver(a)||(/preview/.test(a)?1:0)-(/preview/.test(b)?1:0));gemTTSModel=ns[0]||FB[0]}catch(e){gemTTSModel=FB[0]}
     return gemTTSModel||'gemini-2.5-flash-preview-tts'}
-  function gemErr(status,j){const er=(j&&j.error)||{},m=String(er.message||''),det=er.details||[];
+  function gemErr(status,j){diag('gemini',status+' '+String(((j||{}).error||{}).message||'').slice(0,160));const er=(j&&j.error)||{},m=String(er.message||''),det=er.details||[];
     const ri=det.find(d=>/RetryInfo/.test(d['@type']||''));let w=ri?parseFloat(ri.retryDelay)||0:0;if(!w){const x=m.match(/retry in ([\d.]+)\s*s/i);if(x)w=+x[1]}
     const qf=det.find(d=>/QuotaFailure/.test(d['@type']||''));const qid=qf?(qf.violations||[]).map(v=>v.quotaId||'').join(' '):'';
     const e=new Error(m||('HTTP '+status));e.status=status;e.wait=w;
@@ -4210,7 +4223,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(e.kind==='arvoice'&&v.way&&text.length>500&&(depth||0)<3){const [a,b]=halves(text);const A=await gemTTSar(a,v,true,(depth||0)+1),B=await gemTTSar(b,v,true,(depth||0)+1);   // same voice, smaller pieces: never another voice
         const gap=Math.round(A.rate*0.35),out=new Int16Array(A.pcm.length+gap+B.pcm.length);out.set(A.pcm,0);out.set(B.pcm,A.pcm.length+gap);return raw?{pcm:out,rate:A.rate}:wavOf(out,A.rate)}
       throw e}}
-  async function gemTTSar1(text,v,raw){const ms=AR_MODELS.filter(m=>!arOutDay(m)&&!(store.get('arBad',[])||[]).includes(m));let last;
+  async function gemTTSar1(text,v,raw){let ms=AR_MODELS.filter(m=>!arOutDay(m)&&!(store.get('arBad',[])||[]).includes(m));if(v.model)ms=ms.filter(m=>m===v.model);let last;
     for(const m of ms){try{return await gemTTSarM(text,v,raw,m)}catch(e){last=e;
         if(e.kind==='quota'||e.kind==='paid'){arMarkOut(m);continue}
         if(e.kind==='arvoice'&&m!==AR_MODELS[0]&&v.way&&text.length<=500){store.set('arBad',[...(store.get('arBad',[])||[]),m]);continue}   // this model does not take the voice: never use it
@@ -4230,6 +4243,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       clearTimeout(tm);if(!r.ok){const e=gemErr(r.status,j);e.model=AR_MODEL;if(r.status===400||r.status===404)e.kind='arvoice';throw e}
       const c=((j||{}).candidates||[])[0]||{};const p=((c.content||{}).parts||[]).find(p=>p.inlineData||p.inline_data);const d=p&&(p.inlineData||p.inline_data);
       if(!d||!d.data)throw Object.assign(new Error('sin audio'+(c.finishReason?' ('+c.finishReason+')':'')),{kind:'noaudio'});
+      if(!v.model)v.model=AR_MODEL;   // the episode remembers which model spoke it
       if(!v.way){v.way=way;store.set('arWay',way);const cur=arCur();if(cur&&cur.id===v.id)store.set('gemVoiceAR',{...cur,way})}
       const rate=+((String(d.mimeType||d.mime_type||'').match(/rate=(\d+)/)||[])[1]||24000);return pcmToWav(d.data,rate,raw)}
     clearTimeout(tm);last=last||new Error('voz');last.kind='arvoice';throw last}
@@ -4317,7 +4331,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   function segKey(base,txt){let h=0;for(let i=0;i<txt.length;i++)h=(h*31+txt.charCodeAt(i))|0;return base+'|'+h}
   function segBlob(A,i){const sg=A.segs[i];if(!sg.p){sg.p=(async()=>{const k=segKey(A.key,sg.text);let b=audioMem.get(k)||await getPhoto(k);
       if(!b&&A.olds&&arAllOut()){for(const o of A.olds){b=await getPhoto(segKey(o,sg.text));if(b)break}}
-      if(!b){const ow=n=>{if(active===A&&A.i>=i-1)status(t_('Gemini pide esperar')+` ${n} s…`)};try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text,ow,A.voice)}catch(e){if(e.kind!=='busy'||cfg.voice==='gem')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
+      if(!b){const ow=n=>{if(active===A&&A.i>=i-1)status(t_('Gemini pide esperar')+` ${n} s…`)};try{b=await ttsBlob(sg.text,A.segs[i-1]&&A.segs[i-1].text,A.segs[i+1]&&A.segs[i+1].text,ow,A.voice);if(A.voice&&A.voice.__ep&&A.voice.model){const e=epGet(A.voice.__ep);if(e&&e.voice&&e.voice.model!==A.voice.model){e.voice={...e.voice,model:A.voice.model};epSave(e)}}}catch(e){if(e.kind!=='busy'||cfg.voice==='gem')throw e;await wait(700);b=await ttsBlob(sg.text)}putPhoto(k,b)}
       audioMem.set(k,b);return b})();sg.p.catch(()=>{sg.p=null})}return sg.p}
   async function playSeg(A,i,at){
     const run=listenRun;const sg=A.segs[i];if(!sg)return;
@@ -4349,7 +4363,8 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       if(isEp){const id=+String(key).split('|')[1];const ep=epGet(id);if(ep&&ep.vk){vk=ep.vk;voice=ep.voice||null}
         else if(ep&&arCur()){const first=(ep.chapters&&ep.chapters[0])?(epChunks(ep.chapters[0],true)[0]||''):'';let pick={vk:gemKey(),voice:arCur()};   // the voice an episode started with stays until its end
           for(const o of [pick,...gemOldKeys()]){if(!o.voice)continue;if(first&&await getPhoto(segKey(base+o.vk,first))){pick=o;break}}
-          vk=pick.vk;voice=pick.voice;const e2=epGet(id);if(e2){e2.vk=vk;e2.voice=voice;epSave(e2)}}}
+          vk=pick.vk;voice=pick.voice?{...pick.voice}:null;const e2=epGet(id);if(e2){e2.vk=vk;e2.voice=voice;epSave(e2)}}
+        if(voice)voice.__ep=id}
       else olds=gemOldKeys().map(o=>base+o.vk)}
     const run=++listenRun;const A={src:String(key).split('|').slice(0,2).join('|'),btn:b,key:`audio4|${key}|${cfg.lang}|${vk}`,voice,olds,i:0,title:b._title||''};A.fail=fail;active=A;pillSet(b,'load');
     try{
@@ -4357,7 +4372,7 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
       let cs=isEp?script.split('\n§§\n').flatMap((c,i)=>epChunks(c,i===0)):chunks(script);if(isEp){}else if(cfg.voice==='gem'&&cs.length>1&&script.length<=1400)cs=[cs.join('\n\n')];else if(cfg.voice==='gem'&&cs.length>2){const head=cs[0]+'\n\n'+cs[1];let rest=cs.slice(2);const L=rest.join(' ').length;cs=[head];if(L>2400){const h=Math.ceil(rest.length/2);cs.push(rest.slice(0,h).join('\n\n'),rest.slice(h).join('\n\n'))}else cs.push(rest.join('\n\n'))}A.segs=cs.map(x=>({text:x}));segBlob(A,0).catch(()=>{});if(A.segs[1])segBlob(A,1).catch(()=>{});
       await playSeg(A,0);
     }catch(e){fail(e)}
-    function fail(e,at){if(active!==A)return;
+    function fail(e,at){diag('voz',(e&&(e.kind||e.name)||'')+' '+(e&&e.message||'')+' · '+(A&&A.src||''));if(active!==A)return;
       if(e&&e.kind==='quota'&&cfg.voice==='gem'&&!sysToday()){listenStop();gemOutNote(()=>{if(isEp)epPlay(+String(key).split('|')[1]);else listen(b,text,key)});return}
       if(isEp&&e&&e.name!=='NotAllowedError'){listenStop();status(t_('La voz se cortó. Toca Escuchar para seguir.'),true);return}   // an episode never switches to another voice halfway
       if(noSysES()&&!(e&&e.name==='NotAllowedError')){const k=e&&e.kind;if(k==='quota'){elOut={v:cfg.voice,t:Date.now(),why:voiceWhy(e),day:ptDay()};store.set('voiceOut',elOut)}listenStop();status(k==='quota'?t_('Se acabó la voz gratis de Gemini por hoy. Mañana vuelve la misma voz.'):voiceWhy(e),true);return}   // the iPhone has no Buenos Aires voice: better silence than another accent
@@ -4450,9 +4465,11 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   function dockSet(st){homeNow(st);const d=$('ndock');document.body.classList.toggle('dock-on',!(st==='idle'||!active));if(st==='idle'||!active){d.classList.remove('on','is-play','is-pause','is-load');d.style.transform='';d.style.opacity='';$('nd-prog').style.width='0';mediaState('none');return}
     $('nd-t').textContent=active.title||'manu-go';{const im=active.btn&&active.btn._img,a=$('nd-art');a.hidden=!im;if(im&&a.src!==im)a.src=im;a.dataset.tint=tintOf(String(active.src||'').split('|')[0]);a.classList.toggle('nofx',String(active.src||'').startsWith('ep|'))}$('nd-s').textContent=t_(st==='play'?'Escuchando':st==='pause'?'En pausa':'Preparando');
     ['play','pause','load'].forEach(x=>d.classList.toggle('is-'+x,st===x));d.classList.add('on');$('nd-pp').setAttribute('aria-label',t_(st==='play'?'Pausar':'Seguir escuchando'));
-    mediaState(st==='play'?'playing':'paused',active.title)}
+    mediaState(st==='play'?'playing':'paused',active.title);clearTimeout(pauseT);if(st==='pause')pauseT=setTimeout(()=>{if(active&&active.btn&&active.btn.classList.contains('is-pause'))listenStop()},10*60e3)}
+  // a long pause means you are done with it: it leaves the lock screen and the home on its own
+  let pauseT=null;
   function dockToggle(){if(!active||active.btn.classList.contains('is-load'))return;active.btn.click()}
-  $('nd-pp').onclick=e=>{e.stopPropagation();dockToggle()};
+  $('nd-pp').onclick=e=>{e.stopPropagation();dockToggle()};$('nd-x').onclick=e=>{e.stopPropagation();listenStop()};$('hn-x').onclick=e=>{e.stopPropagation();listenStop()};
   $('hn-pp').onclick=e=>{e.stopPropagation();dockToggle()};$('hn-mid').onclick=()=>$('nd-mid').click();
   $('nd-back').onclick=e=>{e.stopPropagation();if(active&&(active.segs||active.sys))rewind(5)};
   $('nd-mid').onclick=async()=>{if(!active)return;if(String(active.src||'').startsWith('ep|')){openEp(+active.src.split('|')[1]);return}let b=active.btn;if(!b||!b.isConnected||!b.offsetParent){const t=(active.src||'').split('|')[0];const x=store.get('history',[]).find(y=>String(y.t)===t);if(!x)return;await openFromHistory(x,view==='mymap'?'mymap':null);if(active&&(active.src||'').split('|')[1]!=='card'){const it=$('acc-'+active.src.split('|')[1]);const bd=it&&it.querySelector('.acc-body');if(it&&bd&&!isOpen(bd))it.querySelector('.acc-head').click()}await wait(450);b=active&&active.btn;if(!b||!b.isConnected||!b.offsetParent)return}const r=b.getBoundingClientRect();window.scrollTo({top:Math.max(0,window.scrollY+r.top-window.innerHeight*0.35),behavior:'smooth'})};
@@ -4501,10 +4518,14 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
 
   function timingUI(){const t=store.get('lastTiming',null),el=$('s-timing');if(!el)return;el.hidden=!t;if(!t)return;const f=x=>x?String(x).replace('.',',')+' s':'—';el.textContent=`${t_('Última foto')}: ${t_('ubicación')} ${f(t.gps)} · ${t_('alrededores')} ${f(t.places)} · ${t_('primera palabra')} ${f(t.first)} · ${t_('completa')} ${f(t.done)}${t.model?' · '+t.model:''}`}
   function photosUI(){let v=store.get('photos','orig');if(!['orig','print','tint'].includes(v)){v='orig';store.set('photos',v)}segSet('s-photos',v);$('s-photos-help').textContent=t_(v==='print'?'Como una foto de archivo impresa.':v==='tint'?'Cada foto en dos tintas, con su propio color.':'Tal cual las sacaste.')}
-  function locUI(){const st=locState,ok=st==='ok'||(lastKnown&&st!=='denied');const el=$('s-loc');el.classList.toggle('ok',!!ok);el.classList.toggle('bad',st==='denied');
-    $('s-loc-t').textContent=t_(ok?'Activa':st==='denied'?'Sin permiso':'Todavía sin comprobar')+(ok&&quickCity()?' · '+quickCity():'');
-    $('s-loc-help').textContent=t_(ok?'Cada foto se identifica con tu ubicación.':'Para que no vuelva a preguntar: Ajustes del iPhone → Apps → Safari → Ubicación → Permitir.')}
-  function openSettings(){voiceUI();timingUI();$('s-key').value=cfg.key;$('s-el-key').value=cfg.elKey;$('s-el-voice').value=cfg.elVoice;$('s-model').value=cfg.model;segSet('s-theme',store.get('theme','dark'));photosUI();locUI();segSet('s-lang-seg',cfg.lang);
+  // settings say the truth: ask the phone, not an old guess
+  function locCheck(){const go=()=>{if(!freshPos(5*60e3))locate().then(()=>{if(view==='settings')locUI()})};
+    if(navigator.permissions&&navigator.permissions.query){navigator.permissions.query({name:'geolocation'}).then(p=>{if(p.state==='granted')go();else if(p.state==='denied')locSet('denied');else locSet(locState==='ok'?'ok':'unknown')}).catch(go)}else go()}
+  $('s-loc').onclick=()=>{if(locState==='denied')return;$('s-loc-t').textContent=t_('Buscando…');locate().then(()=>locUI())};
+  function locUI(){const st=locState,ok=st==='ok';const el=$('s-loc');el.classList.toggle('ok',!!ok);el.classList.toggle('bad',st==='denied');
+    $('s-loc-t').textContent=t_(st==='denied'?'Sin permiso':ok?'Activa':st==='weak'?'Sin señal ahora':'Sin activar')+(ok&&st!=='denied'&&quickCity()?' · '+quickCity():'');
+    el.classList.toggle('tap',st!=='denied'&&!ok);$('s-loc-help').textContent=t_(st!=='denied'&&ok?'Cada foto se identifica con tu ubicación.':st==='weak'?'Se usa en cuanto el teléfono la encuentre.':st!=='denied'?'Toca para activarla.':(NATIVE?'Para que no vuelva a preguntar: Ajustes del iPhone → Apps → manu-go → Ubicación → Mientras se usa la app.':'Para que no vuelva a preguntar: Ajustes del iPhone → Apps → Safari → Ubicación → Permitir.'))}
+  function openSettings(){voiceUI();timingUI();$('s-key').value=cfg.key;$('s-el-key').value=cfg.elKey;$('s-el-voice').value=cfg.elVoice;$('s-model').value=cfg.model;segSet('s-theme',store.get('theme','dark'));photosUI();locUI();locCheck();segSet('s-lang-seg',cfg.lang);
     $('s-key-state').textContent=cfg.key?'Clave guardada. Se guarda solo en este móvil.':'Sin clave no funciona la foto.';$('setup-steps').open=!cfg.key;$('s-more').open=!cfg.key;$('s-clear-confirm').hidden=true;show('settings')}
   $('s-save').onclick=()=>{cfg.key=$('s-key').value.trim();store.set('key',cfg.key);const b=$('s-save');b.textContent=cfg.key?'Guardada ✓':'Guardar clave';b.classList.toggle('ok',!!cfg.key);
     $('s-key-state').textContent=cfg.key?'Clave guardada. Se guarda solo en este móvil.':'Sin clave no funciona la foto.';setTimeout(()=>{b.textContent='Guardar clave';b.classList.remove('ok')},1600)};
