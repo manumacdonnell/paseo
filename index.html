@@ -1012,6 +1012,10 @@ html.photo-tint :is(#r-img,#dy-th,#prep-img,#alts-thumb,#minibar-img,.nd-art,.hn
 .nr{display:flex;flex-direction:column;gap:8px;padding-bottom:6px}.nr-l{margin:10px 0 0;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .nr-opts{display:flex;flex-wrap:wrap;gap:8px}.nr-opts button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:9px 15px;font-size:15px;transition:background-color .2s ease,color .2s ease}.nr-opts button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .nr-play{display:flex;align-items:center;gap:14px;margin-top:16px}.nr-play .lpill{margin-top:0}.nr-next{border:0;background:transparent;color:var(--muted);font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:0}.nr-note{margin:4px 0 0;font-size:13px;color:var(--muted)}
+#q-cam[hidden]{display:none!important}
+#ask-claude[hidden],#ask-copy[hidden],#ask-chatgpt[hidden],#btn-ask{display:none!important}
+#s-voice-seg[hidden]{display:none!important}#s-voice-el,#s-voice-sys{display:none!important}
+.sgroup[hidden]{display:none!important}
 .diag-b{align-self:flex-start;margin:4px 0 10px}
 .loc-line.tap{cursor:pointer}.loc-line.tap #s-loc-t{text-decoration:underline;text-underline-offset:3px}
 .loc-line.ok .dot{background:var(--live);border-color:var(--live)}.loc-line.bad .dot{border-color:var(--danger)}
@@ -1166,7 +1170,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
         <button type="button" class="q-hist" id="q-hist" hidden aria-label="Conversación de hoy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></svg></button>
         <span class="q-att" id="q-att" hidden><img id="q-att-img" alt="Foto adjunta"><button type="button" id="q-att-x" aria-label="Quitar la foto">×</button></span>
         <input id="q-input" enterkeyhint="send" placeholder="Pregunta algo sobre donde estás…" aria-label="Pregunta rápida">
-        <button type="button" class="q-cam" id="q-cam" aria-label="Preguntar sobre una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg></button>
+        <button type="button" class="q-cam" id="q-cam" hidden aria-label="Preguntar sobre una foto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.4"/></svg></button>
         <button type="submit" id="q-send" aria-label="Preguntar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
       </form>
     </div>
@@ -1247,11 +1251,11 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
           <a class="route" id="btn-route" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab" id="route-label">Cómo llegar</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></a>
           <button id="btn-saverow" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg><span class="txt"><span class="lab">Guardar la foto</span></span></button>
           <a id="ask-chatgpt" href="https://chatgpt.com/" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab">Preguntar a ChatGPT</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
-          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener"><span class="txt"><span class="lab">Preguntar a Claude</span><span class="sub">Se abre con el lugar ya explicado.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
-          <button id="ask-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="txt"><span class="lab">Copiar datos del lugar</span><span class="sub">Nombre, dirección y lo que ya sabes.</span></span></button>
+          <a id="ask-claude" href="https://claude.ai/new" target="_blank" rel="noopener" hidden><span class="txt"><span class="lab">Preguntar a Claude</span><span class="sub">Se abre con el lugar ya explicado.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 18.5V6.5A1.5 1.5 0 0 1 6.5 5h11A1.5 1.5 0 0 1 19 6.5v8a1.5 1.5 0 0 1-1.5 1.5H9z"/></svg></a>
+          <button id="ask-copy" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span class="txt"><span class="lab">Copiar datos del lugar</span><span class="sub">Nombre, dirección y lo que ya sabes.</span></span></button>
         </div>
         </div>
-        <p class="help">Te copio el contexto: solo pega.</p>
+        <p class="help" hidden>Te copio el contexto: solo pega.</p>
         <textarea id="ask-text" readonly hidden></textarea>
       </div>
     <button class="deleteentry" id="btn-delete" hidden>Borrar entrada</button>
@@ -1379,8 +1383,8 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
         <button data-v="read">Modo lectura</button><button data-v="listen">Modo narración</button>
       </div>
       <p class="fl auto-help" id="s-auto-help"></p>
-      <p class="fl" style="margin-top:22px">Voz</p>
-      <div class="seg" id="s-voice-seg" role="group" aria-label="Sonido de la voz">
+      <p class="fl" style="margin-top:22px" hidden>Voz</p>
+      <div class="seg" id="s-voice-seg" role="group" aria-label="Sonido de la voz" hidden>
         <button data-v="iphone">iPhone</button><button data-v="gem">Gemini</button><button data-v="el">ElevenLabs</button>
       </div>
       <div id="s-voice-gem" hidden>
@@ -1444,7 +1448,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
       <p class="note" id="s-clear-confirm" hidden>Se borran todos los lugares y sus fotos de la app. No se puede deshacer. <button class="plain" id="s-clear-yes">Sí, borrar todo</button></p>
     </div>
 
-      <div class="sgroup">
+      <div class="sgroup" hidden>
         <p class="sh">Modelo de IA</p>
         <label class="advl">
         <input id="s-model" autocomplete="off">
@@ -1457,7 +1461,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
     <button class="jn-b diag-b" id="s-diag">Copiar informe de errores</button>
-    <p class="note small ver" translate="no">manu-go · v 4.44 · 23:10</p>
+    <p class="note small ver" translate="no">manu-go · v 4.46 · 23:00</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -1495,6 +1499,7 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   const DIAG=(()=>{try{return JSON.parse(localStorage.getItem('pc_diag')||'[]')}catch(e){return[]}})();
   function diag(kind,msg){try{DIAG.push({t:Date.now(),v:(document.querySelector('.ver')||{}).textContent||'',w:document.body&&document.body.dataset.view||'',k:kind,m:String(msg||'').slice(0,300)});while(DIAG.length>80)DIAG.shift();localStorage.setItem('pc_diag',JSON.stringify(DIAG))}catch(e){}}
   addEventListener('error',e=>diag('error',(e.message||'')+' @'+(e.lineno||'')));addEventListener('unhandledrejection',e=>diag('promise',e.reason&&(e.reason.message||e.reason)));
+  try{if(localStorage.getItem('pc_key')&&localStorage.getItem('pc_key')!=='""'&&localStorage.getItem('pc_voice')!=='"gem"')localStorage.setItem('pc_voice','"gem"')}catch(e){}
   const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());   // the App Store version: same page, inside a native shell
   const store={
     get(k,d){try{const v=localStorage.getItem('pc_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
@@ -1532,14 +1537,13 @@ body.dock-on .app.has-back{padding-bottom:calc(env(safe-area-inset-bottom,0px) +
   cfg.beta=store.get('beta','');if(cfg.beta&&!BETA.some(b=>b[0]===cfg.beta))cfg.beta='';if(cfg.beta)cfg.lang='en';   // other languages: the app speaks English, the content their language
   const BETA_NAME=()=>(BETA.find(b=>b[0]===cfg.beta)||[,,'English'])[2];
   const CL=()=>cfg.beta||cfg.lang;   // the language of what is written and narrated
-  const LANG=()=>cfg.beta?BETA_NAME():narrAcc().d;
+  const LANG=()=>cfg.beta?BETA_NAME():narrAcc().d+'. '+(narr().tone==='sereno'?'Tono sereno: sobrio y preciso, como un buen documental; una escena humana solo cuando de verdad aporta':'Tono cercano: como alguien que te lo cuenta al lado, con gente y escenas concretas que se puedan ver');
   const LOCALE=()=>cfg.lang==='en'?'en-GB':'es-ES';
 
   const TOPICS=[
     {id:'history',label:'Historia',ask:'HISTORIA de esto: cuándo y por qué se hizo o empezó, qué pasó aquí (momentos clave, guerras, destrucción, reconstrucción, cambios de uso), quién lo impulsó o vivió aquí en su época, y cómo encaja en la historia de la ciudad. Si hay una leyenda conocida ligada a su historia, puedes contarla marcada como leyenda. NO incluyas detalles para mirar ni costumbres (van en Fíjate en), ni cine, arte o cultura (van en Cine y cultura), ni famosos actuales, escándalos o noticias (van en Chimento).'},
     {id:'look',label:'Fíjate en',usePhoto:true,ask:'FÍJATE EN: lo que puede mirar o hacer AHORA que lo tiene delante. Si es un sitio: detalles concretos que se pueden buscar con la vista (una placa, una marca, un símbolo, algo que casi nadie ve; usa la foto para señalarlos si se ven) y cómo lo viven los de aquí (cuándo ir, qué pedir, una costumbre del sitio). Si es una cosa (comida, bebida, objeto, obra…): en qué fijarse para apreciarla y cómo la toman, usan o viven los locales. Práctico y para este momento. NO cuentes historia (va en Historia), ni cine o arte (van en Cine y cultura), ni famosos o noticias (van en Chimento), ni repitas lo que ya le dijiste.'},
-    {id:'culture',label:'Cine y cultura',ask:'CINE Y CULTURA: películas, series, documentales o videoclips rodados o ambientados aquí; cuadros, grabados o fotografías conocidas que lo retratan; libros, canciones o artistas ligados al lugar; apariciones en la cultura popular. SOLO cosas que sepas con total seguridad: nunca inventes títulos, autores, directores ni escenas. NO incluyas la vida personal de famosos ni noticias (van en Chimento), ni historia general (va en Historia). Si no hay nada relevante sobre este sitio concreto, dilo en un solo punto y, si lo sabes con seguridad, menciona la conexión cultural más cercana (la calle, el barrio o la ciudad).',few:true},
-    {id:'gossip',label:'Lo que se cuenta',ask:'LO QUE SE CUENTA, en tono de crónica (con chispa, pero serio y siempre con datos): famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. NO repitas historia general (va en Historia), detalles para mirar o costumbres (van en Fíjate en) ni películas u obras (van en Cine y cultura). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
+    {id:'gossip',label:'Lo que se cuenta',ask:'LO QUE SE CUENTA, en tono de crónica (con chispa, pero serio y siempre con datos): famosos que vivieron, pasaron, se casaron, se pelearon o la liaron aquí; escándalos, polémicas y sucesos sonados; noticias llamativas sobre este sitio (de cualquier tipo: política, sociedad, famosos, curiosidades). Di aproximadamente cuándo pasó cada cosa, y aclara que tus noticias llegan hasta tu fecha de entrenamiento. Marca los rumores como rumores. Nada sobre personas anónimas ni datos privados. Incluye también, solo si son reales y de este sitio, películas, series, libros, canciones o cuadros ligados a él (nunca inventes títulos ni autores). NO repitas historia general (va en Historia) ni detalles para mirar o costumbres (van en Fíjate en). Si no hay chimento real de este sitio concreto, dilo en un punto y cuenta el chimento conocido más cercano (la calle, el barrio o la ciudad), sin inventar.',few:true}
   ];
 
   // ---------- views ----------
@@ -1673,6 +1677,7 @@ Primero el guion. Devuelve JSON: {"opening": "...", "chapters": [{"title": "..."
 - "opening": cómo arranca el primer capítulo. Esta vez prueba con ${op}; si no le queda bien a este tema, elige otra forma que enganche. Que cada episodio empiece distinto.
 - Todo el episodio trata de este tema y de nada más: cada título de capítulo habla de él, nunca de otra historia de la ciudad.
 - Arco: un comienzo que engancha; un desarrollo en orden que se entiende sin saber nada antes; un final que deja pensando.
+- Las personas antes que los datos: en cada capítulo, al menos un beat es una escena pequeña y real que se pueda ver (cómo era un día cualquiera, un gesto, un objeto, un juego, un olor), sacada de testimonios, diarios o fuentes fiables. Si no hay ninguna documentada, no la inventes.
 - Cada capítulo, un título corto y 3 a 5 "beats" con hechos concretos: personas con nombre, fechas, lugares concretos (calles, edificios, barrios), cifras.
 - Como mucho una o dos comparaciones en todo el episodio para imaginar una escala (cuánto sería hoy, cuánta gente cabe en algo conocido), solo donde de verdad ayuden, verificables, y nunca dos parecidas. Márcalas en el beat que les toca.
 - Nada inventado: si no estás seguro de un dato o de una cifra, no lo uses.
@@ -1690,6 +1695,7 @@ Escribe SOLO el capítulo ${i+1} ("${ch.title}"), unas 430 palabras, listo para 
 Cómo se cuenta (lo más importante):
 - Como un buen podcast de historia narrado por una persona que sabe contar y a la que le importa lo que cuenta: envolvente, cercano, con convicción. Nunca pretencioso, nunca actoral, nunca solemne ni de documental épico. No intentes "transportar" al oyente con frases grandilocuentes: que lo haga la historia.
 - Frases de largo variado, como habla alguien que cuenta bien: unas largas que fluyen, alguna corta que pega. Nada de telegrama ni de listas.
+- La escena humana del guion se cuenta con sencillez y en presente si ayuda, sin adornarla ni dramatizarla: el detalle hace el trabajo. Nada inventado.
 - Concreto: personas con nombre, fechas, lugares concretos. Cada frase aporta algo; no repitas lo que ya se contó ni resumas.
 - Comparaciones para imaginar una escala ("para darse una idea…", "como una cancha de fútbol"): solo si el guion la marca en este capítulo, y entonces una sola. Si no, los números se cuentan solos. Es un recurso que cansa si se repite.
 - El episodio es atemporal y no sabe dónde está el oyente: NUNCA hagas referencia a dónde puede estar parado ni a lo que tiene alrededor (nada de "si estás parado en…", "mirá a tu derecha", "si pasan por la calle…", "hoy, donde estás…"). Le hablás como a alguien que escucha un podcast, no como un guía turístico.
@@ -1791,7 +1797,7 @@ TEMA: título claro del episodio, de 2 a 7 palabras, sin dos puntos
 QUÉ ES: 2 o 3 frases claras, como se lo contarías a un amigo
 DURACIÓN: larga (si hay historia para unos 20 minutos) o corta (si da para unos 8)
 DATOS:
-- hasta 12 hechos concretos y verificados para contar la historia (origen, fechas, personas, ejemplos, cómo se usa)
+- hasta 12 hechos concretos y verificados para contar la historia (origen, fechas, personas, ejemplos, cómo se usa), incluidas, si las hay, escenas humanas pequeñas sacadas de testimonios o diarios (cómo se vivía, un gesto, un objeto)
 OPCIONES:
 - solo si puede ser cosas muy distintas: 2 o 3 lecturas concretas, y entonces deja QUÉ ES vacío
 Si no encuentras nada fiable sobre esto, escribe "QUÉ ES: NO_SE". Escribe en ${LANG()}.`;
@@ -2046,7 +2052,7 @@ EJEMPLOS (fíjate en el tono, no copies los datos):
   ✗ "Un edificio histórico con una bonita fachada." (vacío)
   ✓ "La Barbacana, la puerta fortificada de la muralla de 1540. Lo que ves es de 1954: la volaron en la guerra y la rehicieron con planos y grabados antiguos."
 Para dar con lo interesante, busca uno de estos ángulos: una persona concreta detrás, un conflicto o una pérdida, un número que sorprende, un contraste con hoy, una palabra local sin traducción, algo que la gente de aquí sabe y el turista no.
-COOL: 1 sola frase con el dato más sorprendente, ligado a este país, esta ciudad o este sitio; nunca la dejes vacía: siempre hay algo que contar (máximo 25 palabras), distinto de WHAT y que no se pueda ver en la foto. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
+COOL: 1 sola frase con el dato más sorprendente, ligado a este país, esta ciudad o este sitio. Si existe, prefiere un detalle humano pequeño y concreto que se pueda imaginar como una escena (cómo vivía, comía, jugaba o trabajaba la gente aquí: un gesto, un objeto, un sonido), documentado, nunca inventado; mejor eso que una cifra. Nunca la dejes vacía: siempre hay algo que contar (máximo 25 palabras), distinto de WHAT y que no se pueda ver en la foto. Empieza directamente por el dato, sin "Curiosamente", "Dato curioso" ni "¿Sabías que…?".
 YEAR: solo para sitios, monumentos, obras, placas o hechos con fecha propia: el año en que se construyó, se fundó, ocurrió o se hizo (un número de 4 cifras; si hay varios, el que más importa). Para comida, bebida, objetos cotidianos, plantas, animales, personas o costumbres, SIEMPRE vacío, aunque el texto mencione un año.
 ALSO: de 0 a 3 OTRAS cosas que se ven CLARAMENTE y destacan en la foto (lo que hay de fondo, un objeto, un detalle grande, gente haciendo algo), por si la persona quería fijarse en eso en lugar de NAME. Nómbralas con palabras simples de lo que se ve, de 1 a 4 palabras, como las señalaría alguien con el dedo (p. ej. "La torre del fondo", "La copa de vino", "Las farolas"); nunca adivines nombres propios. Si no hay nada más que destaque, menos o vacío. Separadas con « | ». Nunca repitas NAME.
 Los valores de NAME, WHAT, COOL y ALSO van en ${LANG()}.`;
@@ -3102,7 +3108,7 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     const items=list.filter(x=>!x.noAI).slice().sort((a,b)=>(a.takenAt||a.t)-(b.takenAt||b.t));if(!items.length)return;
     const run=++storyRun;
     const city=scope==='place'?(items[0].city||''):(mapCity&&mapCity!=='Sin ubicación'?mapCity:'');const C=storyCopy(items,scope==='place'?'day':scope,city);
-    const LAY=[['sello','Sello'],['fecha','Fecha'],['titular','Titular'],['tira','Tira'],['indice','Índice'],['emblema','Emblema']];
+    const LAY=[['sello','Sello'],['titular','Titular'],['emblema','Emblema']];
     const sh=$('sh2'),grid=$('sh2-car'),names=$('sh2-names'),inks=$('sh2-inks'),phs=$('sh2-photos'),tone=$('sh2-tone');
     $('sh2-t').textContent=t_(scope==='place'?'Compartir lugar':scope==='city'?'Compartir viaje':'Compartir día');
     grid.innerHTML='';names.innerHTML='';LAY.forEach(([v,l])=>{const b=document.createElement('button');b.className='sh2-tile sh2-slide';b.dataset.v=v;b.innerHTML='<img alt="">';b.setAttribute('aria-label',t_(l));grid.appendChild(b);
