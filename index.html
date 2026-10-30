@@ -1515,7 +1515,7 @@ body.dock-on .app.has-back,body.dock-on .app{padding-bottom:calc(env(safe-area-i
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
     <button class="jn-b diag-b" id="s-diag">Copiar informe de errores</button>
-    <p class="note small ver" translate="no">manu-go · v 4.59 · 19:59</p>
+    <p class="note small ver" translate="no">manu-go · v 4.60 · 20:10</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -4799,6 +4799,12 @@ const FB=['gemini-2.5-flash-preview-tts','gemini-2.5-pro-preview-tts'].filter(n=
   $('s-clear').onclick=()=>{$('s-clear-confirm').hidden=false};
   $('s-clear-yes').onclick=async()=>{store.set('history',[]);await clearPhotos();urlCache.clear();PHA.small.clear();PHA.big.clear();show('home');status('Descubrimientos borrados.')};
 
+  // the home-screen app can keep an old copy for a while: when it opens on the home screen it asks for the newest one and reloads (never mid-narration)
+  (()=>{const mine=((document.querySelector('.ver')||{}).textContent||'').trim();let last=0;
+    async function check(){if(location.protocol==='file:'||!mine||Date.now()-last<60000||view!=='home'||(player&&!player.paused))return;last=Date.now();
+      try{const r=await fetch(location.pathname+'?u='+Date.now(),{cache:'no-store'});if(!r.ok)return;const m=(await r.text()).match(/manu-go · v [0-9.]+ · [0-9:]+/);
+        if(m&&m[0]!==mine&&view==='home'&&!(player&&!player.paused)){diag('update',mine+' → '+m[0]);location.replace(location.pathname+'?v='+Date.now())}}catch(e){}}
+    setTimeout(check,1200);document.addEventListener('visibilitychange',()=>{if(!document.hidden)check()})})();
   applyUI();langBtn();
   if(!cfg.key)status('Toca “Ajustes” para poner tu clave gratuita de Gemini.');
   show('home');
