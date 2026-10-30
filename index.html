@@ -1506,7 +1506,7 @@ body.dock-on .app.has-back,body.dock-on .app{padding-bottom:calc(env(safe-area-i
     <p class="note small" id="s-timing" hidden></p>
     <p class="note small">Mapas © Esri · © OpenStreetMap.</p>
     <button class="jn-b diag-b" id="s-diag">Copiar informe de errores</button>
-    <p class="note small ver" translate="no">manu-go · v 4.55 · 04:30</p>
+    <p class="note small ver" translate="no">manu-go · v 4.56 · 01:10</p>
   </section>
   <div class="sbar" aria-hidden="true"></div>
   <div class="minibar" id="minibar" hidden><img id="minibar-img" alt="Ver la foto"><button id="minibar-name"></button><button class="mb-listen" id="mb-listen" aria-label="Pausar"><span class="eq"><i></i><i></i><i></i><i></i></span><svg class="mb-pz" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg><svg class="mb-pl" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5v14l12-7z"/></svg></button></div>
@@ -3082,7 +3082,7 @@ TODO (WHAT, COOL, TERMS, ALSO) habla SOLO de esto nuevo: no vuelvas a${cur.name?
     const box=$('cities');box.innerHTML='';box.hidden=cities.length<2;
     cities.forEach(c=>{const b=document.createElement('button');b.textContent=`${c} · ${byCity[c].length}`;b.setAttribute('aria-pressed',String(c===mapCity));
       b.onclick=()=>{mapCity=c;openMyMap()};box.appendChild(b)});
-    const words0=normQ(MF.q).split(/\s+/).filter(Boolean);const searching=!!(words0.length||MF.kind||MF.city||MF.sort==='old');const coll=!mapCity&&!searching;$('v-mymap').classList.toggle('res',searching);$('v-mymap').classList.toggle('coll',coll);
+    const words0=normQ(MF.q).split(/\s+/).filter(Boolean);const searching=!!(words0.length||MF.kind||MF.city||MF.sort==='old');const coll=!mapCity&&!searching;$('v-mymap').classList.toggle('res',searching);$('v-mymap').classList.toggle('coll',coll);mmPaintF();
     {const t=$('v-mymap').querySelector('h2');t.textContent=(coll||searching)?t_('Mi mapa'):cityL(mapCity)}
     if(coll){box.hidden=true;mmColl(byCity,cities,h);return}box.hidden=true;
     if(searching){mmPaintF();const kindOf=x=>x.kind==='moment'?'moment':x.kind==='thing'?'thing':'place';let R=h.filter(x=>(!words0.length||words0.every(w=>hayQ(x).includes(w)))&&(!MF.kind||kindOf(x)===MF.kind)&&(!MF.city||x.city===MF.city));if(MF.sort==='old')R=R.slice().reverse();
